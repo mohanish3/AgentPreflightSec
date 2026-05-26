@@ -31,12 +31,19 @@ class OutputFormat(str, Enum):
 
 _SEVERITY_RANK = {"low": 1, "medium": 2, "high": 3, "critical": 4}
 
+# Under strict profile, medium findings are treated as high for fail-on evaluation.
+_STRICT_ESCALATE = {"medium": "high"}
 
-def _should_fail(findings, fail_on: str | None) -> bool:
+
+def _should_fail(findings, fail_on: str | None, profile: str = "balanced") -> bool:
     if not fail_on:
         return False
     threshold = _SEVERITY_RANK[fail_on]
-    return any(_SEVERITY_RANK[f.severity] >= threshold for f in findings)
+    for f in findings:
+        effective = _STRICT_ESCALATE.get(f.severity, f.severity) if profile == "strict" else f.severity
+        if _SEVERITY_RANK[effective] >= threshold:
+            return True
+    return False
 
 
 def _render_quiet(result) -> None:
@@ -124,7 +131,7 @@ def scan(
     elif rendered:
         console.print(rendered)
 
-    if _should_fail(result.findings, fail_on):
+    if _should_fail(result.findings, fail_on, profile=profile):
         raise typer.Exit(1)
 
 
