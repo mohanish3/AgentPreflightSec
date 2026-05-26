@@ -57,6 +57,27 @@ def test_cli_fail_on_high_exits_nonzero() -> None:
     assert "trust_score=" in result.output
 
 
+def test_quiet_flag_prints_single_line() -> None:
+    runner = CliRunner()
+    result = runner.invoke(app, ["scan", str(ROOT / "demo" / "poisoned"), "--quiet"])
+
+    assert result.exit_code == 0
+    lines = [l for l in result.output.strip().splitlines() if l.strip()]
+    assert len(lines) == 1
+    assert "trust_score=" in lines[0]
+    assert "verdict=" in lines[0]
+    assert "findings=" in lines[0]
+
+
+def test_verbose_flag_shows_risk_and_fix() -> None:
+    runner = CliRunner()
+    result = runner.invoke(app, ["scan", str(ROOT / "demo" / "poisoned"), "--verbose"])
+
+    assert result.exit_code == 0
+    assert "risk:" in result.output
+    assert "fix:" in result.output
+
+
 def test_fix_loop_turns_poisoned_copy_clean(tmp_path: Path) -> None:
     target = tmp_path / "poisoned"
     shutil.copytree(ROOT / "demo" / "poisoned", target)

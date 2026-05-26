@@ -376,3 +376,26 @@ A goal is DONE only when:
 ### Remaining gaps
 
 - Live GitHub Security tab screenshot still requires remote Actions run with GitHub credentials.
+
+---
+
+## Progress update - 2026-05-26 quiet and verbose flags
+
+### Track B build
+
+- Added `--quiet` / `-q` flag to `scan` command: prints single line `trust_score=X verdict=Y findings=N` for CI scripting.
+- Added `--verbose` / `-v` flag to `scan` command: appends full `risk`, `fix`, and `references` block per finding after the summary table.
+- Added two tests: `test_quiet_flag_prints_single_line`, `test_verbose_flag_shows_risk_and_fix`.
+- Logged known gap: `--profile strict` does not yet elevate medium findings for `--fail-on` threshold (spec: medium counts as high for fail-on under strict).
+
+### Track C validation
+
+- `pytest` passes: 27 tests.
+- Quiet proof: `validation/quiet-scan.txt` — single line output confirmed.
+- Verbose proof: `validation/verbose-scan.txt` — risk/fix/refs per finding confirmed.
+- Pytest output: `validation/pytest-flags.txt`.
+
+### Remaining gaps
+
+- Live GitHub Security tab screenshot still requires remote Actions run.
+- `--profile strict` + `--fail-on` interaction not yet spec-compliant (tracked in `tasks/TRACK-B-TASKS.md`).

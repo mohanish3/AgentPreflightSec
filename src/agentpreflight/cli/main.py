@@ -39,7 +39,11 @@ def _should_fail(findings, fail_on: str | None) -> bool:
     return any(_SEVERITY_RANK[f.severity] >= threshold for f in findings)
 
 
-def _render_table(result) -> None:
+def _render_quiet(result) -> None:
+    console.print(f"trust_score={result.trust_score} verdict={result.verdict} findings={len(result.findings)}")
+
+
+def _render_table(result, verbose: bool = False) -> None:
     color = "green" if result.verdict == "pass" else "yellow" if result.verdict == "warn" else "red"
     console.print(f"[bold]AgentPreflight[/bold] target={result.target}")
     console.print(f"trust_score=[bold {color}]{result.trust_score}[/bold {color}] verdict=[bold {color}]{result.verdict}[/bold {color}] findings={len(result.findings)} offline={result.offline}")
@@ -65,6 +69,13 @@ def _render_table(result) -> None:
             finding.evidence,
         )
     console.print(table)
+    if verbose:
+        for finding in result.findings[:12]:
+            console.print(f"\n[bold]{finding.id}[/bold] {finding.title}")
+            console.print(f"  risk: {finding.risk}")
+            console.print(f"  fix:  {finding.fix}")
+            if finding.references:
+                console.print(f"  refs: {', '.join(finding.references)}")
     fixable = sum(1 for f in result.findings if f.fix_available)
     if fixable:
         console.print(f"fix_available={fixable} run: agentpreflight fix {result.target}")
@@ -85,6 +96,8 @@ def scan(
     format: OutputFormat = typer.Option(OutputFormat.table, "--format"),
     output: Path | None = typer.Option(None, "--output", "-o", help="Write JSON/SARIF output to file."),
     suppressions: Path | None = typer.Option(None, "--suppressions", help="Path to .agentpreflight.json suppressions file."),
+    quiet: bool = typer.Option(False, "--quiet", "-q", help="Print only trust_score, verdict, and finding count."),
+    verbose: bool = typer.Option(False, "--verbose", "-v", help="Show full evidence, risk, fix, and references per finding."),
 ) -> None:
     if profile not in {"dev", "balanced", "strict"}:
         raise typer.BadParameter("profile must be dev, balanced, or strict")
@@ -100,7 +113,10 @@ def scan(
         rendered = markdown_reporter.render(result)
     else:
         rendered = ""
-        _render_table(result)
+        if quiet:
+            _render_quiet(result)
+        else:
+            _render_table(result, verbose=verbose)
 
     if output:
         output.write_text(rendered, encoding="utf-8")
