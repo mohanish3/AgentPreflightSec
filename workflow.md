@@ -399,3 +399,44 @@ A goal is DONE only when:
 
 - Live GitHub Security tab screenshot still requires remote Actions run.
 - `--profile strict` + `--fail-on` interaction not yet spec-compliant (tracked in `tasks/TRACK-B-TASKS.md`).
+
+---
+
+## Progress update - 2026-05-27
+
+### Track A research
+
+- Reviewed May 26 gaps and hackathon deliverable requirements for May 28.
+- Confirmed: product brief and judge one-pager exist in `briefs/`; need investor pitch, user flow diagrams, and updated deliverable docs.
+- Added `briefs/investor-pitch.md` (1-page investor pitch, May 28 deliverable).
+- Added `briefs/user-flow-diagrams.md` (developer and CI flow diagrams, May 28 deliverable).
+
+### Track B build
+
+Two PRs raised on separate branches:
+
+**PR #2 — `feature/owasp-dep-rules-flags`**
+- Added 5 OWASP Top 10 rules: AP-OWASP-001 (SQL injection), AP-OWASP-002 (path traversal), AP-OWASP-003 (insecure deserialization), AP-OWASP-004 (SSTI), AP-OWASP-005 (SSRF).
+- Added AP-DEP-001 dependency vulnerability rule via `pip-audit` / `npm audit`.
+- Added `dep_requirements` and `dep_lock` artifact kinds in collector.
+- Added integration tests (34 new tests).
+- Rule count: 21 → 27. Test count: 27 → 61.
+
+**PR #3 — `fix/strict-profile-fail-on`**
+- Fixed `_should_fail` to accept `profile` parameter.
+- When `profile=strict`, medium severity escalates to high before `--fail-on` threshold comparison.
+- Low severity is not escalated (only medium → high).
+- Added 3 tests: unit test for escalation, unit test for no-escalation of low, CLI integration test with AP-NET-003 medium fixture.
+- Test count: 61 → 64.
+
+### Track C validation
+
+- `pytest` passes: 64 tests.
+- `fix/strict-profile-fail-on` fully spec-compliant: `--profile strict --fail-on high` now triggers on medium findings.
+- Both PRs pass full test suite before push.
+
+### Remaining gaps
+
+- Live GitHub Security tab screenshot still requires remote Actions run.
+- MVP screenshots need capture from terminal (validation/screenshots/).
+- Deliverables for May 28: product brief (done in `briefs/winner-product-brief.md`), investor pitch (done in `briefs/investor-pitch.md`), user flow diagrams (done in `briefs/user-flow-diagrams.md`).
