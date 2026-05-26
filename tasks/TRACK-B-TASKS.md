@@ -26,4 +26,15 @@
 - [x] Add `--quiet` flag (single-line CI output: trust_score/verdict/findings).
 - [x] Add `--verbose` flag (full evidence/risk/fix/references per finding).
 - [ ] Add live GitHub Actions/security-tab proof when remote repo is available.
-- [ ] Fix `--profile strict` + `--fail-on` interaction: strict should fail on medium (currently fail-on ignores profile).
+- [x] Fix `--profile strict` + `--fail-on` interaction: strict should fail on medium (currently fail-on ignores profile). [PR #3 fix/strict-profile-fail-on]
+
+## 2026-05-27
+
+- [x] PR #2: Add OWASP Top 10 rules (AP-OWASP-001..005), AP-DEP-001 dependency rule, dep_requirements/dep_lock collector, integration tests. Rules: 21→27. Tests: 27→61.
+- [x] PR #3: Fix --profile strict + --fail-on escalation. Tests: 61→64.
+- [x] Create briefs/investor-pitch.md (May 28 deliverable).
+- [x] Create briefs/user-flow-diagrams.md (May 28 deliverable).
+- [x] Update workflow.md with May 27 progress.
+- [ ] Merge PR #2 and PR #3 to main.
+- [ ] Capture terminal screenshots of latest scan output for MVP proof.
+- [ ] Validate SARIF against schema post-merge.
