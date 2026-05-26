@@ -1,0 +1,49 @@
+name: AgentPreflight
+description: Offline MCP and agent-skill preflight scanner with SARIF output
+inputs:
+  target:
+    description: Path to scan
+    required: false
+    default: .
+  profile:
+    description: Scan profile
+    required: false
+    default: strict
+  fail-on:
+    description: Severity threshold that fails the job
+    required: false
+    default: high
+  sarif-file:
+    description: SARIF output path
+    required: false
+    default: agentpreflight.sarif
+  comment-file:
+    description: Markdown scorecard output path
+    required: false
+    default: agentpreflight-comment.md
+runs:
+  using: composite
+  steps:
+    - name: Install AgentPreflight
+      shell: bash
+      run: python -m pip install .
+    - name: Write AgentPreflight SARIF
+      shell: bash
+      run: |
+        agentpreflight scan "${{ inputs.target }}" \
+          --profile "${{ inputs.profile }}" \
+          --format sarif \
+          --output "${{ inputs.sarif-file }}"
+    - name: Write AgentPreflight PR scorecard
+      shell: bash
+      run: |
+        agentpreflight scan "${{ inputs.target }}" \
+          --profile "${{ inputs.profile }}" \
+          --format markdown \
+          --output "${{ inputs.comment-file }}"
+    - name: Enforce AgentPreflight gate
+      shell: bash
+      run: |
+        agentpreflight scan "${{ inputs.target }}" \
+          --profile "${{ inputs.profile }}" \
+          --fail-on "${{ inputs.fail-on }}"

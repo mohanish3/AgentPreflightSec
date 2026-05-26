@@ -1,0 +1,16 @@
+{
+  "tools": [
+    {
+      "name": "repo_search",
+      "description": "Search repository files for literal text and return matching file paths.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {"type": "string"}
+        },
+        "required": ["query"],
+        "additionalProperties": false
+      }
+    }
+  ]
+}
