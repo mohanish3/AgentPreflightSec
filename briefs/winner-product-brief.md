@@ -1,12 +1,12 @@
-# Winner Product Brief: AgentPreflight
+# Winner Product Brief: AgentPreflight (Submission Draft v2)
 
-This document outlines the product brief, MVP scope, and 4-day implementation strategy for **AgentPreflight**—the definitive pre-deployment AI security scanner for MCP servers and agent skills.
+This document outlines the product brief, MVP scope, implementation plan, and launch path for **AgentPreflight**—a remediation-first pre-deployment AI security scanner for MCP servers and agent skills.
 
 ---
 
-## 1. Executive Summary & Problem
+## 1. Executive summary and problem
 
-As developers rapidly adopt autonomous LLM agents, they rely on third-party **Model Context Protocol (MCP)** servers and **agent skills** (custom tool packs, system prompts, skill folders) to connect their agents to local systems, databases, and APIs. This introduces a major, unmitigated attack surface: **Agent supply-chain compromise**.
+Teams adopting autonomous LLM agents increasingly depend on third-party **Model Context Protocol (MCP)** servers and **agent skills** (tool packs, system prompts, skill folders) to access local files, internal APIs, and enterprise systems. That dependency creates a new unmitigated risk: **agent supply-chain compromise**.
 
 ### The Core Problem
 1. **Tool and Metadata Poisoning**: MCP servers use natural-language descriptions to guide tool selection. Attackers inject instructions into these descriptions to steer agents into unauthorized actions.
@@ -17,22 +17,22 @@ As developers rapidly adopt autonomous LLM agents, they rely on third-party **Mo
 
 ---
 
-## 2. Product Solution & 10X Wedge
+## 2. Product solution and 10x wedge
 
-AgentPreflight is a local-first preflight scanner that verifies the integrity of MCP manifests (`mcp.json`), skill folders, prompts (`SKILL.md`), and nearby code files. 
+AgentPreflight is an offline-first preflight scanner that verifies the integrity of MCP manifests (`mcp.json`), skill folders, prompts (`SKILL.md`), and nearby executable code before merge or install.
 
 ### The 10X Differentiators
 - **Offline-First by Default**: Runs statically in milliseconds, preserving code privacy and avoiding costly API fees during developer check-ins.
-- **Codex-Assisted Auto-Patching**: Uses OpenAI Codex to automatically rewrite flagged tool descriptions, strip hidden Unicode, and parameterize dangerous subprocess calls, presenting developers with instant diff patches.
+- **Codex-Assisted Auto-Patching**: Uses OpenAI Codex to rewrite flagged tool descriptions, strip hidden Unicode, and convert dangerous shell execution into safer patterns via constrained diffs.
 - **Unified Trust Score (0-100)**: Normalizes findings into a single, intuitive score, failing CI/CD builds instantly if high-severity items are found.
 
 ---
 
-## 3. MVP Scope & 4-Day Timeline
+## 3. MVP scope and 4-day timeline
 
 We will build and ship four main interfaces during the hackathon:
 - **CLI (`agentpreflight`)**: Core terminal tool for local and CI use.
-- **HTTP API (`POST /v1/scans`)**: Microservice for hosting scan tasks.
+- **HTTP API (`POST /v1/scans`)**: Optional integration endpoint for orchestrated scan tasks.
 - **GitHub Action**: Auto-comments on pull requests with a full SARIF report.
 - **Demo Fixtures**: Seeded malicious extensions to demonstrate detection and repair.
 
@@ -54,14 +54,33 @@ We will build and ship four main interfaces during the hackathon:
 
 - **Day 1**: Implement config collectors, Unicode normalizers, and first 15 deterministic rule signatures.
 - **Day 2**: Develop the scoring engine, format CLI reports, write the suppressions engine, and build the test fixtures.
-- **Day 3**: Write the FastAPI endpoint, design the GitHub Action, and build the Codex auto-remediation prompt templates.
+- **Day 3**: Write the optional FastAPI endpoint, design the GitHub Action, and build Codex auto-remediation prompt templates.
 - **Day 4**: Perform production hardening, documentation, and construct the release demo repo.
 
 ---
 
-## 4. MVP Success Metrics
+## 4. MVP success metrics
 
 - **True Positive Rate**: Catches **90%+** of seeded malicious tool-poisoning and unsafe command fixtures.
 - **False Positive Rate**: Stays below **10%** on trusted open-source extensions.
 - **Execution Latency**: Runs in under **30 seconds** on standard repository sizes.
 - **Zero API Calls**: Enforces 100% local scanning in default mode, calling hosted endpoints only for optional Codex fixes.
+
+---
+
+## 5. Launch and distribution plan
+
+### Initial users
+1. Teams building Codex- or MCP-enabled internal developer agents.
+2. Platform/security engineers adding merge gates for agent integrations.
+3. Hackathon and startup teams shipping high-velocity agent workflows.
+
+### Distribution path
+- **Week 1-2**: Open-source CLI + ruleset with demo fixtures.
+- **Week 3-4**: GitHub Action onboarding guide + SARIF integration templates.
+- **Month 2**: Early design partners for policy tuning and suppression governance.
+
+### Pricing hypothesis (post-hackathon)
+- **Free tier**: Local CLI scanning and JSON reporting.
+- **Team tier**: Policy packs, centralized suppressions, CI insights.
+- **Enterprise tier**: Private rule feeds, approval workflows, audit export.
