@@ -56,7 +56,8 @@ def _render_table(result) -> None:
     table.add_column("Path")
     table.add_column("Line", justify="right")
     table.add_column("Evidence")
-    for finding in result.findings[:12]:
+    _TABLE_LIMIT = 12
+    for finding in result.findings[:_TABLE_LIMIT]:
         table.add_row(
             finding.severity,
             finding.id,
@@ -65,6 +66,9 @@ def _render_table(result) -> None:
             finding.evidence,
         )
     console.print(table)
+    hidden = len(result.findings) - _TABLE_LIMIT
+    if hidden > 0:
+        console.print(f"showing {_TABLE_LIMIT} of {len(result.findings)} findings — use --format json for full list")
     fixable = sum(1 for f in result.findings if f.fix_available)
     if fixable:
         console.print(f"fix_available={fixable} run: agentpreflight fix {result.target}")
