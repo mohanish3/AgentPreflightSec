@@ -24,7 +24,7 @@ Output: one trust score (0–100), ranked findings, JSON/SARIF, Codex-generated 
 
 ```bash
 agentpreflight scan . --profile strict --fail-on high
-agentpreflight fix findings.json --apply --rules AP-MCP-001,AP-SKILL-002
+agentpreflight fix . --apply --rules AP-MCP-001,AP-SKILL-002
 agentpreflight scan . --profile strict --fail-on high   # rescan proof
 ```
 
@@ -46,7 +46,7 @@ agentpreflight scan . --profile strict --fail-on high   # rescan proof
 Four interfaces:
 
 - CLI: `agentpreflight scan . --profile strict --fail-on high`
-- Fix loop: `agentpreflight fix findings.json --apply --rules AP-MCP-001,AP-SKILL-002,AP-CODE-001`
+- Fix loop: `agentpreflight fix . --apply --rules AP-MCP-001,AP-SKILL-002,AP-CODE-001`
 - API: `POST /v1/scans`
 - GitHub Action: PR comment plus SARIF upload
 - Demo repo: one clean agent, one poisoned agent
@@ -82,7 +82,7 @@ Core rule families: `tool_poisoning`, `unicode_smuggling`, `unsafe_exec`, `remot
 1. Start with repo containing poisoned MCP tool description and malicious `SKILL.md`.
 2. Run scanner. Trust score drops below threshold and CI fails.
 3. Findings show exact lines and OWASP mappings.
-4. `agentpreflight fix` generates a minimal Codex patch.
+4. `agentpreflight fix . --apply` applies deterministic local patches for flagged rules.
 5. Patch rewrites tool description, strips hidden Unicode, replaces unsafe shell usage.
 6. Rescan passes with higher trust score and SARIF report.
 
