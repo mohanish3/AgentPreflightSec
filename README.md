@@ -1,11 +1,13 @@
 # AgentPreflight
 
-Static preflight scanner for MCP servers and agent skills. Finds tool poisoning, prompt injection, secrets, and unsafe code before your agent runs — offline, no model calls required.
+**Security audit suite for CI/CD pipelines.** Catches vulnerabilities before they reach production — SQL injection, path traversal, secrets, dependency CVEs, unsafe code, and AI agent attack vectors. Runs offline in any pipeline with a single command and a non-zero exit code.
 
 ```
-trust_score=0 verdict=fail findings=15   ← poisoned repo
+trust_score=0 verdict=fail findings=15   ← vulnerable repo
 trust_score=100 verdict=pass findings=0  ← after fix
 ```
+
+**Problem it solves:** Security vulnerabilities and post-deployment issues that slip through code review — hardcoded secrets, known CVEs in dependencies, injection flaws, and AI agent supply-chain attacks. One `agentpreflight scan .` in CI blocks them all before merge.
 
 ---
 
@@ -61,7 +63,7 @@ agentpreflight prompts <path> --output remediation.md
 # benchmark scan speed
 agentpreflight bench <path> --runs 5
 
-# list all 21 rules
+# list all 27 rules
 agentpreflight rules list
 ```
 
@@ -85,15 +87,17 @@ Full workflow: `.github/workflows/agentpreflight.yml`
 
 ---
 
-## Rules (21 total)
+## Rules (27 total)
 
 | Category | Rules |
 |---|---|
-| MCP | AP-MCP-001 prompt override, AP-MCP-002 trust claim, AP-MCP-003 untrusted result, AP-MCP-004 loose schema, AP-MCP-005 privileged tool |
-| Skill | AP-SKILL-001 prompt injection, AP-SKILL-002 hidden Unicode, AP-SKILL-003 remote dependency, AP-SKILL-004 credential seeking, AP-SKILL-005 capability mismatch |
+| OWASP Top 10 | AP-OWASP-001 SQL injection, AP-OWASP-002 path traversal, AP-OWASP-003 insecure deserialization, AP-OWASP-004 template injection (SSTI), AP-OWASP-005 SSRF |
+| Dependencies | AP-DEP-001 known CVEs in requirements.txt / package-lock.json (pip-audit + npm audit) |
 | Code | AP-CODE-001 unsafe shell, AP-CODE-002 dynamic exec, AP-CODE-003 remote pipe exec, AP-CODE-004 file access, AP-CODE-005 network exfiltration |
 | Secrets | AP-SEC-001 private key, AP-SEC-002 API token, AP-SEC-003 committed env file |
 | Transport | AP-NET-001 broad bind, AP-NET-002 missing origin validation, AP-NET-003 plain HTTP tool |
+| MCP | AP-MCP-001 prompt override, AP-MCP-002 trust claim, AP-MCP-003 untrusted result, AP-MCP-004 loose schema, AP-MCP-005 privileged tool |
+| Skill | AP-SKILL-001 prompt injection, AP-SKILL-002 hidden Unicode, AP-SKILL-003 remote dependency, AP-SKILL-004 credential seeking, AP-SKILL-005 capability mismatch |
 
 ---
 
