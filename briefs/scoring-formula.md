@@ -1,45 +1,80 @@
 # Scoring Formula: Risk Weighting & Trust Calculation
 
-This document defines the mathematical models used by **AgentPreflight** to calculate a repository's **Trust Score (0 - 100)** based on static rule violations.
+This document defines the mathematical model used by **AgentPreflight** to calculate a repository's **Trust Score (0–100)** based on static rule violations.
 
 ---
 
 ## 1. Core Trust Score Formula
 
-The baseline score of a clean, unviolated repository is **100**. For each violation detected, the scoring engine applies a penalty based on severity. The final score cannot fall below **0**:
+The baseline score of a clean, unviolated repository is **100**. For each violation detected, the scoring engine applies a flat penalty based on severity. The final score cannot fall below **0**:
 
-$$\text{Trust Score} = \max\left(0, 100 - \sum (\text{Penalty}_{\text{Severity}})\right)$$
+```
+Trust Score = max(0, 100 − Σ Penalty(severity_i))
+```
+
+Under `--profile strict`, medium findings are escalated to high before deduction:
+
+```
+effective_severity = "high" if (profile == "strict" and severity == "medium") else severity
+```
 
 ---
 
 ## 2. Severity Penalties
 
-We assign standard, static weights to each severity classification:
+Each finding deducts a flat penalty regardless of how many times the same rule fires:
 
-- **Critical**: **30 Points** (High execution hazard, e.g. command injection, prompt-injected override)
-- **High**: **15 Points** (System boundary exposure, e.g. hardcoded secrets, zero-width obfuscation)
-- **Medium**: **5 Points** (Transport vulnerability, e.g. broad network binds, missing auth)
-- **Low**: **1 Point** (Minor posture observations, e.g. missing metadata tags)
+| Severity | Points deducted |
+|---|---|
+| Critical | 30 |
+| High | 15 |
+| Medium | 7 |
+| Low | 2 |
 
 ---
 
-## 3. Decaying Compounding Violations
+## 3. Hard Caps
 
-To prevent a repository from bottoming out at 0 due to repetitive occurrences of the same finding (for example, 5 separate warnings of the same localhost bind), we apply a **decay coefficient** ($\delta = 0.5$) for secondary instances of a specific Rule ID:
+After deductions, combo caps apply if certain dangerous conditions are present:
 
-$$\text{Total Penalty}_{\text{Rule ID}} = \text{Penalty}_{\text{Base}} \times \left(1 + \sum_{i=2}^{N} \delta^{i-1}\right)$$
+| Condition | Score cap |
+|---|---|
+| Any critical finding | ≤ 50 |
+| 3 or more high findings | ≤ 60 |
+| Any secret finding (AP-SEC-001/002) | ≤ 55 |
+| Unsafe shell + network egress (AP-CODE-001 + AP-CODE-005/AP-NET-001) | ≤ 45 |
+| Hidden Unicode + prompt override (AP-SKILL-002 + AP-MCP-001/AP-SKILL-001) | ≤ 50 |
+| Privileged tool + remote fetch (AP-MCP-005 + AP-SKILL-003/AP-CODE-003) | ≤ 45 |
 
-Where:
-- $\text{Penalty}_{\text{Base}}$ is the standard penalty weight for the rule's severity.
-- $N$ is the count of occurrences of that specific Rule ID.
-- $\delta$ is the decay factor (fixed at `0.5`).
+Multiple caps trigger independently; the lowest applies.
 
-### Example Calculation:
-If a scan finds **three High** violations of `AP-SR-001` (Secrets):
-- 1st finding: $15$ points
-- 2nd finding: $15 \times 0.5 = 7.5$ points
-- 3rd finding: $15 \times 0.25 = 3.75$ points
-- **Total deduction**: $15 + 7.5 + 3.75 = 26.25 \to 26$ points.
-- **Trust Score**: $100 - 26 = 74$.
+---
 
-This compounding decay model ensures the score is highly reflective of overall project security without penalizing repeating instances excessively.
+## 4. Verdicts
+
+| Score range | Verdict |
+|---|---|
+| 85–100 | pass |
+| 70–84 | warn |
+| 0–69 | fail |
+
+---
+
+## 5. Example
+
+Repository with 2 critical + 3 high + 1 medium findings (balanced profile):
+
+```
+Deductions: 2×30 + 3×15 + 1×7 = 60 + 45 + 7 = 112
+Raw: max(0, 100 − 112) = 0
+Trust Score: 0   verdict: fail
+```
+
+Repository with 1 high + 2 medium findings (balanced profile):
+
+```
+Deductions: 1×15 + 2×7 = 15 + 14 = 29
+Raw: 100 − 29 = 71
+No caps triggered.
+Trust Score: 71   verdict: warn
+```
