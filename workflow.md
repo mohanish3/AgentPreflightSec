@@ -376,3 +376,40 @@ A goal is DONE only when:
 ### Remaining gaps
 
 - Live GitHub Security tab screenshot still requires remote Actions run with GitHub credentials.
+
+---
+
+## Progress update - 2026-05-27 doc accuracy pass 2
+
+### Track A research
+
+- Audited DEMO.md, user-stories.md, PRODUCT.md, and SPEC.md against actual CLI.
+- Found same `agentpreflight fix findings.json` pattern repeated across 4 files — all fixed.
+- Found nonexistent `--checks` and `--offline` flags in SPEC.md — fixed.
+- Found old `aisafe:disable-line` suppression syntax in user-stories.md — fixed.
+
+### Track B build
+
+No code changes. Documentation accuracy pass only.
+
+### Doc fixes (PRs #13–#16)
+
+| PR | File | What was wrong | Fix |
+|----|------|---------------|-----|
+| #13 | `DEMO.md` | Step 5 used `--finding AP-X` (flag doesn't exist) + labeled "Codex remediation" | Corrected to `--rules AP-X,AP-Y` + "Run local fix" |
+| #14 | `briefs/user-stories.md` | AC 1.3 `# aisafe:disable-line`; AC 1.4 and AC 3.3 described "Codex patches" | Corrected suppression syntax; fix command described as local deterministic |
+| #15 | `PRODUCT.md` | Two instances of `fix findings.json` + demo step said "Codex patch" | Corrected to `fix .` + "deterministic local patches" |
+| #16 | `SPEC.md` | `fix findings.json` + `scan --checks skills --offline` (nonexistent flags) | Corrected to `fix .` + `scan ./skills --profile strict` |
+
+### Track C validation
+
+- `pytest` passes: 25 tests (no regressions from doc changes).
+
+### Summary: doc accuracy pass complete
+
+All known CLI command inaccuracies across briefs and root docs are now fixed in open PRs. Every copy-pasteable command in docs now matches actual CLI output.
+
+### Remaining gaps
+
+- Live GitHub Security tab screenshot still requires remote Actions run.
+- PRs #2–#16 ready to merge; no conflicts with main.
