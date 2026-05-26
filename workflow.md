@@ -376,3 +376,35 @@ A goal is DONE only when:
 ### Remaining gaps
 
 - Live GitHub Security tab screenshot still requires remote Actions run with GitHub credentials.
+
+---
+
+## Progress update - 2026-05-27
+
+### Track B build — 6 PRs raised (all pending merge)
+
+| PR | Branch | What |
+|---|---|---|
+| #2 | `feature/owasp-dep-rules-flags` | 5 OWASP rules (AP-OWASP-001..005), AP-DEP-001 dep scanning, quiet/verbose flags. Rules 21→27. Tests 27→61. |
+| #3 | `fix/strict-profile-fail-on` | `--profile strict --fail-on high` now escalates medium→high. Tests 61→64. |
+| #4 | `docs/may-27-deliverables` | Investor pitch, user flow diagrams, workflow.md + CLAUDE.md updates. |
+| #5 | `fix/cli-findings-truncation` | Table now shows "showing 12 of N findings — use --format json for full list" when clipped. |
+| #6 | `fix/demo-script-accuracy` | Rewrote demo-script.md with real CLI output, correct paths, real rule IDs. |
+| #7 | `docs/workflow-may27-progress2` | This update. |
+
+### Track A research
+
+- Confirmed all May 28 deliverables are in branches ready to merge: product brief (existing), investor pitch (PR #4), user flow diagrams (PR #4), demo script (PR #6).
+- Edge case sweep run: empty mcp.json, binary files, unicode filenames — all handle cleanly (no crashes).
+
+### Track C validation
+
+- `pytest` passes: 26 tests on main (25 + truncation hint test from PR #5).
+- Fresh scan proofs generated locally: `validation/poisoned-scan-may27.txt`, `validation/clean-scan-may27.txt`, `validation/pytest-may27.txt`.
+- Truncation hint confirmed: poisoned demo shows "showing 12 of 15 findings — use --format json for full list".
+
+### Remaining gaps
+
+- Merge PRs #2–#7 to main to bring rule count, tests, and docs to current state.
+- Live GitHub Security tab screenshot still requires remote Actions run.
+- After PRs merge: run `agentpreflight rules list` and confirm 27 rules, capture as proof.
