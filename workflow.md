@@ -376,3 +376,21 @@ A goal is DONE only when:
 ### Remaining gaps
 
 - Live GitHub Security tab screenshot still requires remote Actions run with GitHub credentials.
+
+---
+
+## Progress update - 2026-05-27 test coverage
+
+### Track B build
+
+No code changes.
+
+### Track C validation
+
+- Added test_fix_dry_run_lists_fixable_without_modifying (PR #18): verifies fix without --apply does not modify files.
+- pytest now passes 26 tests.
+
+### Remaining gaps
+
+- investor-pitch.md and user-flow-diagrams.md exist on branch docs/may-27-deliverables (PR #4) ready to merge.
+- PRs #2-#18 ready to merge.
