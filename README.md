@@ -149,19 +149,18 @@ export AGENTPREFLIGHT_RATE_LIMIT_PER_MINUTE=60
 
 | File | What it proves |
 |---|---|
-| `validation/pytest-may26.txt` | 25 unit tests pass |
-| `validation/poisoned-scan.txt` | poisoned demo → score 0, fail |
-| `validation/clean-scan.txt` | clean demo → score 100, pass |
+| `validation/pytest-may27.txt` | 26 unit tests pass (2026-05-27) |
+| `validation/poisoned-scan-may27.txt` | poisoned demo → score 0, fail, 15 findings, truncation hint |
+| `validation/clean-scan-may27.txt` | clean demo → score 100, pass, 0 findings |
 | `validation/agentpreflight.sarif` | SARIF 2.1.0 output |
 | `validation/sarif-validation.txt` | SARIF schema validates |
 | `validation/pr-comment.md` | PR scorecard markdown |
 | `validation/suppression-scan.txt` | suppression → suppressed=1 |
-| `validation/benchmark.txt` | 113 artifacts in 0.079s avg |
-| `validation/benchmark-100.txt` | 100-file scan proof |
+| `validation/benchmark-100.txt` | 100-file scan proof, avg 0.009s |
 | `validation/inline-suppression.txt` | inline disable-line works |
 | `validation/remediation-prompts.md` | Codex prompt pack (redacted) |
 | `validation/api-security-proof.txt` | 401/403/429 enforced |
-| `validation/fix-proof-*/` | score 0 → 100 fix proof |
+| `validation/latest-fix-proof.txt` | score 0 → 100 fix proof |
 
 ---
 
