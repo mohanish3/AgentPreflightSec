@@ -376,3 +376,34 @@ A goal is DONE only when:
 ### Remaining gaps
 
 - Live GitHub Security tab screenshot still requires remote Actions run with GitHub credentials.
+
+---
+
+## Progress update - 2026-05-27 doc accuracy pass
+
+### Track A research
+
+- Audited all `briefs/` docs against actual implementation.
+- Found 4 significant inaccuracies that would mislead judges or demo reviewers.
+
+### Track B build
+
+No code changes. All fixes are documentation only.
+
+### Doc fixes (PRs #8–#11)
+
+| PR | File | What was wrong | Fix |
+|----|------|---------------|-----|
+| #8 | `CLAUDE.md` | Priority order item 4 said `agentpreflight fix findings.json` — command takes a path, not JSON | Updated to `agentpreflight fix <path> --apply` |
+| #9 | `briefs/launch-checklist.md` | Fixture paths pointed to `tests/fixtures/` (doesn't exist); inline suppression syntax was `aisafe:disable-line` | Corrected to `demo/poisoned/`, `demo/clean/`, and `agentpreflight:disable-line AP-RULE` |
+| #10 | `briefs/rule-catalog.md` | Used prototype IDs (AP-PI-001, AP-US-001, AP-EX-001) — none match actual CLI output | Rewrote all 21 rules with correct IDs, severities, and fix guidance |
+| #11 | `briefs/scoring-formula.md` | Medium=5pts, Low=1pt; described decay coefficient (δ=0.5) never implemented | Corrected to Medium=7, Low=2; replaced decay section with actual hard caps table |
+
+### Track C validation
+
+- `pytest` passes: 25 tests (no regressions from doc changes).
+
+### Remaining gaps
+
+- Live GitHub Security tab screenshot still requires remote Actions run.
+- PRs #2–#11 ready to merge; no merge conflicts with main.
