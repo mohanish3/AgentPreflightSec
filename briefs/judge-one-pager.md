@@ -130,6 +130,7 @@ Three things that hold up under scrutiny:
 ## Why AgentPreflight
 
 - **Offline-first.** Zero token cost in default scan mode. Security teams with sensitive codebases can audit without API exposure.
+- **Never executes to scan.** Purely static: AST, regex, schema validation. No `--dangerously-run-mcp-servers` required. The scanner has no attack surface of its own.
 - **Codex is structural, not decorative.** The `--codex` flag is a live API call, not a template fill. The demo shows it. The rescan proves it held.
 - **Developer workflow, not security dashboard.** `scan → fix → rescan` fits any PR review in under two minutes.
 - **Shipped.** 30 tests, SARIF validates, GitHub Action wired, benchmark proofed, fix loop cold-run verified May 27 2026.
