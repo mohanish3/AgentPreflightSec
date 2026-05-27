@@ -57,6 +57,8 @@ agentpreflight fix /tmp/fix-demo --apply
 agentpreflight scan /tmp/fix-demo --profile strict
 ```
 
+All output above is real, verified output — see `validation/poisoned-scan.txt`, `validation/fix-proof-*/`, and `validation/clean-scan.txt`.
+
 ---
 
 ## Commands
