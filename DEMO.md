@@ -46,24 +46,27 @@ Top findings:
 agentpreflight fix demo/poisoned/ --rules AP-MCP-001 --codex
 ```
 
-Then apply deterministic safe fixes:
+Then copy and apply all deterministic safe fixes:
 
 ```bash
-agentpreflight fix demo/poisoned/ --rules AP-MCP-001,AP-CODE-001,AP-CODE-003 --apply
+cp -r demo/poisoned /tmp/fix-demo
+agentpreflight fix /tmp/fix-demo --apply
 ```
 
-6. Patches applied:
+6. Patches applied (fixable=14, changed=7):
    - neutral tool description (hidden instruction removed)
    - `os.system` → `subprocess.run([...], check=True)`
    - `curl | bash` → `Download to file, verify checksum` guidance
+   - secrets in `.env` → `.env.example` (file renamed/redacted)
+   - SKILL.md hidden Unicode stripped
 
-7. Rescan:
+7. Rescan the fixed copy:
 
 ```bash
-agentpreflight scan demo/poisoned/ --profile strict --fail-on high
+agentpreflight scan /tmp/fix-demo --profile strict --fail-on high
 ```
 
-8. Final output after fix (against clean demo):
+8. Final output:
 
 ```text
 trust_score=100 verdict=pass findings=0 offline=True
@@ -191,8 +194,9 @@ Expected result: no critical/high findings; trust score 85+.
 
 | Repo | Trust score | Verdict |
 |---|---|---|
-| Poisoned | < 50 | fail |
-| Clean/fixed | > 85 | pass |
+| Poisoned | 0 | fail |
+| Fixed (demo/poisoned → --apply) | 100 | pass |
+| Clean (demo/clean) | 100 | pass |
 
 ---
 
