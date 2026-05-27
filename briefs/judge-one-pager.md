@@ -27,7 +27,7 @@ This was not an anomaly. In the 12 months between April 2025 and April 2026, aut
 The vulnerability data is stark:
 
 - **Snyk ToxicSkills (2025):** 3,984 agent skills scanned — 36.82% had at least one flaw; 13.4% had a critical issue. **76 confirmed malicious payloads** for credential theft, backdoors, and data exfiltration. 91% combined prompt injection with traditional malware.
-- **Equixly March 2025 audit:** Popular MCP server implementations — 43% had command injection, 30% SSRF, 22% path traversal.
+- **Equixly March 2025 audit:** Popular MCP server implementations — 43% had command injection, 30% SSRF, 22% path traversal. Equixly's conclusion: "It feels like we're facing a regression in security."
 - **CVE-2025-6514:** `mcp-remote` (the package Claude Desktop uses for remote MCP) — CVSS 9.6 RCE, 437,000+ downloads.
 - **CVE-2025-53109/53110:** Anthropic's official filesystem MCP server — CVSS 8.4 sandbox escape, unpatched for three months.
 - **Official Puppeteer MCP server** — 91,000 monthly downloads, SSRF + prompt injection + sandbox bypass simultaneously. Archived rather than patched.
