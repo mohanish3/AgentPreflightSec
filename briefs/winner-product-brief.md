@@ -17,6 +17,8 @@ In April 2026, OX Security disclosed a systemic design flaw in Anthropic's MCP S
 
 The attack surface is new. MCP servers and agent skills bundle natural-language tool descriptions, executable code, config, secrets, and permissions in a single artifact. A poisoned description or malicious script hijacks an agent before runtime guardrails see anything. In one evaluated setting, MCPTox tested tool poisoning against 45 real-world MCP servers and found a 72.8% attack success rate against o1-mini; Claude-3.7-Sonnet refused fewer than 3% of malicious test cases. Runtime model-level defenses aren't catching this attack class.
 
+Runtime defenses fail this attack class by design. Invariant Labs demonstrated a "rug pull": a malicious MCP server served innocent tool descriptions on first launch, then switched to hidden instructions on second launch — after trust was already granted. Pre-deployment scanning is the only defense that catches this before the agent ever runs.
+
 Developers need a fast, pre-deployment gate — the same way `npm audit` gates package installation.
 
 ---
