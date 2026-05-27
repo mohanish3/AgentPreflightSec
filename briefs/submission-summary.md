@@ -44,7 +44,7 @@ AgentPreflight shifts agent security left, acting like `npm audit` for the agent
 
 ## 6. How We Built It
 
-We validated the attack evidence before writing any rules. EVIDENCE.md catalogs 14 real incidents, 7 CVEs, and 4 independent research studies — each one scoped and cited from primary sources before a single detection was implemented. This forced a constraint: no rule ships without a published incident or CVE that justifies it. That's why the rule count is 21, not 200.
+We validated the attack evidence before writing any rules. EVIDENCE.md catalogs 14 real incidents, 3 CVEs, and 4 independent research studies — each one scoped and cited from primary sources before a single detection was implemented. This forced a constraint: no rule ships without a published incident or CVE that justifies it. That's why the rule count is 21, not 200.
 
 The scanner was designed Codex-first: we wrote the rule catalog and prompt templates before writing the detection engine, so every rule produces a Codex-ready remediation context from day one. Each rule maps to a primary published source — MCPTox, Snyk ToxicSkills, OWASP MCP, Equixly audit — not arbitrary lint heuristics.
 

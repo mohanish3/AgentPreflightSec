@@ -69,7 +69,7 @@ trust_score=100  verdict=pass  findings=0
 
 | Rule family | Source |
 |---|---|
-| `tool_poisoning` | MCPTox (72.8% success on real servers), OWASP MCP Top 10 |
+| `tool_poisoning` | MCPTox (72.8% in one evaluated setting, 45 real servers), OWASP MCP Top 10 |
 | `unicode_smuggling` | OWASP Agentic Skills, Snyk ToxicSkills (76 confirmed payloads) |
 | `unsafe_exec` | Snyk ToxicSkills (13.4% of 3,984 skills critical), Equixly audit (43% command injection) |
 | `remote_instruction_fetch` | Snyk ToxicSkills, Invariant Labs rug pull |
@@ -123,7 +123,7 @@ Multiple MCP scanners exist. Several have autofix. The wedge is not detection br
 | CI safety | Safe | Safe | Requires `--dangerously-run-mcp-servers` | **Zero dangerous flags required** |
 
 Three things that hold up under scrutiny:
-1. **Static-only execution** — AgentPreflight never runs the MCP server or executes skill scripts to scan them. Snyk Agent Scan's CI mode requires `--dangerously-run-mcp-servers`.
+1. **Static-only execution** — AgentPreflight never runs the MCP server or executes skill scripts to scan them. Snyk Agent Scan's CI mode requires `--dangerously-run-mcp-servers`. A dynamic scanner also creates a second attack surface: a sophisticated malicious server can detect it is being scanned and serve innocent descriptions until first launch — the same rug pull pattern Invariant Labs documented. Static analysis has no such weakness.
 2. **Codex as the fix layer, not templates** — template substitution replaces `os.system(cmd)` with a comment or a `# TODO`. Codex generates `subprocess.run([...], check=True)` — a compilable drop-in replacement a developer merges with confidence.
 3. **Rescan proof closes the PR** — existing fix tools change files. AgentPreflight confirms `trust_score=100, findings=0` after fix. The loop closes.
 
@@ -144,6 +144,6 @@ Three things that hold up under scrutiny:
 
 - **Offline-first.** Zero token cost in default scan mode. Security teams with sensitive codebases can audit without API exposure.
 - **Never executes to scan.** Purely static: AST, regex, schema validation. No `--dangerously-run-mcp-servers` required. The scanner has no attack surface of its own.
-- **Codex is structural, not decorative.** The `--codex` flag is a live API call, not a template fill. The demo shows it. The rescan proves it held.
+- **Codex is structural, not decorative.** The scanner was designed Codex-first — every rule produces a Codex-ready remediation context from day one. The `--codex` flag is a live API call, not a template fill. The demo shows it. The rescan proves it held.
 - **Developer workflow, not security dashboard.** `scan → fix → rescan` fits any PR review in under two minutes.
 - **Shipped.** 30 tests, SARIF validates, GitHub Action wired, benchmark proofed, fix loop cold-run verified May 27 2026.

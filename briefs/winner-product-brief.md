@@ -107,7 +107,7 @@ The same loop handles unsafe shell execution, hidden Unicode, remote pipe instal
 
 | Rule family | Evidence source |
 |---|---|
-| `tool_poisoning` | MCPTox (72.8% attack success on real servers), OWASP MCP Top 10 |
+| `tool_poisoning` | MCPTox (72.8% in one evaluated setting, 45 real servers), OWASP MCP Top 10 |
 | `unicode_smuggling` | OWASP Agentic Skills, Snyk ToxicSkills (76 confirmed malicious payloads) |
 | `unsafe_exec` | Snyk ToxicSkills (13.4% critical), Equixly audit (43% command injection) |
 | `remote_instruction_fetch` | Snyk ToxicSkills, Invariant Labs rug pull attack |
@@ -138,6 +138,6 @@ The same loop handles unsafe shell execution, hidden Unicode, remote pipe instal
 - **Codex is structural.** The deterministic mode gives you machine-safe substitutions. Codex gives you patches a developer actually merges. The `--codex` flag is a live API call to `codex-mini-latest` — not a template fill, not a prompt pack. That's the integration the hackathon rewards.
 - **Demo is hard to dismiss.** Poisoned repo → Codex patch → clean rescan. Live on screen. Under two minutes.
 - **Rescan closes the loop.** Existing fix tools change files. AgentPreflight confirms `trust_score=100, findings=0` after fix. The difference matters: a file that changed is not proof a finding resolved. A passing rescan is.
-- **Never executes to scan.** Purely static: AST parsing, regex, schema validation. AgentPreflight does not run the MCP server or execute skill scripts. Snyk Agent Scan's CI mode requires `--dangerously-run-mcp-servers`. AgentPreflight requires no flags.
+- **Never executes to scan.** Purely static: AST parsing, regex, schema validation. AgentPreflight does not run the MCP server or execute skill scripts. Snyk Agent Scan's CI mode requires `--dangerously-run-mcp-servers`. Beyond the dangerous-flag problem, dynamic scanners create a second attack surface: a sophisticated malicious server can detect it is being scanned and serve innocent descriptions until first real launch — the same rug pull Invariant Labs documented. Static analysis has no such weakness.
 - **Offline by default.** Zero token cost in default scan mode — developers with sensitive codebases can audit safely.
 - **Research-grounded, not guessed.** Every rule traces to a published incident, CVE, or security study. No rule ships without a primary source. This is a static implementation of the 2025 MCP attack taxonomy — built from the attack evidence up, not adapted from generic SAST heuristics.
