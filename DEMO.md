@@ -74,7 +74,9 @@ trust_score=100 verdict=pass findings=0 offline=True
 
 ### Judge message
 
-In September 2025 a supply-chain attacker BCC'd every password reset email through a fake Postmark MCP server — undetected by any CI check. AgentPreflight is the gate that stops that scenario at PR review time: offline static scan → trust score → Codex-generated patch → rescan proof. Under two minutes, zero model calls during the scan itself. Entirely static — AgentPreflight never executes the MCP server or skill scripts to analyze them, eliminating the scanner's own attack surface.
+In September 2025, a supply-chain attacker BCC'd every password reset email through a fake Postmark MCP server — 15 versions of fake history, undetected by any CI check. Equixly reviewed 43% of popular MCP servers and found command injection. Their conclusion: "It feels like we're facing a regression in security."
+
+AgentPreflight is the gate that stops this at PR review time. The scan is entirely static — never executes the MCP server or skill scripts, zero API calls, sub-second. The fix is Codex doing selection: code rewriting is cheap; which of the infinite possible rewrites is minimal, compilable, and review-ready is not. Codex sees only the flagged 5-line window — no secrets, no file paths — and returns the drop-in replacement. The rescan proves the fix held. Under two minutes, `trust_score=0` → `trust_score=100`, findings confirmed closed.
 
 ---
 
