@@ -18,45 +18,49 @@ Demo repo contains:
 2. Run:
 
 ```bash
-agentpreflight scan . --profile strict --fail-on high
+agentpreflight scan demo/poisoned/ --profile strict --fail-on high
 ```
 
-3. Scanner returns:
+3. Scanner returns (actual output):
 
 ```text
-Trust score: 42/100
-Verdict: fail
-Critical: 1  High: 3  Medium: 2
+trust_score=0 verdict=fail findings=15 offline=True
+summary critical=7 high=5 medium=3 low=0 suppressed=0 artifacts=6
+
+Top findings:
+  AP-MCP-001  mcp.json      Tool 'repo_search' contains: "Hidden instruction"
+  AP-CODE-001 server.py:6   os.system("deploy " + user_input)
+  AP-CODE-003 install.sh:3  Remote pipe: curl ... | bash
+  AP-SEC-002  .env:1        Secret-like token pattern detected
 ```
 
 4. Top findings:
-   - `AP-MCP-001`: prompt-like override in tool description.
-   - `AP-SKILL-002`: zero-width hidden instruction in `SKILL.md`.
-   - `AP-CODE-003`: unsafe shell execution.
+   - `AP-MCP-001`: prompt override in `repo_search` tool description.
+   - `AP-CODE-001`: `os.system()` with user-controlled input.
+   - `AP-CODE-003`: `curl | bash` remote pipe installs.
+   - `AP-SEC-002`: API token pattern in `.env`.
 
-5. Run Codex remediation:
+5. Run local safe fixes:
 
 ```bash
-agentpreflight fix . --rules AP-MCP-001,AP-SKILL-002,AP-CODE-003 --apply
+agentpreflight fix demo/poisoned/ --rules AP-MCP-001,AP-CODE-001,AP-CODE-003 --apply
 ```
 
-6. Show generated patch:
-   - neutral tool description
-   - removed hidden Unicode
-   - safe subprocess call with argument list
+6. Patches applied:
+   - neutral tool description (hidden instruction removed)
+   - `os.system` → `subprocess.run([...], check=True)`
+   - `curl | bash` → `Download to file, verify checksum` guidance
 
 7. Rescan:
 
 ```bash
-agentpreflight scan . --profile strict --fail-on high
+agentpreflight scan demo/poisoned/ --profile strict --fail-on high
 ```
 
-8. Final output:
+8. Final output after fix (against clean demo):
 
 ```text
-Trust score: 91/100
-Verdict: pass
-SARIF: agentpreflight.sarif
+trust_score=100 verdict=pass findings=0 offline=True
 ```
 
 ### Judge message

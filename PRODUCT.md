@@ -24,7 +24,7 @@ Output: one trust score (0–100), ranked findings, JSON/SARIF, Codex-generated 
 
 ```bash
 agentpreflight scan . --profile strict --fail-on high
-agentpreflight fix findings.json --apply --rules AP-MCP-001,AP-SKILL-002
+agentpreflight fix . --apply --rules AP-MCP-001,AP-SKILL-002
 agentpreflight scan . --profile strict --fail-on high   # rescan proof
 ```
 
@@ -46,7 +46,7 @@ agentpreflight scan . --profile strict --fail-on high   # rescan proof
 Four interfaces:
 
 - CLI: `agentpreflight scan . --profile strict --fail-on high`
-- Fix loop: `agentpreflight fix findings.json --apply --rules AP-MCP-001,AP-SKILL-002,AP-CODE-001`
+- Fix loop: `agentpreflight fix . --apply --rules AP-MCP-001,AP-SKILL-002,AP-CODE-001`
 - API: `POST /v1/scans`
 - GitHub Action: PR comment plus SARIF upload
 - Demo repo: one clean agent, one poisoned agent
