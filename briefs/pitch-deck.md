@@ -17,7 +17,7 @@ In September 2025, an attacker copied the legitimate Postmark MCP server on npm.
 - 43% of popular MCP servers had command injection (Equixly March 2025): "It feels like we're facing a regression in security."
 - CVSS 9.6 RCE in `mcp-remote` — the package Claude Desktop uses for remote MCP servers (437,000+ downloads)
 - April 2026: OX Security discloses STDIO architectural flaw — 150M+ downloads, arbitrary command execution across all SDKs, Anthropic declined to patch
-- **Runtime defenses fail by design:** Invariant Labs showed a malicious server can serve innocent descriptions on first launch, switch to data-exfiltrating instructions on second — after trust is already granted. MCPTox tested 45 real servers: 72.8% attack success against o1-mini; Claude-3.7-Sonnet refused fewer than 3% of malicious cases.
+- **Runtime defenses fail by design:** Invariant Labs showed a malicious server can serve innocent descriptions on first launch, switch to data-exfiltrating instructions on second — after trust is already granted. In one evaluated setting, MCPTox tested 45 real servers: 72.8% attack success against o1-mini; Claude-3.7-Sonnet refused fewer than 3%.
 
 **The missing gate:** pre-deployment trust scoring before the agent extension runs.
 
