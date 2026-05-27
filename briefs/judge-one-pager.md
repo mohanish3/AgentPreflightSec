@@ -14,6 +14,8 @@ Developers on Hacker News reacted: **"The 'S' in MCP stands for Security"** — 
 
 In the 12 months between April 2025 and April 2026, authzed.com documented 14 distinct MCP security incidents: WhatsApp message exfiltration, GitHub private repo exposure, Anthropic's own filesystem server sandbox escape (CVSS 8.4), a Smithery supply-chain breach hitting 3,000+ apps, and a core STDIO architectural flaw affecting 150M+ downloads. Snyk's ToxicSkills study scanned 3,984 agent skills — **36.82% had at least one flaw; 13.4% had a critical issue**.
 
+These aren't just third-party packages. Equixly's March 2025 audit of popular MCP server implementations found **43% had command injection vulnerabilities, 30% had SSRF, and 22% had path traversal**. The official Anthropic-maintained Puppeteer MCP server — 91,000 monthly npm downloads — had SSRF, prompt injection, and sandbox bypass simultaneously. It was archived rather than patched.
+
 The missing gate in every developer's workflow: **pre-deployment trust scoring for MCP servers and agent skills**.
 
 ---
