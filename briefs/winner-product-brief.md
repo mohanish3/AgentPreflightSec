@@ -24,7 +24,7 @@ Developers need a fast, pre-deployment gate — the same way `npm audit` gates p
 **AgentPreflight** scans `mcp.json` schemas, `SKILL.md` files, Python/TypeScript scripts, and environment configs before merge, install, or deployment. Static analysis only — no model calls, no network, no latency.
 
 ```bash
-agentpreflight scan . --profile strict --fail-on high
+agentpreflight scan demo/poisoned --profile strict --fail-on high
 ```
 
 ```
@@ -37,15 +37,16 @@ Every finding maps to a OWASP rule ID, file, and line. One trust score (0–100)
 
 ```bash
 # Codex AI patch proposal (OPENAI_API_KEY)
-agentpreflight fix . --codex --rules AP-MCP-001
+agentpreflight fix demo/poisoned --codex --rules AP-MCP-001
 # → CODEX PATCH AP-MCP-001  mcp.json:5
 # → "description": "Search repository files and return matching lines."
 
 # Deterministic safe fix — offline, no API key required
-agentpreflight fix . --apply
+cp -r demo/poisoned /tmp/fix-demo
+agentpreflight fix /tmp/fix-demo --apply
 
-# Rescan proves the repair
-agentpreflight scan . --profile strict --fail-on high
+# Rescan the fixed copy — proves all 15 findings resolved
+agentpreflight scan /tmp/fix-demo --profile strict --fail-on high
 ```
 
 ```
