@@ -52,7 +52,7 @@ The detection pipeline is entirely static — AST parsing for Python, JSON schem
 
 Codex integration has two layers:
 1. **`agentpreflight prompts`** — generates a structured prompt pack (system prompt + per-finding context) that can be fed to any Codex session.
-2. **`agentpreflight fix --codex`** — makes a live `chat.completions.create` call to `codex-mini-latest` with a redacted snippet and structured instruction. Returns a patch proposal the developer reviews before applying.
+2. **`agentpreflight fix --codex`** — makes a live `chat.completions.create` call to `codex-mini-latest` with a redacted snippet and structured instruction. Returns a patch proposal the developer reviews before applying. Token footprint is minimal: Codex sees only the rule ID, OWASP context, and a 5-line window (line ±2) around the violation — never the full file, never the full codebase.
 
 The deterministic `--apply` mode was built as a CI-safe fallback: it applies the same fixes offline, using the rule logic we trust without Codex API dependency. The combination means the demo works with or without an API key.
 
