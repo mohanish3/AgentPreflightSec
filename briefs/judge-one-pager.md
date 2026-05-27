@@ -87,7 +87,7 @@ AgentPreflight has two fix modes — both real, both ship:
 +  start times, and end times."
 ```
 
-Codex writes the fix. Developer reviews one diff. Rescan confirms. Trust Score moves from 0 to 92. The PR unblocks.
+Codex writes the fix. Developer reviews one diff. Rescan confirms. Trust score moves from 0 to 100. The PR unblocks.
 
 This is the core loop the hackathon is built for: **Codex as a repair engine, not just a code generator**.
 
