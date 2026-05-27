@@ -105,10 +105,14 @@ $ agentpreflight fix /tmp/fix-demo --apply
 **Stdout Output:**
 ```
 fixable=14 target=/tmp/fix-demo
-changed=3
-/tmp/fix-demo/mcp.json
-/tmp/fix-demo/server.py
+changed=7
+/tmp/fix-demo/.env
+/tmp/fix-demo/.env -> /tmp/fix-demo/.env.example
 /tmp/fix-demo/install.sh
+/tmp/fix-demo/mcp.json
+/tmp/fix-demo/run.py
+/tmp/fix-demo/server.py
+/tmp/fix-demo/SKILL.md
 ```
 
 ---
@@ -116,16 +120,16 @@ changed=3
 ## Step 4: Verify Posture with a Rescan
 
 ```bash
-# Rescan the clean demo — shows the 100/100 secured state
-$ agentpreflight scan demo/clean/ --profile strict
+# Rescan the fixed copy — proves all 15 findings resolved
+$ agentpreflight scan /tmp/fix-demo --profile strict --fail-on high
 ```
 **Actual Stdout Output:**
 ```
-AgentPreflight target=demo/clean
+AgentPreflight target=/tmp/fix-demo
 trust_score=100 verdict=pass findings=0 offline=True
-summary critical=0 high=0 medium=0 low=0 suppressed=0 artifacts=4
+summary critical=0 high=0 medium=0 low=0 suppressed=0 artifacts=6
 ```
 
-> **Talking point:** From trust_score=0 (fail) to trust_score=100 (pass). Under two minutes. Codex wrote the readable patch. The deterministic mode applied all 14 fixable rules. A rescan proves the fix held — that's the core promise of AgentPreflight.
+> **Talking point:** From trust_score=0 (fail) to trust_score=100 (pass) — same repo, after applying fixes. Under two minutes. Codex wrote the readable patch. The deterministic mode applied all 14 fixable rules. A rescan proves the fix held — that's the core promise of AgentPreflight.
 
 - **Judge Impact**: Demonstrates offline scan speed (sub-second, 113+ artifacts), Codex-powered patch generation (live API call, redacted snippet only), deterministic local fix for CI, and rescan proof that closes the PR.
