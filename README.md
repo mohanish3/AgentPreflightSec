@@ -13,6 +13,8 @@ trust_score=100 verdict=pass findings=0  ← after Codex fix + rescan
 
 14 documented MCP security incidents in 12 months (authzed.com timeline). Snyk's ToxicSkills study: 13.4% of 3,984 scanned skills had a critical issue. `mcp-remote` — the package Claude Desktop uses to connect to remote servers — had a CVSS 9.6 RCE in 437,000+ downloads.
 
+Equixly's March 2025 audit of popular MCP server implementations found **43% had command injection, 30% had SSRF, 22% had path traversal**. The official Anthropic-maintained Puppeteer MCP server — 91,000 monthly downloads — had SSRF, prompt injection, and sandbox bypass simultaneously. It was archived rather than patched.
+
 The attack surface is new: MCP tool descriptions are natural-language, readable by the model but invisible to most CI checks. In one evaluated setting, MCPTox tested tool poisoning against real MCP servers and found a 72.8% attack success rate. Runtime firewalls don't catch it — by the time the agent runs, the malicious instruction has already been injected.
 
 The first confirmed malicious MCP server on npm ran for 15 versions before anyone noticed. Then, in a single commit, the attacker added one BCC line to `send_email`. Every password reset token forwarded to an attacker address. No existing CI check flagged it.
