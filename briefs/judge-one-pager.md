@@ -99,16 +99,20 @@ This is not a lint ruleset. It is a static implementation of the 2025 MCP attack
 
 ## Competitive Position
 
-Multiple MCP scanners exist. The wedge is not detection breadth — it is **time-to-fix**.
+Multiple MCP scanners exist. Several have autofix. The wedge is not detection breadth or even fix capability — it is **the full loop**: Codex-generated patch → developer review → rescan proof, without executing the server.
 
-| | Static Scanners (mcp-scan) | Runtime Firewalls (Llama Guard) | AgentPreflight |
-|---|---|---|---|
-| Pipeline stage | Pre-deployment | Runtime | **Pre-deployment git gate** |
-| Remediation | Finds only | Blocks only | **Codex patch + rescan proof** |
-| Fix quality | — | — | **AI-generated, developer-reviewable** |
-| CI integration | SARIF | None | **SARIF + `--fail-on` exit code** |
+| | Scanner-only (mcp-scan) | Autofix scanners | Snyk Agent Scan | AgentPreflight |
+|---|---|---|---|---|
+| Pipeline stage | Pre-deployment | Pre-deployment | Pre-deployment | **Pre-deployment git gate** |
+| Scan method | Static | Static/dynamic | Dynamic | **Static only — never executes server** |
+| Remediation | Finds only | Template substitution | Finds + reports | **Codex patch + rescan proof** |
+| Fix quality | — | Machine substitution | — | **AI-generated, developer-reviewable** |
+| CI safety | Safe | Safe | Requires `--dangerously-run-mcp-servers` | **Zero dangerous flags required** |
 
-Existing scanners stop at the finding. AgentPreflight closes the PR.
+Three things that hold up under scrutiny:
+1. **Static-only execution** — AgentPreflight never runs the MCP server or executes skill scripts to scan them. Snyk Agent Scan's CI mode requires `--dangerously-run-mcp-servers`.
+2. **Codex as the fix layer, not templates** — template substitution replaces `os.system(cmd)` with a comment or a `# TODO`. Codex generates `subprocess.run([...], check=True)` — a compilable drop-in replacement a developer merges with confidence.
+3. **Rescan proof closes the PR** — existing fix tools change files. AgentPreflight confirms `trust_score=100, findings=0` after fix. The loop closes.
 
 ---
 
