@@ -40,7 +40,13 @@ Top findings:
    - `AP-CODE-003`: `curl | bash` remote pipe installs.
    - `AP-SEC-002`: API token pattern in `.env`.
 
-5. Run local safe fixes:
+5. Run Codex remediation (shows AI-generated patch proposals):
+
+```bash
+agentpreflight fix demo/poisoned/ --rules AP-MCP-001 --codex
+```
+
+Then apply deterministic safe fixes:
 
 ```bash
 agentpreflight fix demo/poisoned/ --rules AP-MCP-001,AP-CODE-001,AP-CODE-003 --apply

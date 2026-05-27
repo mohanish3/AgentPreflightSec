@@ -1,19 +1,23 @@
 # AgentPreflight
 
-Static preflight scanner for MCP servers and agent skills. Finds tool poisoning, prompt injection, secrets, and unsafe code before your agent runs — offline, no model calls required.
+Pre-deployment security scanner for MCP servers and agent skills. Finds tool poisoning, prompt injection, secrets, and unsafe code before your agent runs — offline static scan, Codex-generated fixes, rescan proof.
 
 ```
 trust_score=0 verdict=fail findings=15   ← poisoned repo
-trust_score=100 verdict=pass findings=0  ← after fix
+trust_score=100 verdict=pass findings=0  ← after Codex fix + rescan
 ```
 
 ---
 
 ## Why
 
-Snyk scanned 3,984 agent skills and found 13.4% had a critical security issue. The first confirmed malicious MCP server on npm used a supply-chain attack pattern — trusted for 15 versions, then silently BCC'd every email through the compromised extension. No existing CI check catches this class of risk at install time.
+14 documented MCP security incidents in 12 months (authzed.com timeline). Snyk's ToxicSkills study: 13.4% of 3,984 scanned skills had a critical issue. `mcp-remote` — the package Claude Desktop uses to connect to remote servers — had a CVSS 9.6 RCE in 437,000+ downloads.
 
-AgentPreflight is the gate that blocks it: scan before you install, get a trust score, and let Codex generate the minimal patch to fix it. Under two minutes from failing scan to passing PR.
+The attack surface is new: MCP tool descriptions are natural-language, readable by the model but invisible to most CI checks. In one evaluated setting, MCPTox tested tool poisoning against real MCP servers and found a 72.8% attack success rate. Runtime firewalls don't catch it — by the time the agent runs, the malicious instruction has already been injected.
+
+The first confirmed malicious MCP server on npm ran for 15 versions before anyone noticed. Then, in a single commit, the attacker added one BCC line to `send_email`. Every password reset token forwarded to an attacker address. No existing CI check flagged it.
+
+AgentPreflight is the pre-deployment gate: scan → trust score → Codex patch → rescan proof. Under two minutes from failing scan to passing PR.
 
 ---
 
@@ -22,6 +26,10 @@ AgentPreflight is the gate that blocks it: scan before you install, get a trust 
 ```bash
 pip install .
 agentpreflight --version
+
+# For Codex AI remediation (optional):
+pip install ".[codex]"
+export OPENAI_API_KEY=<your-key>
 ```
 
 ---
@@ -32,10 +40,10 @@ agentpreflight --version
 # scan a poisoned MCP repo — expect fail
 agentpreflight scan demo/poisoned --profile strict --fail-on high
 
-# see exactly what to fix
-agentpreflight fix demo/poisoned
+# get Codex AI patch proposals (requires OPENAI_API_KEY)
+agentpreflight fix demo/poisoned --rules AP-MCP-001 --codex
 
-# apply safe local fixes
+# apply deterministic safe fixes
 cp -r demo/poisoned /tmp/fix-demo
 agentpreflight fix /tmp/fix-demo --apply
 
@@ -59,9 +67,11 @@ agentpreflight scan <path> --format markdown --output pr-comment.md
 # suppression file
 agentpreflight scan <path> --suppressions .agentpreflight.json
 
-# fix (dry run then apply)
+# fix (dry run → Codex proposals → apply)
 agentpreflight fix <path>
-agentpreflight fix <path> --apply
+agentpreflight fix <path> --codex                  # Codex AI patch (OPENAI_API_KEY)
+agentpreflight fix <path> --codex --rules AP-MCP-001
+agentpreflight fix <path> --apply                  # deterministic local fix
 
 # generate Codex remediation prompt pack
 agentpreflight prompts <path> --output remediation.md
@@ -158,6 +168,7 @@ export AGENTPREFLIGHT_RATE_LIMIT_PER_MINUTE=60
 | File | What it proves |
 |---|---|
 | `validation/pytest-may26.txt` | 25 unit tests pass |
+| `validation/pytest-may27.txt` | 30 unit tests pass (includes Codex API mocks) |
 | `validation/poisoned-scan.txt` | poisoned demo → score 0, fail |
 | `validation/clean-scan.txt` | clean demo → score 100, pass |
 | `validation/agentpreflight.sarif` | SARIF 2.1.0 output |
@@ -176,13 +187,21 @@ export AGENTPREFLIGHT_RATE_LIMIT_PER_MINUTE=60
 ## Architecture
 
 ```
-collector → normalizer → rule engine → trust scorer → reporter
-                                           ↓
-                                    agentpreflight fix
-                                    (constrained patch → rescan)
+agentpreflight scan:
+  collector → normalizer → rule engine → trust scorer → reporter
+  (100% offline, zero API calls, sub-second on typical repos)
+
+agentpreflight fix:
+  findings → [--codex] redacted snippet → OpenAI Codex API → patch proposal
+           → [--apply] deterministic regex rewrite → files modified
+
+agentpreflight scan (rescan):
+  new trust score confirms fix held
 ```
 
-Offline by default. No model calls in scan path. Redacted snippets only if Codex remediation is used.
+Scan path: offline by default, no model calls, no token cost.  
+Fix path: `--codex` sends only redacted snippets — no secrets, no full file contents.  
+CI path: `--fail-on high` exits 1 on violations; SARIF uploads to GitHub Security tab.
 
 ---
 
