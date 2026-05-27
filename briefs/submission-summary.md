@@ -52,11 +52,13 @@ Codex integration has two layers:
 
 The deterministic `--apply` mode was built as a CI-safe fallback: it applies the same fixes offline, using the rule logic we trust without Codex API dependency. The combination means the demo works with or without an API key.
 
+**Ship metrics:** 30 unit tests passing, 113-artifact scan averages 0.079s, SARIF 2.1.0 validates against schema, `demo/poisoned → trust_score=100` cold-run verified. Validation artifacts in `validation/`.
+
 ---
 
 ## 7. What We Learned
 
-The hardest part was not the detection logic — it was prompt engineering for constrained remediation. Codex is extremely capable at rewriting code, but without tight structuring it produces explanatory prose instead of a drop-in replacement. The `SYSTEM_PROMPT` in `prompt_builder.py` went through a dozen iterations before it reliably returned a patch instead of a paragraph.
+The hardest part was not the detection logic — it was prompt engineering for constrained remediation. Codex is extremely capable at rewriting code, but without tight structuring it produces explanatory prose instead of a drop-in replacement. The core constraint: the patch must be a one-to-one text substitution that compiles — not a paragraph explaining the problem, not a comment stub saying "fix this." Adding `"Return ONLY the replacement text. No prose. No explanation. No markdown. Just the replacement."` as the final instruction was the turning point. The `SYSTEM_PROMPT` in `prompt_builder.py` enforces this alongside rule context, OWASP mapping, and a redacted snippet — no file paths, no credentials.
 
 The second insight: the trust score matters more than the finding list. Judges, developers, and CI gates all want a single number. A 0–100 score that moves from `fail` to `pass` is more compelling than a long finding list even if the long list contains more information.
 
