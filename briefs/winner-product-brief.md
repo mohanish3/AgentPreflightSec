@@ -11,6 +11,8 @@ In September 2025, an attacker copied the legitimate Postmark MCP server on npm,
 
 This was not an edge case. Snyk's ToxicSkills study scanned 3,984 agent skills and found **36.82% had at least one security flaw; 13.4% had a critical issue**. `mcp-remote` — the npm package Claude Desktop uses to connect to remote MCP servers — had a CVSS 9.6 RCE vulnerability in 437,000+ downloads. Anthropic's own official filesystem MCP server had a sandbox escape (CVSS 8.4) that went unpatched for three months.
 
+Equixly's March 2025 audit found **43% of popular MCP server implementations had command injection, 30% had SSRF, and 22% had path traversal**. The official Anthropic-maintained Puppeteer MCP server — 91,000 monthly downloads — had SSRF, prompt injection, and sandbox bypass simultaneously. It was archived rather than patched.
+
 The attack surface is new. MCP servers and agent skills bundle natural-language tool descriptions, executable code, config, secrets, and permissions in a single artifact. A poisoned description or malicious script hijacks an agent before runtime guardrails see anything. In one evaluated setting, MCPTox tested tool poisoning attacks against real MCP servers and found a 72.8% attack success rate — and the best-defending tested model refused fewer than 3% of attacks. Runtime defenses aren't winning.
 
 Developers need a fast, pre-deployment gate — the same way `npm audit` gates package installation.
