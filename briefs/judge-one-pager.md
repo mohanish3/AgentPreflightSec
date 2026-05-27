@@ -65,6 +65,20 @@ trust_score=100  verdict=pass  findings=0
 - `--codex`: Live `chat.completions.create` call to `codex-mini-latest`. Sends only the redacted finding snippet — no file paths, no secrets. Returns a structured patch proposal the developer reviews and merges.
 - `--apply`: Deterministic regex rewrite engine covering 14 rules across four categories (MCP, Skill, Code, Secrets). Works offline. Safe in every CI run.
 
+**Research-grounded rules.** Each of the 21 rules maps to a primary published source — not arbitrary lint heuristics:
+
+| Rule family | Source |
+|---|---|
+| `tool_poisoning` | MCPTox (72.8% success on real servers), OWASP MCP Top 10 |
+| `unicode_smuggling` | OWASP Agentic Skills, Snyk ToxicSkills (76 confirmed payloads) |
+| `unsafe_exec` | Snyk ToxicSkills (13.4% of 3,984 skills critical), Equixly audit (43% command injection) |
+| `remote_instruction_fetch` | Snyk ToxicSkills, Invariant Labs rug pull |
+| `secrets` | Snyk ToxicSkills, CVE-2025-6514 (mcp-remote CVSS 9.6) |
+| `transport_security` | OWASP MCP Security Guide, CVE-2025-53109/53110 (CVSS 8.4) |
+| `least_privilege` | OWASP LLM Top 10, Puppeteer MCP SSRF/sandbox bypass |
+
+This is not a lint ruleset. It is a static implementation of the 2025 MCP attack taxonomy.
+
 **Codex as decision layer, not code generator.** Code rewriting is cheap. The scarce resource in security remediation is *selection*: which of the infinite possible rewrites is minimal, secure, compilable, and review-ready? Given the flagged line, the OWASP rule ID, and the constraint "return only the drop-in replacement," Codex selects `subprocess.run([...], check=True)` over every alternative. The developer reviews one diff. The rescan proves it held.
 
 ---
