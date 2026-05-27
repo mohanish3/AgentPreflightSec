@@ -84,6 +84,8 @@ The same loop handles unsafe shell execution, hidden Unicode, remote pipe instal
 
 **Why two modes?** Deterministic mode is what you run in CI — no API key, no cost, no risk. Codex mode is what you show a developer: a readable, deployable patch proposal with natural-language context instead of a regex substitution. The difference matters: a regex that replaces `os.system(...)` with a comment isn't something a developer merges with confidence. A Codex-generated `subprocess.run([...], check=True)` replacement is. Both ship. Both are real code.
 
+**Codex as decision layer:** Code rewriting is cheap. The scarce resource in security remediation is selection — which of the infinite possible rewrites is minimal, secure, compilable, and review-ready. Codex makes that selection: given the flagged line, the rule ID, and the constraint "return only the drop-in replacement," it produces the version a developer actually merges.
+
 ---
 
 ## 4. Technical Scope
