@@ -15,7 +15,7 @@ Equixly's March 2025 audit found **43% of popular MCP server implementations had
 
 In April 2026, OX Security disclosed a systemic design flaw in Anthropic's MCP STDIO transport enabling arbitrary command execution across all language SDKs. Not a patchable bug — architectural. Anthropic declined to modify the protocol, citing the behavior as "expected." OX executed commands on six live production platforms — including LiteLLM, LangChain, and IBM LangFlow. Scale: 150M+ downloads, 7,000+ publicly accessible servers.
 
-The attack surface is new. MCP servers and agent skills bundle natural-language tool descriptions, executable code, config, secrets, and permissions in a single artifact. A poisoned description or malicious script hijacks an agent before runtime guardrails see anything. In one evaluated setting, MCPTox tested tool poisoning attacks against real MCP servers and found a 72.8% attack success rate — and the best-defending tested model refused fewer than 3% of attacks. Runtime defenses aren't winning.
+The attack surface is new. MCP servers and agent skills bundle natural-language tool descriptions, executable code, config, secrets, and permissions in a single artifact. A poisoned description or malicious script hijacks an agent before runtime guardrails see anything. In one evaluated setting, MCPTox tested tool poisoning against 45 real-world MCP servers and found a 72.8% attack success rate against o1-mini; Claude-3.7-Sonnet refused fewer than 3% of malicious test cases. Runtime model-level defenses aren't catching this attack class.
 
 Developers need a fast, pre-deployment gate — the same way `npm audit` gates package installation.
 

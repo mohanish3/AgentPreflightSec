@@ -19,7 +19,7 @@ This was not isolated:
 - **36.82% of 3,984 scanned agent skills** had at least one flaw; 76 confirmed malicious payloads (Snyk ToxicSkills 2025)
 - **43% of popular MCP server implementations** had command injection; Puppeteer MCP (91,000 monthly downloads) had SSRF + prompt injection + sandbox bypass — archived rather than patched (Equixly March 2025)
 - **CVSS 9.6 RCE** in `mcp-remote` (437,000+ downloads) — the package Claude Desktop uses for remote MCP
-- **72.8% tool-poisoning attack success rate** in one evaluated setting against real MCP servers — the best-defending model refused fewer than 3% (MCPTox)
+- **72.8% tool-poisoning attack success rate** against o1-mini in one evaluated setting (45 real-world servers); Claude-3.7-Sonnet refused fewer than 3% of malicious instructions (MCPTox)
 - **April 2026**: OX Security found STDIO architectural flaw across 150M+ downloads — Anthropic declined to modify the protocol
 
 MCP tool descriptions are natural-language, invisible to standard CI checks. A poisoned description hijacks an agent before runtime guardrails see anything. The protocol won't change. AgentPreflight is the pre-deployment gate: scan → trust score → Codex patch → rescan proof. Under two minutes, entirely static — never executes the server to analyze it.
