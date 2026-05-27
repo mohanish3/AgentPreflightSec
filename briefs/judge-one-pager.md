@@ -22,7 +22,7 @@ The missing gate is pre-deployment trust scoring for agent extensions. AgentPref
 
 In September 2025, an attacker copied the legitimate Postmark MCP server on npm. They maintained 15 versions — a real commit history, a real profile picture — then in a single commit added one BCC line to `send_email`. Every password reset token, payment confirmation, and account notification silently forwarded to an attacker-controlled address. No runtime firewall caught it. No AppSec scanner flagged it.
 
-This was not an anomaly. In the 12 months between April 2025 and April 2026, authzed.com documented **14 distinct MCP security incidents**: WhatsApp message exfiltration, GitHub private repo exposure, Anthropic's own filesystem server sandbox escape (CVSS 8.4), a Smithery supply-chain breach hitting 3,000+ apps, and a core STDIO architectural flaw affecting 150M+ downloads.
+This was not an anomaly. In the 12 months between April 2025 and April 2026, authzed.com documented **14 distinct MCP security incidents**: WhatsApp message exfiltration, GitHub private repo exposure, an Asana MCP logic flaw exposing enterprise customer data across tenant boundaries (approximately 1,000 enterprise customers notified), a Smithery supply-chain breach hitting 3,000+ apps, and a core STDIO architectural flaw affecting 150M+ downloads that Anthropic declined to patch.
 
 The vulnerability data is stark:
 

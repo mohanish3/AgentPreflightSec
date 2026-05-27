@@ -64,6 +64,10 @@ The second insight: the trust score matters more than the finding list. Judges, 
 
 ---
 
+**Developer community signal.** When Equixly published their MCP audit in March 2025, Hacker News titled the thread "The 'S' in MCP Stands for Security" — sarcastically. 183 comments. Top comment (602 points): "The fact that all LLM input gets treated equally seems like a critical flaw that must be fixed before LLMs can be given control over anything privileged." This is the community AgentPreflight serves. They know the problem. They need the tool.
+
+---
+
 ## 8. What's Next
 
 - **Suppression expiry enforcement**: surfacing when suppressed findings have exceeded their stated expiry date.
