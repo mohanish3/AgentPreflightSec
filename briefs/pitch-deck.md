@@ -65,6 +65,11 @@ rescan → trust_score=100, findings=0
 
 ## Slide 4: ICP — Ideal Customer Profile
 
+**Market size proxy:**
+- 1.13M+ public repos now import generative AI SDKs — up 178% YoY (GitHub Octoverse 2025)
+- 1M+ pull requests created by Copilot coding agents (May–Sep 2025) — each one a potential agent extension review
+- Every developer using Claude Desktop, Cursor, or Copilot with MCP tools is a potential user
+
 **Primary ICP: The AI-first developer team (5–50 engineers)**
 
 | Attribute | Profile |
