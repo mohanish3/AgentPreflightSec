@@ -8,9 +8,13 @@
 
 ## The Opportunity
 
-Every AI developer today installs MCP servers and agent skills the same way: pull from npm, GitHub, or a registry, and trust the description. No pre-deployment gate exists. The agent ecosystem is growing at the speed of Copilot — 1M+ pull requests created by Copilot coding agents (May–Sep 2025) — and the security tooling is twelve months behind.
+Every AI developer today installs MCP servers and agent skills the same way: pull from npm, GitHub, or a registry, and trust the description. No pre-deployment gate exists.
 
-The missing gate is pre-deployment trust scoring. AgentPreflight is that gate.
+The scale of exposure is real: 1.13M+ public repositories now import generative AI SDKs — up 178% year over year (GitHub Octoverse 2025). 1M+ pull requests were created by Copilot coding agents between May and September 2025. Security tooling is twelve months behind this adoption curve.
+
+The cost of getting it wrong: IBM's 2025 Cost of a Data Breach report puts the global average breach at $4.4M. 97% of organizations that had an AI-related security incident lacked proper AI access controls. Extensive AI security automation was associated with $1.9M in cost savings versus organizations without it.
+
+The missing gate is pre-deployment trust scoring for agent extensions. AgentPreflight is that gate.
 
 ---
 
@@ -22,7 +26,7 @@ This was not an anomaly. In the 12 months between April 2025 and April 2026, aut
 
 The vulnerability data is stark:
 
-- **Snyk ToxicSkills (2025):** 3,984 agent skills scanned — 36.82% had at least one flaw; 13.4% had a critical issue.
+- **Snyk ToxicSkills (2025):** 3,984 agent skills scanned — 36.82% had at least one flaw; 13.4% had a critical issue. **76 confirmed malicious payloads** for credential theft, backdoors, and data exfiltration. 91% combined prompt injection with traditional malware.
 - **Equixly March 2025 audit:** Popular MCP server implementations — 43% had command injection, 30% SSRF, 22% path traversal.
 - **CVE-2025-6514:** `mcp-remote` (the package Claude Desktop uses for remote MCP) — CVSS 9.6 RCE, 437,000+ downloads.
 - **CVE-2025-53109/53110:** Anthropic's official filesystem MCP server — CVSS 8.4 sandbox escape, unpatched for three months.

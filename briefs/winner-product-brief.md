@@ -9,7 +9,7 @@
 
 In September 2025, an attacker copied the legitimate Postmark MCP server on npm, maintained 15 versions to look real, then inserted a single BCC line into the `send_email` function. Every password reset token and payment confirmation silently forwarded to an attacker address. No CI check caught it.
 
-This was not an edge case. Snyk's ToxicSkills study scanned 3,984 agent skills and found **36.82% had at least one security flaw; 13.4% had a critical issue**. `mcp-remote` — the npm package Claude Desktop uses to connect to remote MCP servers — had a CVSS 9.6 RCE vulnerability in 437,000+ downloads. Anthropic's own official filesystem MCP server had a sandbox escape (CVSS 8.4) that went unpatched for three months.
+This was not an edge case. Snyk's ToxicSkills study scanned 3,984 agent skills and found **36.82% had at least one security flaw; 13.4% had a critical issue**. Researchers identified **76 confirmed malicious payloads** for credential theft, backdoors, and data exfiltration — 91% combined prompt injection with traditional malware techniques. `mcp-remote` — the npm package Claude Desktop uses to connect to remote MCP servers — had a CVSS 9.6 RCE vulnerability in 437,000+ downloads. Anthropic's own official filesystem MCP server had a sandbox escape (CVSS 8.4) that went unpatched for three months.
 
 Equixly's March 2025 audit found **43% of popular MCP server implementations had command injection, 30% had SSRF, and 22% had path traversal**. The official Anthropic-maintained Puppeteer MCP server — 91,000 monthly downloads — had SSRF, prompt injection, and sandbox bypass simultaneously. It was archived rather than patched.
 
