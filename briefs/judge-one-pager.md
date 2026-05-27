@@ -8,6 +8,8 @@ In September 2025, security researchers uncovered the first confirmed malicious 
 
 No runtime firewall caught it. No AppSec scanner flagged it. The attack surface was a natural-language function description and one line of config — not a CVE in a dependency.
 
+Runtime defenses specifically fail here. Invariant Labs demonstrated a "rug pull" attack where a malicious MCP server served innocent tool descriptions on first launch, then switched to hidden instructions on the second launch — after the developer had already granted trust. A pre-deployment scanner reading the installed artifact catches it before either launch. MCPTox tested this class of attack against real MCP servers in one evaluated setting and found a 72.8% attack success rate; the best-defending tested model refused fewer than 3% of attacks.
+
 Developers on Hacker News reacted: **"The 'S' in MCP stands for Security"** — a thread with 183 comments and 600+ upvoted agreement that the architecture is fundamentally broken. And this was before the critical CVE disclosures accelerated.
 
 By April 2026, the breach timeline included 14 documented MCP incidents: WhatsApp message exfiltration, GitHub private repo exposure, Anthropic's own filesystem server sandbox escape (CVSS 8.4), and a core STDIO architectural flaw affecting 150M+ downloads. Snyk's ToxicSkills study scanned 3,984 agent skills — **36.82% had at least one flaw; 13.4% had a critical issue**.
