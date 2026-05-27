@@ -9,6 +9,14 @@ trust_score=100 verdict=pass findings=0  ← after fix
 
 ---
 
+## Why
+
+Snyk scanned 3,984 agent skills and found 13.4% had a critical security issue. The first confirmed malicious MCP server on npm used a supply-chain attack pattern — trusted for 15 versions, then silently BCC'd every email through the compromised extension. No existing CI check catches this class of risk at install time.
+
+AgentPreflight is the gate that blocks it: scan before you install, get a trust score, and let Codex generate the minimal patch to fix it. Under two minutes from failing scan to passing PR.
+
+---
+
 ## Install
 
 ```bash

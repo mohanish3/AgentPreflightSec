@@ -10,7 +10,7 @@ This document outlines the concise submission copy for our **AgentPreflight** ha
 ---
 
 ## 2. One-Line Tagline
-A pre-deployment, local-first static scanner and Codex-powered auto-patching gate for Model Context Protocol (MCP) servers and agent skills.
+Security scanner that finds and patches dangerous AI agent extensions before they ship — offline static analysis, Codex-generated fixes, rescan proof.
 
 ---
 
