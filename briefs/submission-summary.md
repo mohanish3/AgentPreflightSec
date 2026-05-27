@@ -42,7 +42,7 @@ AgentPreflight shifts agent security left, acting like `npm audit` for the agent
 
 ## 6. How We Built It
 
-The scanner was designed Codex-first: we wrote the rule catalog and prompt templates before writing the detection engine, so every rule produces a Codex-ready remediation context from day one.
+The scanner was designed Codex-first: we wrote the rule catalog and prompt templates before writing the detection engine, so every rule produces a Codex-ready remediation context from day one. Each rule maps to a primary published source — MCPTox, Snyk ToxicSkills, OWASP MCP, Equixly audit — not arbitrary lint heuristics.
 
 The detection pipeline is entirely static — AST parsing for Python, JSON schema validation for MCP configs, regex-based Unicode normalization for skill Markdown. No model calls, no sandboxing, no network. This keeps the scan path offline and sub-second.
 
