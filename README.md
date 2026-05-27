@@ -17,7 +17,7 @@ This was not isolated:
 
 - **14 documented MCP incidents** in 12 months (authzed.com) — WhatsApp exfiltration, GitHub private repo exposure, Smithery supply-chain breach (3,000+ apps)
 - **36.82% of 3,984 scanned agent skills** had at least one flaw; 76 confirmed malicious payloads (Snyk ToxicSkills 2025)
-- **43% of popular MCP server implementations** had command injection; Puppeteer MCP (91,000 monthly downloads) had SSRF + prompt injection + sandbox bypass — archived rather than patched (Equixly March 2025)
+- **43% of popular MCP server implementations** had command injection; Puppeteer MCP (91,000 monthly downloads) had SSRF + prompt injection + sandbox bypass — archived rather than patched. Equixly's conclusion: "It feels like we're facing a regression in security." (March 2025)
 - **CVSS 9.6 RCE** in `mcp-remote` (437,000+ downloads) — the package Claude Desktop uses for remote MCP
 - **72.8% tool-poisoning attack success rate** against o1-mini in one evaluated setting (45 real-world servers); Claude-3.7-Sonnet refused fewer than 3% of malicious instructions (MCPTox)
 - **April 2026**: OX Security found STDIO architectural flaw across 150M+ downloads — Anthropic declined to modify the protocol
@@ -206,7 +206,7 @@ agentpreflight scan (rescan):
 ```
 
 Scan path: offline by default, no model calls, no token cost.  
-Fix path: `--codex` sends only redacted snippets — no secrets, no full file contents.  
+Fix path: `--codex` sends a 5-line code window around the violation (redacted — no secrets, no file paths) to `codex-mini-latest`. Code rewriting is cheap; the scarce resource is *selection* — which of the infinite possible rewrites is minimal, compilable, and review-ready. Codex makes that call.  
 CI path: `--fail-on high` exits 1 on violations; SARIF uploads to GitHub Security tab.
 
 ---
