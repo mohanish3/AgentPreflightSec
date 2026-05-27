@@ -32,7 +32,7 @@ The vulnerability data is stark:
 - **CVE-2025-53109/53110:** Anthropic's official filesystem MCP server — CVSS 8.4 sandbox escape, unpatched for three months.
 - **Official Puppeteer MCP server** — 91,000 monthly downloads, SSRF + prompt injection + sandbox bypass simultaneously. Archived rather than patched.
 
-Runtime defenses fail this attack class. Invariant Labs demonstrated a "rug pull" where a malicious MCP server served innocent tool descriptions on first launch, switched to hidden instructions on the second — after trust was already granted. In one evaluated setting, MCPTox found a 72.8% tool-poisoning attack success rate; the best-defending model refused fewer than 3% of attacks.
+Runtime defenses fail this attack class. Invariant Labs demonstrated a "rug pull" where a malicious MCP server served innocent tool descriptions on first launch, switched to hidden instructions on the second — after trust was already granted. In one evaluated setting, MCPTox tested 45 real-world MCP servers and found a 72.8% attack success rate against o1-mini; Claude-3.7-Sonnet refused fewer than 3% of malicious test cases.
 
 The attack surface is new: MCP tool descriptions are natural-language, invisible to standard CI checks, and poisoned before the agent ever runs.
 
