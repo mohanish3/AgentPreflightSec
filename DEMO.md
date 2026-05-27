@@ -37,7 +37,7 @@ Critical: 1  High: 3  Medium: 2
 5. Run Codex remediation:
 
 ```bash
-agentpreflight fix . --finding AP-MCP-001 --finding AP-SKILL-002 --finding AP-CODE-003
+agentpreflight fix . --rules AP-MCP-001,AP-SKILL-002,AP-CODE-003 --apply
 ```
 
 6. Show generated patch:
@@ -61,7 +61,7 @@ SARIF: agentpreflight.sarif
 
 ### Judge message
 
-AgentPreflight blocks poisoned MCP servers and agent skills before they ever run. Existing tools either test runtime prompts or scan generic code. This product scans the agent supply chain itself, stays offline by default, integrates with CI, and uses Codex for remediation.
+In September 2025 a supply-chain attacker BCC'd every password reset email through a fake Postmark MCP server — undetected by any CI check. AgentPreflight is the gate that stops that scenario at PR review time: offline static scan → trust score → Codex-generated patch → rescan proof. Under two minutes, zero model calls during the scan itself.
 
 ---
 

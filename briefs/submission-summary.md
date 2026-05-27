@@ -15,7 +15,11 @@ A pre-deployment, local-first static scanner and Codex-powered auto-patching gat
 ---
 
 ## 3. The Problem
-Autonomous LLM agents are only as secure as the extensions (MCP servers and skill directories) they rely on to execute actions. These components combine natural language tool descriptions, configuration, permissions, and executable code in a single bundle. If a tool description is prompt-injected or a skill script contains unsafe commands, the agent can be hijacked before runtime guardrails can intercept. Security teams lack fast, pre-deployment tools to audit and secure this emerging agentic supply chain.
+In September 2025, an attacker copied the legitimate Postmark MCP server, maintained it for 15 versions to build trust, then inserted one BCC line into the `send_email` function. Every password reset token and payment notification silently forwarded to an attacker address — undetected by any CI check.
+
+This was not an isolated incident. Snyk's ToxicSkills study scanned 3,984 agent skills and found **36.82% had at least one flaw; 13.4% had a critical issue**. A CVE in `mcp-remote` (CVSS 9.6) affected 437,000+ downloads. Anthropic's own filesystem MCP server had a sandbox escape (CVSS 8.4) that went unpatched for three months.
+
+The attack surface is new: MCP servers and agent skills bundle natural-language tool descriptions, executable code, config, secrets, and permissions in a single artifact. A poisoned description or malicious script can hijack an agent before runtime guardrails see anything. Existing AppSec tools were not designed for this surface. Security teams have no fast, offline-first gate that combines MCP/skill scanning, trust scoring, and Codex-assisted remediation in a single developer workflow.
 
 ---
 
