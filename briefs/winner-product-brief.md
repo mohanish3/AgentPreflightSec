@@ -13,6 +13,8 @@ This was not an edge case. Snyk's ToxicSkills study scanned 3,984 agent skills a
 
 Equixly's March 2025 audit found **43% of popular MCP server implementations had command injection, 30% had SSRF, and 22% had path traversal**. The official Anthropic-maintained Puppeteer MCP server — 91,000 monthly downloads — had SSRF, prompt injection, and sandbox bypass simultaneously. It was archived rather than patched.
 
+In June 2025, Asana's MCP server feature — launched May 1, 2025 — had a tenant-isolation logic flaw that allowed users to access other organizations' project data, tasks, comments, and files for over a month before detection. **~1,000 enterprise customers were notified.** Asana is a named company with a named feature. MCP was the attack surface — not the core product. A pre-deployment MCP scan could have flagged the broken logic before launch.
+
 In April 2026, OX Security disclosed a systemic design flaw in Anthropic's MCP STDIO transport enabling arbitrary command execution across all language SDKs. Not a patchable bug — architectural. Anthropic declined to modify the protocol, citing the behavior as "expected." OX executed commands on six live production platforms — including LiteLLM, LangChain, and IBM LangFlow. Scale: 150M+ downloads, 7,000+ publicly accessible servers.
 
 The attack surface is new. MCP servers and agent skills bundle natural-language tool descriptions, executable code, config, secrets, and permissions in a single artifact. A poisoned description or malicious script hijacks an agent before runtime guardrails see anything. In one evaluated setting, MCPTox tested tool poisoning against 45 real-world MCP servers and found a 72.8% attack success rate against o1-mini; Claude-3.7-Sonnet refused fewer than 3% of malicious test cases. Runtime model-level defenses aren't catching this attack class.
@@ -65,7 +67,7 @@ Under two minutes. Poisoned repo becomes passing PR.
 
 AgentPreflight has two fix modes. Both ship. Both are real code.
 
-**`--codex` (AI proposals):** `agentpreflight fix --codex` sends a redacted snippet — stripped of file paths and secrets — to OpenAI Codex via chat completions API (`codex-mini-latest`). Codex returns a structured patch proposal. Developer reviews one diff. No full codebase leaves the machine.
+**`--codex` (AI proposals):** `agentpreflight fix --codex` sends a redacted snippet — stripped of file paths and secrets — to OpenAI Codex via chat completions API (`codex-mini-latest`). Codex returns a structured patch proposal. Developer reviews one diff. No full codebase leaves the machine. Token footprint is minimal by design: Codex sees only the rule ID, OWASP context, and a 5-line code window around the violation — not the full file, not the full codebase.
 
 **`--apply` (deterministic local):** Regex-based rewrite engine covering 14 rules across four categories (MCP, Skill, Code, Secrets). Works offline, zero API calls, safe in every CI run. Produces machine-safe substitutions — not readable prose patches.
 
@@ -132,9 +134,10 @@ The same loop handles unsafe shell execution, hidden Unicode, remote pipe instal
 ## 6. Why This Wins
 
 - **Real incidents.** 14 documented MCP breaches in 12 months. The risk is active, not theoretical.
-- **Ships in four days.** Local static scan, trust scorer, JSON/SARIF, fix loop, GitHub Action, demo repo — no hosted infra required.
+- **Ships in four days.** 21-rule detection engine, trust scorer 0–100, JSON/SARIF 2.1.0 output, two-mode fix loop (`--codex` live API + `--apply` deterministic), GitHub Action PR gate, suppression file, inline disable-line support, FastAPI endpoint stub, seeded poisoned + clean demo fixtures, 30 unit tests — all shipped without hosted infra.
 - **Codex is structural.** The deterministic mode gives you machine-safe substitutions. Codex gives you patches a developer actually merges. The `--codex` flag is a live API call to `codex-mini-latest` — not a template fill, not a prompt pack. That's the integration the hackathon rewards.
 - **Demo is hard to dismiss.** Poisoned repo → Codex patch → clean rescan. Live on screen. Under two minutes.
+- **Rescan closes the loop.** Existing fix tools change files. AgentPreflight confirms `trust_score=100, findings=0` after fix. The difference matters: a file that changed is not proof a finding resolved. A passing rescan is.
 - **Never executes to scan.** Purely static: AST parsing, regex, schema validation. AgentPreflight does not run the MCP server or execute skill scripts. Snyk Agent Scan's CI mode requires `--dangerously-run-mcp-servers`. AgentPreflight requires no flags.
 - **Offline by default.** Zero token cost in default scan mode — developers with sensitive codebases can audit safely.
-- **Research-grounded, not guessed.** Every rule traces to a published incident, CVE, or security study. This is a static implementation of the 2025 MCP attack taxonomy — the first scanner built specifically against OWASP MCP and Agentic Skills guidance.
+- **Research-grounded, not guessed.** Every rule traces to a published incident, CVE, or security study. No rule ships without a primary source. This is a static implementation of the 2025 MCP attack taxonomy — built from the attack evidence up, not adapted from generic SAST heuristics.

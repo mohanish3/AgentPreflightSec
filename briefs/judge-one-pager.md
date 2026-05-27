@@ -62,7 +62,7 @@ trust_score=100  verdict=pass  findings=0
 
 **Two fix modes. Both ship. Both are real code.**
 
-- `--codex`: Live `chat.completions.create` call to `codex-mini-latest`. Sends only the redacted finding snippet — no file paths, no secrets. Returns a structured patch proposal the developer reviews and merges.
+- `--codex`: Live `chat.completions.create` call to `codex-mini-latest`. Sends only a 5-line code window around the violation (redacted — no secrets, no file paths). Returns a structured patch proposal the developer reviews and merges. Token footprint is minimal by design: Codex sees the rule ID, OWASP context, and the violation window — not the full file, not the codebase.
 - `--apply`: Deterministic regex rewrite engine covering 14 rules across four categories (MCP, Skill, Code, Secrets). Works offline. Safe in every CI run.
 
 **Research-grounded rules.** Each of the 21 rules maps to a primary published source — not arbitrary lint heuristics:
@@ -121,9 +121,9 @@ Three things that hold up under scrutiny:
 - MCP protocol adoption is accelerating: 150M+ downloads on core packages.
 - OWASP released MCP and Agentic Skills security guidance in 2025 — the standards infrastructure now exists.
 - 14 documented incidents in 12 months — the risk is active, not theoretical.
+- Developer community already knows this is a gap. When Equixly published their MCP audit in March 2025, Hacker News titled the thread "The 'S' in MCP Stands for Security" — sarcastically. 183 comments. Top comment (602 points): "The fact that all LLM input gets treated equally seems like a critical flaw that must be fixed before LLMs can be given control over anything privileged." That community is the primary user of AgentPreflight.
 - Developer toolchain (GitHub Actions, SARIF, PR review) is exactly where this gate belongs.
 - No dominant remediation-first tool exists yet. The scanner market is crowded; the fix market is not.
-- AgentPreflight is the first scanner built against the 2025 OWASP MCP and Agentic Skills security taxonomy — not adapted from generic SAST rules, but designed from the attack evidence up.
 
 ---
 
