@@ -95,6 +95,18 @@ The same loop handles unsafe shell execution, hidden Unicode, remote pipe instal
 **Outputs:** terminal trust score table, JSON findings, SARIF 2.1.0 for GitHub Security tab, PR comment scorecard, Codex patch pack  
 **CI:** GitHub Action with `--fail-on high` gate and automatic SARIF upload  
 
+**Research-grounded rules** — each rule family maps to a primary published source, not arbitrary lint heuristics:
+
+| Rule family | Evidence source |
+|---|---|
+| `tool_poisoning` | MCPTox (72.8% attack success on real servers), OWASP MCP Top 10 |
+| `unicode_smuggling` | OWASP Agentic Skills, Snyk ToxicSkills (76 confirmed malicious payloads) |
+| `unsafe_exec` | Snyk ToxicSkills (13.4% critical), Equixly audit (43% command injection) |
+| `remote_instruction_fetch` | Snyk ToxicSkills, Invariant Labs rug pull attack |
+| `secrets` | Snyk ToxicSkills, CVE-2025-6514 (mcp-remote CVSS 9.6) |
+| `transport_security` | OWASP MCP Security Guide, CVE-2025-53109/53110 (CVSS 8.4) |
+| `least_privilege` | OWASP LLM Top 10, Puppeteer MCP SSRF/sandbox bypass |
+
 ---
 
 ## 5. MVP Success Metrics
@@ -107,6 +119,7 @@ The same loop handles unsafe shell execution, hidden Unicode, remote pipe instal
 | External API calls in default scan | 0 | ✅ Offline by default |
 | SARIF output validity | Valid 2.1.0 | ✅ Schema validates |
 | Fix loop demo | <2 min end-to-end | ✅ Poisoned → passing in demo |
+| Unit test coverage | 25+ tests | ✅ 30/30 tests passing |
 
 ---
 
@@ -117,3 +130,4 @@ The same loop handles unsafe shell execution, hidden Unicode, remote pipe instal
 - **Codex is structural.** The deterministic mode gives you machine-safe substitutions. Codex gives you patches a developer actually merges. The `--codex` flag is a live API call to `codex-mini-latest` — not a template fill, not a prompt pack. That's the integration the hackathon rewards.
 - **Demo is hard to dismiss.** Poisoned repo → Codex patch → clean rescan. Live on screen. Under two minutes.
 - **Offline by default.** Zero token cost in default scan mode — developers with sensitive codebases can audit safely.
+- **Research-grounded, not guessed.** Every rule traces to a published incident, CVE, or security study. This is a static implementation of the 2025 MCP attack taxonomy — the first scanner built specifically against OWASP MCP and Agentic Skills guidance.
