@@ -17,6 +17,8 @@ In September 2025, an attacker copied the legitimate Postmark MCP server on npm.
 - 43% of popular MCP servers had command injection vulnerabilities (Equixly March 2025)
 - CVSS 9.6 RCE in `mcp-remote` — the package Claude Desktop uses for remote MCP servers (437,000+ downloads)
 
+- April 2026: OX Security discloses STDIO architectural flaw — 150M+ downloads, arbitrary command execution across all SDKs, Anthropic declined to patch
+
 **The missing gate:** pre-deployment trust scoring before the agent extension runs.
 
 ---
@@ -42,6 +44,7 @@ rescan → trust_score=100, findings=0
 - **SARIF 2.1.0 output:** integrates with GitHub Security tab
 - **GitHub Action:** blocks risky PRs, auto-posts scorecard comment
 - **Offline-first:** zero API calls, zero token cost in default scan mode
+- **Static-only:** never executes the MCP server or skill scripts to scan them — eliminates the scanner's own attack surface
 
 ---
 

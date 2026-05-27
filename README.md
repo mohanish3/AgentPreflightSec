@@ -19,7 +19,9 @@ The attack surface is new: MCP tool descriptions are natural-language, readable 
 
 The first confirmed malicious MCP server on npm ran for 15 versions before anyone noticed. Then, in a single commit, the attacker added one BCC line to `send_email`. Every password reset token forwarded to an attacker address. No existing CI check flagged it.
 
-AgentPreflight is the pre-deployment gate: scan → trust score → Codex patch → rescan proof. Under two minutes from failing scan to passing PR.
+In April 2026, OX Security found a systemic design flaw in MCP's STDIO transport — arbitrary command execution across all language SDKs, 150M+ downloads. Anthropic declined to fix it, citing the behavior as expected. The protocol won't change. Tools must fill the gap.
+
+AgentPreflight is the pre-deployment gate: scan → trust score → Codex patch → rescan proof. Under two minutes from failing scan to passing PR. Entirely static — never runs the MCP server or executes skill scripts to analyze them.
 
 ---
 
