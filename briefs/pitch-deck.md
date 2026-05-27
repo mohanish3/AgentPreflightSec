@@ -13,7 +13,7 @@ In September 2025, an attacker copied the legitimate Postmark MCP server on npm.
 
 **Scale of the problem:**
 - 14 documented MCP security incidents in 12 months (authzed.com)
-- 36.82% of 3,984 agent skills had at least one flaw — 76 confirmed malicious payloads (Snyk ToxicSkills)
+- 36.82% of 3,984 agent skills had at least one flaw — 76 confirmed malicious payloads, 8 still publicly available at time of publication (Snyk ToxicSkills)
 - 43% of popular MCP servers had command injection (Equixly March 2025): "It feels like we're facing a regression in security."
 - CVSS 9.6 RCE in `mcp-remote` — the package Claude Desktop uses for remote MCP servers (437,000+ downloads)
 - April 2026: OX Security discloses STDIO architectural flaw — 150M+ downloads, arbitrary command execution across all SDKs, Anthropic declined to patch
@@ -60,7 +60,7 @@ rescan → trust_score=100, findings=0
 | **Optional API** | FastAPI + Uvicorn (`POST /v1/scans`) |
 | **Testing** | pytest, 30 unit tests, seeded malicious + clean fixtures |
 
-**Codex integration:** `agentpreflight fix --codex` sends only the redacted finding snippet (no secrets, no file paths) to `codex-mini-latest` and returns a structured patch proposal. Developer reviews one diff. Rescan confirms.
+**Codex integration:** `agentpreflight fix --codex` sends only a 5-line code window around the violation (redacted — no secrets, no file paths) to `codex-mini-latest` and returns a structured patch proposal. Developer reviews one diff. Rescan confirms.
 
 **Shipped proof:** 30/30 tests passing, 113-artifact scan in 0.079s avg, SARIF 2.1.0 validates, fix loop cold-run `trust_score=0 → 100` verified May 27 2026.
 

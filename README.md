@@ -16,7 +16,7 @@ The first confirmed malicious MCP server on npm ran for 15 versions before anyon
 This was not isolated:
 
 - **14 documented MCP incidents** in 12 months (authzed.com) — WhatsApp exfiltration, GitHub private repo exposure, Smithery supply-chain breach (3,000+ apps)
-- **36.82% of 3,984 scanned agent skills** had at least one flaw; 76 confirmed malicious payloads (Snyk ToxicSkills 2025)
+- **36.82% of 3,984 scanned agent skills** had at least one flaw; 76 confirmed malicious payloads — 8 still publicly available at time of publication (Snyk ToxicSkills 2025)
 - **43% of popular MCP server implementations** had command injection; Puppeteer MCP (91,000 monthly downloads) had SSRF + prompt injection + sandbox bypass — archived rather than patched. 45% of vendors dismissed Equixly's findings as "theoretical." Equixly's conclusion: "It feels like we're facing a regression in security." (March 2025)
 - **CVSS 9.6 RCE** in `mcp-remote` (437,000+ downloads) — the package Claude Desktop uses for remote MCP
 - **72.8% tool-poisoning attack success rate** against o1-mini in one evaluated setting (45 real-world servers); Claude-3.7-Sonnet refused fewer than 3% of malicious instructions (MCPTox)
