@@ -90,9 +90,11 @@ AgentPreflight has two fix modes — both real, both ship:
 
 Codex writes the fix. Developer reviews one diff. Rescan confirms. Trust score moves from 0 to 100. The PR unblocks.
 
-This is the core loop the hackathon is built for: **Codex as a repair engine, not just a code generator**.
+This is the core loop the hackathon is built for: **Codex as a decision layer, not just a code generator**.
 
-The distinction matters: the deterministic `--apply` mode replaces `os.system(cmd)` with a comment stub — machine-safe, but no developer merges a comment stub as a fix. The `--codex` mode calls `codex-mini-latest` via live API, sends only the redacted finding snippet, and gets back `subprocess.run([...], check=True)` — a real, deployable replacement. Developers review one diff. The rescan proves it held.
+Code rewriting is cheap. The scarce resource in security remediation is *selection*: which of the infinite possible rewrites is minimal, secure, compilable, and review-ready? The deterministic `--apply` mode selects a machine-safe regex substitution — correct but not mergeable. The `--codex` mode makes Codex the selector: given the flagged line, the rule ID, the OWASP context, and the constraint "return only the drop-in replacement," Codex selects `subprocess.run([...], check=True)` over the infinite space of alternatives. The developer reviews one diff. The rescan proves it held.
+
+The distinction matters practically: no developer merges a comment stub as a security fix. `subprocess.run([...], check=True)` is mergeable.
 
 ---
 
