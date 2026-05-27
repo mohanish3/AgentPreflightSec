@@ -61,7 +61,7 @@ Core rule families: `tool_poisoning`, `unicode_smuggling`, `unsafe_exec`, `remot
 |---|---|
 | 1 | Collectors for MCP config, skills, Markdown, Python/TS files; Unicode normalizer; first 15 rules. |
 | 2 | Scoring engine, CLI, JSON/SARIF, suppressions, test fixtures. |
-| 3 | `fix` command for five high-confidence rules, Codex remediation prompt templates, demo poisoned repo. |
+| 3 | `fix` command with `--codex` (live API) and `--apply` (deterministic), Codex remediation prompt templates, demo poisoned repo. |
 | 4 | Packaging, docs, benchmark timings, sample policies, release checklist, final demo. |
 
 ---
@@ -130,7 +130,7 @@ AgentPreflight is `npm audit fix` for agent extensions.
 
 AgentPreflight is a local-first security scanner for MCP servers and agent skills. Every agent extension gets a trust score before the agent runs it. Codex generates minimal reviewable remediation patches. A rescan proves the fix.
 
-**Before:** Trust Score 31/100 FAIL — `agentpreflight fix` — **After:** Trust Score 92/100 PASS. Under two minutes.
+**Before:** trust_score=0 verdict=fail findings=15 — `agentpreflight fix . --apply` — **After:** trust_score=100 verdict=pass findings=0. Under two minutes.
 
 ---
 
