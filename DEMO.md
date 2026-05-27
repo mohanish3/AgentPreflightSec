@@ -74,7 +74,7 @@ trust_score=100 verdict=pass findings=0 offline=True
 
 ### Judge message
 
-In September 2025 a supply-chain attacker BCC'd every password reset email through a fake Postmark MCP server — undetected by any CI check. AgentPreflight is the gate that stops that scenario at PR review time: offline static scan → trust score → Codex-generated patch → rescan proof. Under two minutes, zero model calls during the scan itself.
+In September 2025 a supply-chain attacker BCC'd every password reset email through a fake Postmark MCP server — undetected by any CI check. AgentPreflight is the gate that stops that scenario at PR review time: offline static scan → trust score → Codex-generated patch → rescan proof. Under two minutes, zero model calls during the scan itself. Entirely static — AgentPreflight never executes the MCP server or skill scripts to analyze them, eliminating the scanner's own attack surface.
 
 ---
 
