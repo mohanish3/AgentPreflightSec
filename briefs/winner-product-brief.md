@@ -88,6 +88,8 @@ The same loop handles unsafe shell execution, hidden Unicode, remote pipe instal
 
 **Codex as decision layer:** Code rewriting is cheap. The scarce resource in security remediation is selection — which of the infinite possible rewrites is minimal, secure, compilable, and review-ready. Codex makes that selection: given the flagged line, the rule ID, and the constraint "return only the drop-in replacement," it produces the version a developer actually merges.
 
+**What's structurally next:** The fix loop uses Codex to generate patches. The next version uses Codex to generate rules. When a new MCP CVE drops: feed the advisory to Codex, produce the detection regex + test fixture + remediation prompt automatically. Security coverage stays current without manual rule authorship.
+
 ---
 
 ## 4. Technical Scope

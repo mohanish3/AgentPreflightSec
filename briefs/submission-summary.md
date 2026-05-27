@@ -42,6 +42,8 @@ AgentPreflight shifts agent security left, acting like `npm audit` for the agent
 
 ## 6. How We Built It
 
+We validated the attack evidence before writing any rules. EVIDENCE.md catalogs 14 real incidents, 7 CVEs, and 4 independent research studies — each one scoped and cited from primary sources before a single detection was implemented. This forced a constraint: no rule ships without a published incident or CVE that justifies it. That's why the rule count is 21, not 200.
+
 The scanner was designed Codex-first: we wrote the rule catalog and prompt templates before writing the detection engine, so every rule produces a Codex-ready remediation context from day one. Each rule maps to a primary published source — MCPTox, Snyk ToxicSkills, OWASP MCP, Equixly audit — not arbitrary lint heuristics.
 
 The detection pipeline is entirely static — AST parsing for Python, JSON schema validation for MCP configs, regex-based Unicode normalization for skill Markdown. No model calls, no sandboxing, no network. This keeps the scan path offline and sub-second. AgentPreflight never runs the MCP server or executes skill scripts to analyze them — a deliberate constraint that eliminates the attack surface of the scanner itself. Snyk Agent Scan's CI integration mode requires `--dangerously-run-mcp-servers`. AgentPreflight requires no flags.
@@ -62,16 +64,16 @@ The hardest part was not the detection logic — it was prompt engineering for c
 
 The second insight: the trust score matters more than the finding list. Judges, developers, and CI gates all want a single number. A 0–100 score that moves from `fail` to `pass` is more compelling than a long finding list even if the long list contains more information.
 
----
-
-**Developer community signal.** When Equixly published their MCP audit in March 2025, Hacker News titled the thread "The 'S' in MCP Stands for Security" — sarcastically. 183 comments. Top comment (602 points): "The fact that all LLM input gets treated equally seems like a critical flaw that must be fixed before LLMs can be given control over anything privileged." This is the community AgentPreflight serves. They know the problem. They need the tool.
+The third: community signal validated the product hypothesis before we wrote a line of code. When Equixly published their MCP audit in March 2025, Hacker News titled the thread "The 'S' in MCP Stands for Security" — sarcastically. 183 comments. Top comment (602 points): "The fact that all LLM input gets treated equally seems like a critical flaw that must be fixed before LLMs can be given control over anything privileged." That community knows the problem. They need the gate.
 
 ---
 
 ## 8. What's Next
 
+The natural extension of using Codex to generate fixes is using Codex to generate rules. When a new MCP CVE drops, the current workflow is: read the advisory, write a regex, add a test fixture, write a Codex remediation prompt. The next version makes Codex an active participant: feed the CVE to Codex, generate the detection rule + fixture + prompt pack automatically. Rules stay current without manual intervention.
+
+Other planned extensions:
 - **Suppression expiry enforcement**: surfacing when suppressed findings have exceeded their stated expiry date.
 - **VS Code problem matcher**: inline findings in the editor as you write MCP tools.
 - **Dynamic skill sandbox**: lightweight container that instruments a skill script at runtime and flags behavior the static scan missed.
-- **Codex-powered rule generation**: feed a new MCP CVE to Codex and generate the detection rule + fixture automatically.
-- **Registry scanner**: automated scan of new MCP packages on npm/PyPI as they publish.
+- **Registry scanner**: automated scan of new MCP packages on npm/PyPI as they publish — Smithery supply-chain breach (3,000+ apps, October 2025) was exactly this attack vector.
