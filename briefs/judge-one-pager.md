@@ -119,6 +119,7 @@ Existing scanners stop at the finding. AgentPreflight closes the PR.
 - 14 documented incidents in 12 months — the risk is active, not theoretical.
 - Developer toolchain (GitHub Actions, SARIF, PR review) is exactly where this gate belongs.
 - No dominant remediation-first tool exists yet. The scanner market is crowded; the fix market is not.
+- AgentPreflight is the first scanner built against the 2025 OWASP MCP and Agentic Skills security taxonomy — not adapted from generic SAST rules, but designed from the attack evidence up.
 
 ---
 
