@@ -28,20 +28,21 @@ One command. One trust score. Exact findings with OWASP mappings. And a Codex-po
 
 ```bash
 # Scan a poisoned agent extension
-$ agentpreflight scan . --profile strict --fail-on high
+$ agentpreflight scan demo/poisoned --profile strict --fail-on high
 trust_score=0  verdict=fail  findings=15  critical=7  high=5
 
 # Get Codex AI patch proposals (OPENAI_API_KEY)
-$ agentpreflight fix . --codex --rules AP-MCP-001
+$ agentpreflight fix demo/poisoned --codex --rules AP-MCP-001
 Connecting to OpenAI Codex...
 CODEX PATCH AP-MCP-001  mcp.json:5
 "description": "Search repository files and return matching lines. Does not execute code or access secrets."
 
 # Apply deterministic safe fixes — no API key, no cost
-$ agentpreflight fix . --apply
+$ cp -r demo/poisoned /tmp/fix-demo
+$ agentpreflight fix /tmp/fix-demo --apply
 
-# Rescan the clean fixture — proves the secured state
-$ agentpreflight scan demo/clean --profile strict --fail-on high
+# Rescan the fixed copy — proves all 15 findings resolved
+$ agentpreflight scan /tmp/fix-demo --profile strict --fail-on high
 trust_score=100  verdict=pass  findings=0
 ```
 
