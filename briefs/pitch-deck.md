@@ -16,7 +16,6 @@ In September 2025, an attacker copied the legitimate Postmark MCP server on npm.
 - 36.82% of 3,984 agent skills had at least one flaw — 76 confirmed malicious payloads (Snyk ToxicSkills)
 - 43% of popular MCP servers had command injection vulnerabilities (Equixly March 2025)
 - CVSS 9.6 RCE in `mcp-remote` — the package Claude Desktop uses for remote MCP servers (437,000+ downloads)
-
 - April 2026: OX Security discloses STDIO architectural flaw — 150M+ downloads, arbitrary command execution across all SDKs, Anthropic declined to patch
 
 **The missing gate:** pre-deployment trust scoring before the agent extension runs.
