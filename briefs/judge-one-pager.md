@@ -8,7 +8,7 @@
 
 ## The Opportunity
 
-Every AI developer today installs MCP servers and agent skills the same way: pull from npm, GitHub, or a registry, and trust the description. No pre-deployment gate exists.
+Every AI developer today installs MCP servers and agent skills the same way: pull from npm, GitHub, or a registry, and trust the description. Scanners exist. What doesn't exist is a gate that goes from finding to reviewed fix to rescan proof — in a single PR workflow, without leaving the developer's machine.
 
 The scale of exposure is real: 1.13M+ public repositories now import generative AI SDKs — up 178% year over year (GitHub Octoverse 2025). 1M+ pull requests were created by Copilot coding agents between May and September 2025. Security tooling is twelve months behind this adoption curve.
 
