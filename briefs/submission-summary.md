@@ -25,7 +25,7 @@ The attack surface is new: MCP servers and agent skills bundle natural-language 
 
 ## 4. The Solution: AgentPreflight
 AgentPreflight shifts agent security left, acting like `npm audit` for the agent ecosystem:
-- **Offline-First Scan**: Evaluates `mcp.json` schemas, skill markdown instructions, and Python/TypeScript scripts statically in milliseconds, preserving code privacy and avoiding costly API fees.
+- **Static-Only Scan**: Evaluates `mcp.json` schemas, skill markdown instructions, and Python/TypeScript scripts via AST parsing, JSON schema validation, and regex — never executes the MCP server or skill scripts. Entirely offline, sub-second, zero API calls.
 - **21-Rule Engine**: Maps violations directly to the new OWASP MCP and OWASP Agentic Skills security guides, flagging prompt-injected tool descriptions, zero-width Unicode smuggling, secrets, unsafe shell commands, and local loopback binds.
 - **Codex-Driven Remediation**: Two integrated fix modes — `--codex` sends redacted finding snippets (no secrets, no full file paths) to OpenAI Codex via chat completions API (`codex-mini-latest`) and returns AI-generated patch proposals; `--apply` runs a deterministic offline rewrite engine covering 14 rules across four categories. Both modes produce fixes a developer can review, approve, and rescan in under two minutes.
 - **Continuous Integration**: Emits unified Trust Scores (0-100) and exports standard JSON/SARIF files, blocking insecure PRs automatically in GitHub Actions.
