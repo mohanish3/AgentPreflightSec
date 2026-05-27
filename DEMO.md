@@ -82,6 +82,8 @@ AgentPreflight is the gate that stops this at PR review time. The scan is entire
 
 ## Demo fixtures
 
+Actual demo files are in `demo/poisoned/` and `demo/clean/`. The examples below are illustrative templates showing expected patterns and findings.
+
 ### Poisoned repo
 
 **`mcp.json`**
