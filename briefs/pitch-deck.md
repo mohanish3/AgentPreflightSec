@@ -28,7 +28,7 @@ In September 2025, an attacker copied the legitimate Postmark MCP server on npm.
 
 **Headline:** AgentPreflight — `npm audit fix` for MCP servers and agent skills.
 
-**What it does:** Static pre-deployment scanner that reads `mcp.json` schemas, `SKILL.md` files, Python/TypeScript scripts, and env configs before merge, install, or deployment. Produces a trust score (0–100), ranked findings, and Codex-generated fixes — entirely offline by default.
+**What it does:** Sub-second pre-commit/PR linter with immediate value and clear action paths — reads `mcp.json` schemas, `SKILL.md` files, Python/TypeScript scripts, and env configs before merge, install, or deployment. Produces a trust score (0–100), ranked findings, and Codex-generated fixes — entirely offline by default.
 
 **The fix loop (under 2 minutes end-to-end):**
 ```
@@ -41,7 +41,7 @@ rescan → trust_score=100, findings=0  ← flips to green
 
 **Market validation:** GitHub Copilot Autofix showed developers fixed vulnerabilities **more than 3x faster** with AI-generated proposals, covering 90%+ of alert types with little or no editing. AgentPreflight applies this "found means fixed" model to MCP and agent-skill supply-chain artifacts — the attack surface no existing tool has addressed with a Codex patch loop and rescan proof.
 
-**First-mover advantage:** OWASP published MCP and Agentic Skills security guidance in 2025. Multiple scanners now map to that taxonomy. None deliver the complete workflow: offline-first static scan → Codex AI patch proposal → developer review → rescan proof. AgentPreflight is first on a critical, emerging security standard with the killer feature no competitor has closed.
+**First-mover advantage:** OWASP published MCP and Agentic Skills security guidance in 2025. Multiple scanners now map to that taxonomy. None deliver the complete workflow: offline-first static scan → Codex AI patch proposal → developer review → rescan proof. AgentPreflight is first on a critical, emerging security standard with the complete loop — offline scan → Codex AI patch proposal → developer review → rescan proof — no competitor has shipped.
 
 **Key features:**
 - **21-rule engine** mapped to OWASP MCP Top 10 and Agentic Skills guidance — tool poisoning, Unicode smuggling, unsafe shell, secrets, remote instruction fetch, transport hardening, least privilege
@@ -67,6 +67,8 @@ rescan → trust_score=100, findings=0  ← flips to green
 | **Testing** | pytest, 30 unit tests, seeded malicious + clean fixtures |
 
 **Codex integration:** `agentpreflight fix --codex` sends only a 5-line code window around the violation (redacted — no secrets, no file paths) to `codex-mini-latest` and returns a structured patch proposal. Developer reviews one diff. Rescan confirms. The `SYSTEM_PROMPT` enforces five explicit rules — Rule 5 scrubs any comments or strings that could be interpreted as prompt-injection payloads: the remediation engine itself defends against prompt injection. Codex cannot generate a patch that re-introduces a poisoned instruction. The constraint is recursive.
+
+**Why this shipped in four days:** No external services — AST parsing, JSON schema validation, and regex rules are local, deterministic, and fast to implement. No hypervisor, no sandboxing infrastructure, no cloud dependency. Offline-first, local static file parsing with straightforward logic.
 
 **Shipped proof:** 30/30 tests passing, 113-artifact scan in 0.079s avg, SARIF 2.1.0 validates, fix loop cold-run `trust_score=0 → 100` verified May 28 2026.
 
