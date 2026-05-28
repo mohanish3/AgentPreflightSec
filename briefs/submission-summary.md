@@ -63,6 +63,8 @@ The deterministic `--apply` mode was built as a CI-safe fallback: it applies the
 
 **Token efficiency by design:** The default scan path makes zero API calls — no token cost, no latency, no credential requirement. Codex is invoked only when the developer explicitly requests it for a specific finding (`--codex --rules AP-MCP-001`). Default scan of a 113-artifact repo costs exactly $0.00 and completes in 0.079s. Codex sees a single 5-line snippet per invocation — not the file, not the codebase. This architecture scores maximum on the "APIs only on high-severity triage" criterion.
 
+**Codex in the test path:** The 30-test suite includes mocked Codex API integration tests added May 27 — verifying that SYSTEM_PROMPT constraints hold across rule families and that Rule 5 blocks patch proposals from re-introducing prompt-injection patterns. Codex is active in the remediation path, the demo path, and the test path.
+
 **Ship metrics:** 30 unit tests passing, 113-artifact scan averages 0.079s, SARIF 2.1.0 validates against schema, `demo/poisoned → trust_score=100` cold-run verified. Validation artifacts in `validation/`.
 
 ---
