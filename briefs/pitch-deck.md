@@ -17,6 +17,8 @@ In September 2025, an attacker copied the legitimate Postmark MCP server on npm.
 - May 2025: GitHub MCP prompt injection silently exfiltrated private repository data including financial information
 - 43% of popular MCP servers had command injection (Equixly March 2025): "It feels like we're facing a regression in security."
 - CVSS 9.6 RCE in `mcp-remote` — the package Claude Desktop uses for remote MCP servers (437,000+ downloads)
+- **February 2026:** Oura MCP malware campaign delivered StealC — a commercial credential harvester — to live users. Eleven months after vendors dismissed security audits as "theoretical," the theoretical had a name.
+- **March 2026:** nginx-ui MCP authentication bypass gave attackers complete nginx service control across 2,600+ live infrastructure instances. The attack surface is not limited to AI tools.
 - April 2026: OX Security discloses STDIO architectural flaw — 150M+ downloads, arbitrary command execution across all SDKs, Anthropic declined to patch
 - **Runtime defenses fail by design:** Invariant Labs showed a malicious server can serve innocent descriptions on first launch, switch to data-exfiltrating instructions on second — after trust is already granted. In one evaluated setting, MCPTox tested 45 real servers: 72.8% attack success against o1-mini; Claude-3.7-Sonnet refused fewer than 3% of malicious test cases (MCPTox).
 
