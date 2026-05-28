@@ -30,6 +30,8 @@ In September 2025, an attacker copied the legitimate Postmark MCP server on npm.
 
 **Headline:** AgentPreflight — `npm audit fix` for MCP servers and agent skills.
 
+**Product promise:** Not just "found" — "fixed and proven by rescan." The product closes the loop: scan → Codex patch proposal → developer review → rescan proof. The PR doesn't close until `trust_score=100` is confirmed.
+
 **What it does:** Sub-second pre-commit/PR linter with immediate value and clear action paths — reads `mcp.json` schemas, `SKILL.md` files, Python/TypeScript scripts, and env configs before merge, install, or deployment. Produces a trust score (0–100), ranked findings, and Codex-generated fixes — entirely offline by default.
 
 **The fix loop (under 2 minutes end-to-end):**
