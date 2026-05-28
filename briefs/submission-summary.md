@@ -15,7 +15,7 @@ Security scanner that finds and patches dangerous AI agent extensions before the
 ---
 
 ## 3. The Problem
-In September 2025, an attacker copied the legitimate Postmark MCP server, maintained it for 15 versions to build trust, then inserted one BCC line into the `send_email` function. Every password reset token and payment notification silently forwarded to an attacker address — undetected by any CI check.
+In September 2025, an attacker copied the legitimate Postmark MCP server on npm, maintained 15 versions — a real commit history, a real profile picture — to build trust, then inserted one BCC line into the `send_email` function. Every password reset token and payment notification silently forwarded to an attacker address — undetected by any CI check.
 
 Runtime defenses fail this attack class by design. Invariant Labs demonstrated a "rug pull": a malicious MCP server served innocent tool descriptions on first launch, then switched to hidden instructions on second launch — after trust was already granted. A second Invariant Labs attack required no malicious MCP server at all: a crafted WhatsApp message containing prompt injection code caused an agent processing `list_chats` to leak contact information — Invariant Labs: "side-stepping WhatsApp's encryption and security measures." By the time an agent runs, the malicious instruction is already active. In one evaluated setting, MCPTox tested 45 real-world MCP servers (353 authentic tools, 1,312 malicious test cases) and found a 72.8% attack success rate against o1-mini; Claude-3.7-Sonnet refused fewer than 3% of malicious test cases. The model-level defense is not catching this attack class. Pre-deployment scanning catches it before the first launch.
 
