@@ -86,7 +86,7 @@ AgentPreflight has two fix modes. Both ship. Both are real code.
 
 Codex writes the patch. Developer reviews one diff. Rescan confirms. The PR unblocks.
 
-The same loop handles unsafe shell execution, hidden Unicode, remote pipe installs, and committed secrets — the five most common MCP/skill supply-chain risk classes.
+The same loop handles prompt injection (AP-MCP-001, shown above), unsafe shell execution, hidden Unicode, remote pipe installs, and committed secrets — the five most common MCP/skill supply-chain risk classes.
 
 **Why two modes?** Deterministic mode is what you run in CI — no API key, no cost, no risk. Codex mode is what you show a developer: a readable, deployable patch proposal with natural-language context instead of a regex substitution. The difference matters: a regex that replaces `os.system(...)` with a comment isn't something a developer merges with confidence. A Codex-generated `subprocess.run([...], check=True)` replacement is. Both ship. Both are real code.
 
