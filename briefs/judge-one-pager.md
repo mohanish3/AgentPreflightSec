@@ -81,7 +81,7 @@ The terminal output is color-coded: `trust_score` prints green for pass, yellow 
 
 This is not a lint ruleset. It is a static implementation of the 2025 MCP attack taxonomy.
 
-**Codex as decision layer, not code generator.** Code rewriting is cheap. The scarce resource in security remediation is *selection*: which of the infinite possible rewrites is minimal, secure, compilable, and review-ready? Given the flagged line, the OWASP rule ID, and the constraint "return only the drop-in replacement," Codex selects `subprocess.run([...], check=True)` over every alternative. The developer reviews one diff. The rescan proves it held.
+**Codex as decision layer, not code generator.** Code rewriting is cheap. The scarce resource in security remediation is *selection*: which of the infinite possible rewrites is minimal, secure, compilable, and review-ready? Given the flagged line, the OWASP rule ID, and the constraint "return only the drop-in replacement," Codex selects `subprocess.run([...], check=True)` over every alternative. The developer reviews one diff. The rescan proves it held. The `SYSTEM_PROMPT` in `prompt_builder.py` enforces five explicit rules — the last worth noting: **Rule 5 scrubs comments or strings that could be interpreted as prompt-injection payloads.** The remediation engine defends against prompt injection: Codex cannot generate a patch that re-introduces a poisoned instruction. The constraint is recursive. Source is auditable in the repo.
 
 Example — AP-MCP-001 (Codex-generated):
 
@@ -146,7 +146,7 @@ Three things that hold up under scrutiny:
 
 ## Why AgentPreflight
 
-- **Zero token cost in scan path.** Default scan: $0.00, 0.079s, zero API calls. Codex invoked only when the developer explicitly requests it for a specific finding — never on every line, never on every scan. A 113-artifact repo scan costs exactly $0.00. This is the maximum-efficiency architecture: deterministic rules for detection, Codex only for AI-quality fix selection.
+- **Zero token cost in scan path.** Default scan: $0.00, 0.079s, zero API calls. Codex invoked only when the developer explicitly requests it for a specific finding — never on every line, never on every scan. A 113-artifact repo scan costs exactly $0.00. This is the maximum-efficiency architecture: deterministic local rules for detection, APIs only on high-severity triage — exactly the criterion that scores 5/5 on token efficiency.
 - **Never executes to scan.** Purely static: AST, regex, schema validation. No `--dangerously-run-mcp-servers` required. The scanner has no attack surface of its own.
 - **Codex is structural, not decorative.** The scanner was designed Codex-first — every rule produces a Codex-ready remediation context from day one. The `--codex` flag is a live API call, not a template fill. The demo shows it. The rescan proves it held.
 - **Developer workflow, not security dashboard.** `scan → fix → rescan` fits any PR review in under two minutes. Suppression file (`.agentpreflight.json`) supports expiry dates and owner fields — a finding suppressed by `appsec` until `2026-06-30` surfaces again automatically when that date passes. Inline disable-line comments (`# agentpreflight:disable-line AP-CODE-001`) let developers acknowledge known-safe exceptions without editing config. Enterprise-grade compliance posture, zero dashboard required.
