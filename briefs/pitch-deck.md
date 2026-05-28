@@ -27,7 +27,7 @@ In September 2025, an attacker copied the legitimate Postmark MCP server on npm.
 
 **Headline:** AgentPreflight — `npm audit fix` for MCP servers and agent skills.
 
-**What it does:** Static pre-deployment scanner that reads `mcp.json` schemas, `SKILL.md` files, Python/TypeScript scripts, and env configs before merge, install, or deployment. Produces a trust score (0–100), ranked findings, and Codex-generated fixes — entirely offline by default. OWASP published MCP and Agentic Skills security guidance in 2025; AgentPreflight is the first tooling built from that taxonomy with an integrated AI-patch loop. No dominant remediation-first competitor exists.
+**What it does:** Static pre-deployment scanner that reads `mcp.json` schemas, `SKILL.md` files, Python/TypeScript scripts, and env configs before merge, install, or deployment. Produces a trust score (0–100), ranked findings, and Codex-generated fixes — entirely offline by default. OWASP published MCP and Agentic Skills security guidance in 2025; multiple scanners now map to that taxonomy. None deliver the complete loop: offline-first static scan → Codex AI patch proposal → developer review → rescan proof. No dominant remediation-first AI-fix tool exists yet.
 
 **The fix loop (under 2 minutes end-to-end):**
 ```
@@ -95,7 +95,7 @@ rescan → trust_score=100, findings=0  ← flips to green
 | **Pain** | No visibility into what MCP tools their developers are installing and running |
 | **Trigger** | Compliance audit, internal agent breach incident, or board-level AI governance pressure. IBM 2025: 63% of organizations lack AI governance policies; 97% of orgs with AI security incidents lacked proper AI access controls. |
 | **Decision** | Deploys AgentPreflight as mandatory PR gate across agent-related repositories |
-| **Value** | SARIF output integrates with existing GitHub code scanning; trust score gives board-level metric |
+| **Value** | SARIF output integrates with existing GitHub code scanning; trust score gives board-level metric; IBM 2025: extensive AI security automation associated with $1.9M cost savings vs. orgs without it |
 
 **Where they are:** GitHub, Hacker News, LinkedIn AI/DevSecOps communities, OWASP Slack, MCP Discord.
 

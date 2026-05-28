@@ -116,15 +116,16 @@ Input to Codex: rule ID + OWASP context + 5-line code window. No file paths. No 
 
 ## Competitive Position
 
-Multiple MCP scanners exist. Several have autofix. The scanner market is occupied. The remediation-first AI-patch market is vacant: no existing tool — not mcp-scan, not Snyk Agent Scan — provides the complete loop: offline-first static scan → AI-generated Codex patch proposal → developer review → rescan proof. The wedge is not detection breadth or even fix capability — it is **the full loop**, without executing the server.
+Multiple MCP scanners exist. Several have autofix. The scanner market is occupied. No existing tool — not mcp-scan, not Snyk Agent Scan, not AgentAuditKit — provides the complete loop: offline-first static scan → AI-generated Codex patch proposal → developer review → rescan proof. The wedge is not detection breadth or even fix capability — it is **the full loop**, without executing the server.
 
-| | Scanner-only (mcp-scan) | Autofix scanners | Snyk Agent Scan | AgentPreflight |
+| | Scanner-only (mcp-scan) | AgentAuditKit (closest) | Snyk Agent Scan | AgentPreflight |
 |---|---|---|---|---|
 | Pipeline stage | Pre-deployment | Pre-deployment | Pre-deployment | **Pre-deployment git gate** |
-| Scan method | Static | Static/dynamic | Dynamic | **Static only — never executes server** |
-| Remediation | Finds only | Template substitution | Finds + reports | **Codex patch + rescan proof** |
-| Fix quality | — | Machine substitution | — | **AI-generated, developer-reviewable** |
+| Scan method | Static | Static | Dynamic | **Static only — never executes server** |
+| Remediation | Finds only | Rule-based fix | Finds + reports | **Codex patch + rescan proof** |
+| Fix quality | — | Template substitution | — | **AI-generated, developer-reviewable** |
 | CI safety | Safe | Safe | Requires `--dangerously-run-mcp-servers` | **Zero dangerous flags required** |
+| Rescan proof | — | — | — | **trust_score=100 confirmed after fix** |
 
 Three things that hold up under scrutiny:
 1. **Static-only execution** — AgentPreflight never runs the MCP server or executes skill scripts to scan them. Snyk Agent Scan's CI mode requires `--dangerously-run-mcp-servers`. A dynamic scanner also creates a second attack surface: a sophisticated malicious server can detect it is being scanned and serve innocent descriptions until first launch — the same rug pull pattern Invariant Labs documented. Static analysis has no such weakness.
