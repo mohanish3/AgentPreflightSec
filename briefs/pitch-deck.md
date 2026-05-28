@@ -66,7 +66,7 @@ rescan → trust_score=100, findings=0  ← flips to green
 | **Optional API** | FastAPI + Uvicorn (`POST /v1/scans`) |
 | **Testing** | pytest, 30 unit tests, seeded malicious + clean fixtures |
 
-**Codex integration:** `agentpreflight fix --codex` sends only a 5-line code window around the violation (redacted — no secrets, no file paths) to `codex-mini-latest` and returns a structured patch proposal. Developer reviews one diff. Rescan confirms. The `SYSTEM_PROMPT` enforces five explicit rules — Rule 5 scrubs any comments or strings that could be interpreted as prompt-injection payloads: the remediation engine itself defends against prompt injection. Codex cannot generate a patch that re-introduces a poisoned instruction. The constraint is recursive.
+**Codex integration:** `agentpreflight fix --codex` sends only a 5-line code window around the violation (redacted — no secrets, no file paths) to `codex-mini-latest` and returns a structured patch proposal — a live `chat.completions.create` call, not a template fill. Developer reviews one diff. Rescan confirms. The `SYSTEM_PROMPT` enforces five explicit rules — Rule 5 scrubs any comments or strings that could be interpreted as prompt-injection payloads: the remediation engine itself defends against prompt injection. Codex cannot generate a patch that re-introduces a poisoned instruction. The constraint is recursive.
 
 **Why this shipped in four days:** No external services — AST parsing, JSON schema validation, and regex rules are local, deterministic, and fast to implement. No hypervisor, no sandboxing infrastructure, no cloud dependency. Offline-first, local static file parsing with straightforward logic.
 
