@@ -10,9 +10,9 @@
 
 Every AI developer today installs MCP servers and agent skills the same way: pull from npm, GitHub, or a registry, and trust the description. Scanners exist. What doesn't exist is a gate that goes from finding to reviewed fix to rescan proof — in a single PR workflow, without leaving the developer's machine.
 
-The scale of exposure is real: 1.13M+ public repositories now import generative AI SDKs — up 178% year over year (GitHub Octoverse 2025). 1M+ pull requests were created by Copilot coding agents between May and September 2025. Security tooling is twelve months behind this adoption curve.
+The scale of exposure is real: 1.13M+ public repositories now import generative AI SDKs — up 178% year over year (GitHub Octoverse 2025). ~80% of new GitHub users tried Copilot within their first week. 1M+ pull requests were created by Copilot coding agents between May and September 2025. Security tooling is twelve months behind this adoption curve.
 
-The cost of getting it wrong: IBM's 2025 Cost of a Data Breach report puts the global average breach at $4.4M. 97% of organizations that had an AI-related security incident lacked proper AI access controls. Extensive AI security automation was associated with $1.9M in cost savings versus organizations without it.
+The cost of getting it wrong: IBM's 2025 Cost of a Data Breach report puts the global average breach at $4.4M. 97% of organizations that had an AI-related security incident lacked proper AI access controls. 63% lacked AI governance policies. Extensive AI security automation was associated with $1.9M in cost savings versus organizations without it.
 
 The missing gate is pre-deployment trust scoring for agent extensions. AgentPreflight is that gate.
 
@@ -107,7 +107,7 @@ Input to Codex: rule ID + OWASP context + 5-line code window. No file paths. No 
 | Median scan time | 0.079s avg (113-artifact benchmark) |
 | API calls in default scan | 0 — fully offline |
 | SARIF 2.1.0 validity | Schema validates |
-| Fix loop (cold run, May 27) | `trust_score=0 → 100` in under 2 minutes |
+| Fix loop (cold run, verified May 28) | `trust_score=0 → 100` in under 2 minutes |
 | Unit tests | 30/30 passing |
 
 ---
@@ -149,4 +149,4 @@ Three things that hold up under scrutiny:
 - **Never executes to scan.** Purely static: AST, regex, schema validation. No `--dangerously-run-mcp-servers` required. The scanner has no attack surface of its own.
 - **Codex is structural, not decorative.** The scanner was designed Codex-first — every rule produces a Codex-ready remediation context from day one. The `--codex` flag is a live API call, not a template fill. The demo shows it. The rescan proves it held.
 - **Developer workflow, not security dashboard.** `scan → fix → rescan` fits any PR review in under two minutes.
-- **Shipped.** 30 tests, SARIF validates, GitHub Action wired, benchmark proofed, fix loop cold-run verified May 27 2026.
+- **Shipped.** 30 tests, SARIF validates, GitHub Action wired, benchmark proofed, fix loop cold-run verified May 28 2026.
