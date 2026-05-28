@@ -19,7 +19,7 @@ In September 2025, an attacker copied the legitimate Postmark MCP server on npm.
 - April 2026: OX Security discloses STDIO architectural flaw — 150M+ downloads, arbitrary command execution across all SDKs, Anthropic declined to patch
 - **Runtime defenses fail by design:** Invariant Labs showed a malicious server can serve innocent descriptions on first launch, switch to data-exfiltrating instructions on second — after trust is already granted. In one evaluated setting, MCPTox tested 45 real servers: 72.8% attack success against o1-mini; Claude-3.7-Sonnet refused fewer than 3%.
 
-**The missing gate:** pre-deployment trust scoring before the agent extension runs.
+**The missing gate:** pre-deployment trust scoring before the agent extension runs. The Asana MCP breach (June 2025) shows what this costs at enterprise scale: a tenant-isolation logic flaw in the MCP layer — not Asana's core product — exposed ~1,000 enterprise customers' project data, tasks, and files for 35 days. A pre-deployment MCP scan could have flagged the broken isolation before launch.
 
 ---
 
@@ -27,7 +27,7 @@ In September 2025, an attacker copied the legitimate Postmark MCP server on npm.
 
 **Headline:** AgentPreflight — `npm audit fix` for MCP servers and agent skills.
 
-**What it does:** Static pre-deployment scanner that reads `mcp.json` schemas, `SKILL.md` files, Python/TypeScript scripts, and env configs before merge, install, or deployment. Produces a trust score (0–100), ranked findings, and Codex-generated fixes — entirely offline by default.
+**What it does:** Static pre-deployment scanner that reads `mcp.json` schemas, `SKILL.md` files, Python/TypeScript scripts, and env configs before merge, install, or deployment. Produces a trust score (0–100), ranked findings, and Codex-generated fixes — entirely offline by default. OWASP published MCP and Agentic Skills security guidance in 2025; AgentPreflight is the first tooling built from that taxonomy with an integrated AI-patch loop. No dominant remediation-first competitor exists.
 
 **The fix loop (under 2 minutes end-to-end):**
 ```
@@ -60,7 +60,7 @@ rescan → trust_score=100, findings=0
 | **Optional API** | FastAPI + Uvicorn (`POST /v1/scans`) |
 | **Testing** | pytest, 30 unit tests, seeded malicious + clean fixtures |
 
-**Codex integration:** `agentpreflight fix --codex` sends only a 5-line code window around the violation (redacted — no secrets, no file paths) to `codex-mini-latest` and returns a structured patch proposal. Developer reviews one diff. Rescan confirms.
+**Codex integration:** `agentpreflight fix --codex` sends only a 5-line code window around the violation (redacted — no secrets, no file paths) to `codex-mini-latest` and returns a structured patch proposal. Developer reviews one diff. Rescan confirms. The `SYSTEM_PROMPT` enforces five explicit rules — Rule 5 scrubs any comments or strings that could be interpreted as prompt-injection payloads: the remediation engine itself defends against prompt injection. Codex cannot generate a patch that re-introduces a poisoned instruction. The constraint is recursive.
 
 **Shipped proof:** 30/30 tests passing, 113-artifact scan in 0.079s avg, SARIF 2.1.0 validates, fix loop cold-run `trust_score=0 → 100` verified May 28 2026.
 

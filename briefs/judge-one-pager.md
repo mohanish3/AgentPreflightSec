@@ -24,6 +24,8 @@ In September 2025, an attacker copied the legitimate Postmark MCP server on npm.
 
 This was not an anomaly. In the 12 months between April 2025 and April 2026, authzed.com documented **14 distinct MCP security incidents**: WhatsApp message exfiltration, GitHub private repo exposure, an Asana MCP logic flaw exposing enterprise customer data across tenant boundaries (approximately 1,000 enterprise customers notified), a Smithery supply-chain breach hitting 3,000+ apps, and a core STDIO architectural flaw affecting 150M+ downloads that Anthropic declined to patch.
 
+The Asana incident is worth unpacking: Asana launched its MCP server feature on May 1, 2025. A tenant-isolation logic flaw in the MCP layer — not the core product — allowed users to access other organizations' project data, tasks, comments, and files for over a month before detection. ~1,000 enterprise customers were notified on June 4. The MCP server was the attack surface. A pre-deployment static scan of the MCP configuration could have flagged the broken isolation logic before the feature ever shipped. Instead, enterprise customer data was exposed for 35 days.
+
 The vulnerability data is stark:
 
 - **Snyk ToxicSkills (2025):** 3,984 agent skills scanned — 36.82% had at least one flaw; 13.4% had a critical issue. **76 confirmed malicious payloads** for credential theft, backdoors, and data exfiltration — 8 of those 76 remained publicly available at time of publication. 91% combined prompt injection with traditional malware.
