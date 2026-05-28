@@ -125,7 +125,7 @@ The `SYSTEM_PROMPT` in `prompt_builder.py` enforces this with five explicit rule
 |---|---|---|
 | True positive rate on seeded fixtures | 90%+ | ✅ 100% demo fixtures caught |
 | False positive rate on benign fixtures | <10% | ✅ Clean demo score: 100/100 |
-| Median scan time | <30 s | ✅ 113-artifact scan in 0.079 s avg |
+| Median scan time | <1 s | ✅ 113-artifact scan in 0.079 s avg |
 | External API calls in default scan | 0 | ✅ Offline by default |
 | SARIF output validity | Valid 2.1.0 | ✅ Schema validates |
 | Fix loop demo | <2 min end-to-end | ✅ Poisoned → passing in demo |
