@@ -13,7 +13,8 @@ In September 2025, an attacker copied the legitimate Postmark MCP server on npm.
 
 **Scale of the problem:**
 - 14 documented MCP security incidents in 12 months (authzed.com)
-- 36.82% of 3,984 agent skills had at least one flaw — 76 confirmed malicious payloads, 8 still publicly available at time of publication (Snyk ToxicSkills)
+- 36.82% of 3,984 agent skills had at least one flaw — 76 confirmed malicious payloads, 91% combining prompt injection with traditional malware techniques (Snyk ToxicSkills)
+- May 2025: GitHub MCP prompt injection silently exfiltrated private repository data including financial information
 - 43% of popular MCP servers had command injection (Equixly March 2025): "It feels like we're facing a regression in security."
 - CVSS 9.6 RCE in `mcp-remote` — the package Claude Desktop uses for remote MCP servers (437,000+ downloads)
 - April 2026: OX Security discloses STDIO architectural flaw — 150M+ downloads, arbitrary command execution across all SDKs, Anthropic declined to patch
@@ -27,7 +28,7 @@ In September 2025, an attacker copied the legitimate Postmark MCP server on npm.
 
 **Headline:** AgentPreflight — `npm audit fix` for MCP servers and agent skills.
 
-**What it does:** Static pre-deployment scanner that reads `mcp.json` schemas, `SKILL.md` files, Python/TypeScript scripts, and env configs before merge, install, or deployment. Produces a trust score (0–100), ranked findings, and Codex-generated fixes — entirely offline by default. OWASP published MCP and Agentic Skills security guidance in 2025; multiple scanners now map to that taxonomy. None deliver the complete loop: offline-first static scan → Codex AI patch proposal → developer review → rescan proof. No dominant remediation-first AI-fix tool exists yet.
+**What it does:** Static pre-deployment scanner that reads `mcp.json` schemas, `SKILL.md` files, Python/TypeScript scripts, and env configs before merge, install, or deployment. Produces a trust score (0–100), ranked findings, and Codex-generated fixes — entirely offline by default.
 
 **The fix loop (under 2 minutes end-to-end):**
 ```
