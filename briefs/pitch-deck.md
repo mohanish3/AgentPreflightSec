@@ -13,7 +13,7 @@ In September 2025, an attacker copied the legitimate Postmark MCP server on npm.
 
 **Scale of the problem:**
 - 14 documented MCP security incidents in 12 months (authzed.com)
-- 36.82% of 3,984 agent skills had at least one flaw — 76 confirmed malicious payloads, 91% combining prompt injection with traditional malware techniques (Snyk ToxicSkills)
+- 36.82% of 3,984 agent skills (1,467 skills) had at least one flaw; 13.4% (534 skills) had a critical issue — 76 confirmed malicious payloads, 91% combining prompt injection with traditional malware techniques (Snyk ToxicSkills)
 - May 2025: GitHub MCP prompt injection silently exfiltrated private repository data including financial information
 - 43% of popular MCP servers had command injection (Equixly March 2025): "It feels like we're facing a regression in security."
 - CVSS 9.6 RCE in `mcp-remote` — the package Claude Desktop uses for remote MCP servers (437,000+ downloads)
