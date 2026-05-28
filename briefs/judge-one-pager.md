@@ -60,6 +60,8 @@ $ agentpreflight scan /tmp/fix-demo --profile strict --fail-on high
 trust_score=100  verdict=pass  findings=0
 ```
 
+The terminal output is color-coded: `trust_score` prints green for pass, yellow for warn, red for fail. Findings render in a Rich table — severity, rule ID, file, line, evidence — and `CODEX PATCH` output is highlighted in bold. When `trust_score` flips from red to green on rescan, the state change is visible at a glance. Zero plain-text logs in the critical path.
+
 **Two fix modes. Both ship. Both are real code.**
 
 - `--codex`: Live `chat.completions.create` call to `codex-mini-latest`. Sends only a 5-line code window around the violation (redacted — no secrets, no file paths). Returns a structured patch proposal the developer reviews and merges. Token footprint is minimal by design: Codex sees the rule ID, OWASP context, and the violation window — not the full file, not the codebase.
@@ -112,7 +114,7 @@ Input to Codex: rule ID + OWASP context + 5-line code window. No file paths. No 
 
 ## Competitive Position
 
-Multiple MCP scanners exist. Several have autofix. The wedge is not detection breadth or even fix capability — it is **the full loop**: Codex-generated patch → developer review → rescan proof, without executing the server.
+Multiple MCP scanners exist. Several have autofix. The scanner market is occupied. The remediation-first AI-patch market is vacant: no existing tool — not mcp-scan, not Snyk Agent Scan — provides the complete loop: offline-first static scan → AI-generated Codex patch proposal → developer review → rescan proof. The wedge is not detection breadth or even fix capability — it is **the full loop**, without executing the server.
 
 | | Scanner-only (mcp-scan) | Autofix scanners | Snyk Agent Scan | AgentPreflight |
 |---|---|---|---|---|
@@ -143,7 +145,7 @@ Three things that hold up under scrutiny:
 
 ## Why AgentPreflight
 
-- **Offline-first.** Zero token cost in default scan mode. Security teams with sensitive codebases can audit without API exposure.
+- **Zero token cost in scan path.** Default scan: $0.00, 0.079s, zero API calls. Codex invoked only when the developer explicitly requests it for a specific finding — never on every line, never on every scan. A 113-artifact repo scan costs exactly $0.00. This is the maximum-efficiency architecture: deterministic rules for detection, Codex only for AI-quality fix selection.
 - **Never executes to scan.** Purely static: AST, regex, schema validation. No `--dangerously-run-mcp-servers` required. The scanner has no attack surface of its own.
 - **Codex is structural, not decorative.** The scanner was designed Codex-first — every rule produces a Codex-ready remediation context from day one. The `--codex` flag is a live API call, not a template fill. The demo shows it. The rescan proves it held.
 - **Developer workflow, not security dashboard.** `scan → fix → rescan` fits any PR review in under two minutes.
