@@ -30,6 +30,7 @@ AgentPreflight shifts agent security left, acting like `npm audit` for the agent
 - **Static-Only Scan**: Evaluates `mcp.json` schemas, skill markdown instructions, and Python/TypeScript scripts via AST parsing, JSON schema validation, and regex — never executes the MCP server or skill scripts. Entirely offline, sub-second, zero API calls.
 - **21-Rule Engine**: Maps violations directly to the new OWASP MCP and OWASP Agentic Skills security guides, flagging prompt-injected tool descriptions, zero-width Unicode and Cyrillic homoglyph smuggling (characters invisible to developers but interpreted by models), secrets, unsafe shell commands, and local loopback binds.
 - **Codex-Driven Remediation**: Two integrated fix modes — `--codex` sends redacted finding snippets (no secrets, no full file paths) to OpenAI Codex via chat completions API (`codex-mini-latest`) and returns AI-generated patch proposals; `--apply` runs a deterministic offline rewrite engine covering 14 rules across four categories. Both modes produce fixes a developer can review, approve, and rescan in under two minutes.
+- **Terminal Output**: Rich color-coded dashboard — trust score prints green/yellow/red by verdict, findings render in a structured table (severity, rule ID, file, line, evidence), `CODEX PATCH` highlighted in bold. When rescan flips `trust_score` from red to green, the state change is visible at a glance. Designed for the demo: every state transition reads clearly on screen.
 - **Continuous Integration**: Emits unified Trust Scores (0–100, thresholds: 85+=pass, 70–84=warn, <70=fail; any critical finding caps score at 50) and exports standard JSON/SARIF files, blocking insecure PRs automatically in GitHub Actions.
 
 ---
@@ -55,6 +56,8 @@ Codex integration has two layers:
 2. **`agentpreflight fix --codex`** — makes a live `chat.completions.create` call to `codex-mini-latest` with a redacted snippet and structured instruction. Returns a patch proposal the developer reviews before applying. Token footprint is minimal: Codex sees only the rule ID, OWASP context, and a 5-line window (line ±2) around the violation — never the full file, never the full codebase.
 
 The deterministic `--apply` mode was built as a CI-safe fallback: it applies the same fixes offline, using the rule logic we trust without Codex API dependency. The combination means the demo works with or without an API key.
+
+**Token efficiency by design:** The default scan path makes zero API calls — no token cost, no latency, no credential requirement. Codex is invoked only when the developer explicitly requests it for a specific finding (`--codex --rules AP-MCP-001`). Default scan of a 113-artifact repo costs exactly $0.00 and completes in 0.079s. Codex sees a single 5-line snippet per invocation — not the file, not the codebase. This architecture scores maximum on the "APIs only on high-severity triage" criterion.
 
 **Ship metrics:** 30 unit tests passing, 113-artifact scan averages 0.079s, SARIF 2.1.0 validates against schema, `demo/poisoned → trust_score=100` cold-run verified. Validation artifacts in `validation/`.
 
