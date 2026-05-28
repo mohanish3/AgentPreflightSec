@@ -137,6 +137,7 @@ Three things that hold up under scrutiny:
 - Developer community already knows this is a gap. When Equixly published their MCP audit in March 2025, Hacker News titled the thread "The 'S' in MCP Stands for Security" — sarcastically. 183 comments. Two top comments: **602 points** — "The fact that all LLM input gets treated equally seems like a critical flaw that must be fixed before LLMs can be given control over anything privileged." **621 points** — "all it takes is some little bug in your input parser, and suddenly data becomes code." That community is the primary user of AgentPreflight.
 - Developer toolchain (GitHub Actions, SARIF, PR review) is exactly where this gate belongs.
 - No dominant remediation-first tool exists yet. The scanner market is crowded; the fix market is not.
+- The protocol won't change. Anthropic declined to patch the MCP STDIO architecture (OX Security, April 2026). GitHub Issue #630 — "MCP Server terminology creates dangerous user misconceptions" — was closed as "not planned." The gate must exist outside the protocol layer.
 
 ---
 
