@@ -209,7 +209,7 @@ agentpreflight scan (rescan):
 
 Scan path: offline by default, no model calls, no token cost.  
 Fix path: `--codex` sends a 5-line code window around the violation (redacted — no secrets, no file paths) to `codex-mini-latest`. Code rewriting is cheap; the scarce resource is *selection* — which of the infinite possible rewrites is minimal, compilable, and review-ready. Codex makes that call.  
-CI path: `--fail-on high` exits 1 on violations; SARIF uploads to GitHub Security tab.
+CI path: `--fail-on high` exits 1 on violations; trust score thresholds: 85+=pass, 70–84=warn, <70=fail (any critical finding caps at 50); SARIF uploads to GitHub Security tab.
 
 ---
 
