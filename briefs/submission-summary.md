@@ -95,7 +95,7 @@ Input to Codex: rule ID + OWASP context + 5-line window. Output: a drop-in repla
 
 The second insight: the trust score matters more than the finding list. Judges, developers, and CI gates all want a single number. A 0–100 score that moves from `fail` to `pass` is more compelling than a long finding list even if the long list contains more information.
 
-The third: community signal validated the product hypothesis before we wrote a line of code. When Equixly published their MCP audit in March 2025, Hacker News titled the thread "The 'S' in MCP Stands for Security" — sarcastically. 183 comments. Two top comments: TeMPOraL (621 points) — "all it takes is some little bug in your input parser, and suddenly data becomes code." wat10000 (602 points) — "The fact that all LLM input gets treated equally seems like a critical flaw that must be fixed before LLMs can be given control over anything privileged." That community knows the problem. They need the gate.
+The third: community signal validated the product hypothesis before we wrote a line of code. When Equixly published their MCP audit in March 2025, Hacker News titled the thread "The 'S' in MCP Stands for Security" — sarcastically. 183 comments. Two top comments: TeMPOraL (621 points) — "all it takes is some little bug in your input parser, and suddenly data becomes code." wat10000 (602 points) — "The fact that all LLM input gets treated equally seems like a critical flaw that must be fixed before LLMs can be given control over anything privileged." Eleven months later, a malware campaign deployed StealC — a commercial credential harvester — through the Oura MCP server to live users. The community was right. AgentPreflight is the gate they were describing.
 
 ---
 
