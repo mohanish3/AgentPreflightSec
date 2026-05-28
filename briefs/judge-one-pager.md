@@ -28,11 +28,11 @@ The vulnerability data is stark:
 
 - **Snyk ToxicSkills (2025):** 3,984 agent skills scanned — 36.82% had at least one flaw; 13.4% had a critical issue. **76 confirmed malicious payloads** for credential theft, backdoors, and data exfiltration — 8 of those 76 remained publicly available at time of publication. 91% combined prompt injection with traditional malware.
 - **Equixly March 2025 audit:** Popular MCP server implementations — 43% had command injection, 30% SSRF, 22% path traversal. Equixly's conclusion: "It feels like we're facing a regression in security."
-- **CVE-2025-6514:** `mcp-remote` (the package Claude Desktop uses for remote MCP) — CVSS 9.6 RCE, 437,000+ downloads.
+- **CVE-2025-6514:** `mcp-remote` (the package Claude Desktop uses for remote MCP) — CVSS 9.6 RCE, 437,000+ downloads. JFrog: "This is the first time that full remote code execution is achieved in a real-world scenario on the client operating system when connecting to an untrusted remote MCP server."
 - **CVE-2025-53109/53110:** Anthropic's official filesystem MCP server — CVSS 8.4 sandbox escape. Discovered March 30, 2025 → acknowledged May 1, 2025 → patched July 1, 2025. Three-month disclosure lag on Anthropic's own reference server.
 - **Official Puppeteer MCP server** — 91,000 monthly downloads, SSRF + prompt injection + sandbox bypass simultaneously. Archived rather than patched.
 
-Runtime defenses fail this attack class. Invariant Labs demonstrated a "rug pull" where a malicious MCP server served innocent tool descriptions on first launch, switched to hidden instructions on the second — after trust was already granted. In one evaluated setting, MCPTox tested 45 real-world MCP servers and found a 72.8% attack success rate against o1-mini; Claude-3.7-Sonnet refused fewer than 3% of malicious test cases.
+Runtime defenses fail this attack class. Invariant Labs demonstrated a "rug pull" where a malicious MCP server served innocent tool descriptions on first launch, switched to hidden instructions on the second — after trust was already granted. An Invariant Labs engineer explained the broader risk on Hacker News: "one MCP server can easily override and manipulate the agent's behavior with respect to another MCP server." In one evaluated setting, MCPTox tested 45 real-world MCP servers (353 authentic tools, 1,312 malicious test cases) and found a 72.8% attack success rate against o1-mini; Claude-3.7-Sonnet refused fewer than 3% of malicious test cases.
 
 The attack surface is new: MCP tool descriptions are natural-language, invisible to standard CI checks, and poisoned before the agent ever runs.
 
