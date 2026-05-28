@@ -239,7 +239,7 @@ github.com/skysavv/agentpreflight
 ### Form field answers (Day 5 / May 30)
 
 **"What have you built today?"**
-AgentPreflight go-live version — all submission artifacts finalized. Improved all 5 submission docs (pitch deck, judge one-pager, winner product brief, submission summary, README) against 7 judging criteria. Added Gemini MCP 0-day to incident timeline, MCPTox AAAI peer-review citation, HN commenter attribution (TeMPOraL 621pts), alert-fatigue argument for 21-rule precision design. All docs cover C1–C7 explicitly. GitHub repo organized with briefs/ directory exposed in research table. 30/30 tests, 0.079s scan, trust_score=0→100 verified.
+AgentPreflight final go-live version — all submission artifacts finalized and verified. Comprehensive research pass across all 5 submission docs: added Flowise STDIO RCE (September 2025), Figma/Framelink MCP RCE (October 2025), and Gemini MCP 0-day (January 2026, Google) to named incident lists; added Snyk ToxicSkills absolute counts (1,467 skills flawed, 534 with critical issues) for visceral scale; named enterprise callout (GitHub, Asana, Gemini, Smithery) added to winner-product-brief Section 6; Figma/Framelink mapped to AP-CODE-001 in research evidence table. All 7 judging criteria explicitly covered in all 5 docs (C1–C7). MCPTox AAAI peer-review citation, HN commenter attribution (TeMPOraL 621pts, wat10000 602pts), alert-fatigue argument for 21-rule design, "APIs only on high-severity triage" C6 callout. GitHub repo organized with briefs/ directory exposed. 30/30 tests, 0.079s avg scan, trust_score=0→100 verified.
 
 **"Let us know if you are facing any issue"**
 No blockers. Submission complete.
