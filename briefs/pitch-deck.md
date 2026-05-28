@@ -44,7 +44,7 @@ rescan → trust_score=100, findings=0  ← flips to green
 - **Trust score (0–100):** one number drives the CI gate — 85+=pass, 70–84=warn, <70=fail; any critical finding caps at 50
 - **SARIF 2.1.0 output:** integrates with GitHub Security tab
 - **GitHub Action:** blocks risky PRs, auto-posts scorecard comment
-- **Offline-first:** zero API calls, zero token cost in default scan mode
+- **Offline-first:** zero API calls, zero token cost in default scan mode — APIs only on high-severity triage, never on every line
 - **Static-only:** never executes the MCP server or skill scripts to scan them — eliminates the scanner's own attack surface
 
 ---
