@@ -38,6 +38,8 @@ rescan → trust_score=100, findings=0  ← flips to green
 ```
 `trust_score` prints red for fail, green for pass; `CODEX PATCH` highlighted bold yellow; findings render in a Rich table — severity, rule ID, file, line, evidence. Score flip from 0 to 100 is unmissable.
 
+**Market validation:** GitHub Copilot Autofix showed developers fixed vulnerabilities **more than 3x faster** with AI-generated proposals, covering 90%+ of alert types with little or no editing. AgentPreflight applies this "found means fixed" model to MCP and agent-skill supply-chain artifacts — the attack surface no existing tool has addressed with a Codex patch loop and rescan proof.
+
 **Key features:**
 - **21-rule engine** mapped to OWASP MCP Top 10 and Agentic Skills guidance — tool poisoning, Unicode smuggling, unsafe shell, secrets, remote instruction fetch, transport hardening, least privilege
 - **Two fix modes:** `--codex` (OpenAI Codex live API, human-reviewable patch) + `--apply` (deterministic regex, CI-safe, zero cost)
