@@ -19,7 +19,7 @@ This was not isolated:
 - **36.82% of 3,984 scanned agent skills** (1,467 skills) had at least one flaw; 13.4% (534 skills) had a critical issue; 76 confirmed malicious payloads, 91% combining prompt injection with traditional malware techniques — 8 payloads still publicly available at time of publication (Snyk ToxicSkills 2025)
 - **43% of popular MCP server implementations** had command injection; Puppeteer MCP (91,000 monthly downloads) had SSRF + prompt injection + sandbox bypass — archived rather than patched. 45% of vendors dismissed Equixly's findings as "theoretical." Equixly's conclusion: "It feels like we're facing a regression in security." (March 2025)
 - **CVSS 9.6 RCE** in `mcp-remote` (437,000+ downloads) — the package Claude Desktop uses for remote MCP
-- **72.8% tool-poisoning attack success rate** against o1-mini in one evaluated setting (45 real-world servers); Claude-3.7-Sonnet refused fewer than 3% of malicious instructions (MCPTox)
+- **72.8% tool-poisoning attack success rate** against o1-mini in one evaluated setting (45 real-world servers); Claude-3.7-Sonnet refused fewer than 3% of malicious test cases (MCPTox)
 - **April 2026**: OX Security found STDIO architectural flaw across 150M+ downloads — Anthropic declined to modify the protocol
 - **Runtime defenses fail by design**: Invariant Labs demonstrated a "rug pull" — malicious server served innocent descriptions on first launch, then switched to data-exfiltrating instructions on second launch, after trust was already granted
 
