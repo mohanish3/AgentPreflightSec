@@ -145,3 +145,101 @@ AgentPreflight MVP — static pre-deployment security scanner for MCP servers an
 
 **"Let us know if you are facing any issue"**
 No blockers. MVP shipped and verified. Live Codex demo (fix --codex with real OPENAI_API_KEY) is the one remaining go-live step before May 30.
+
+---
+
+## Day 5 (May 30) — Go-Live
+
+### LinkedIn Post (Go-Live)
+
+---
+
+🔐 Day 5 — AgentPreflight is live.
+
+Agent skills are not harmless prompts. They inherit shell, filesystem, credential, and messaging access from the agents that run them. In September 2025, an attacker copied a legitimate Postmark MCP server, maintained 15 versions to look real, then inserted one BCC line into `send_email`. Every password reset token forwarded to an attacker address. No CI check caught it.
+
+That was not an edge case. In 12 months (April 2025–April 2026): 14 documented MCP incidents, including GitHub MCP prompt injection exfiltrating private repo data with financial information, Asana MCP cross-tenant leak exposing ~1,000 enterprise customers for 35 days, Smithery supply chain breach hitting 3,000+ apps, and a Gemini MCP 0-day at Google. In April 2026, Anthropic declined to patch the STDIO architectural flaw (150M+ downloads). The protocol won't change. Tools must fill the gap.
+
+AgentPreflight is that gate.
+
+```
+agentpreflight scan demo/poisoned --profile strict --fail-on high
+→ trust_score=0  verdict=fail  findings=15  (prints red)
+
+agentpreflight fix demo/poisoned --codex --rules AP-MCP-001
+→ CODEX PATCH  mcp.json:5  "Search repository files and return matching lines."
+
+agentpreflight fix /tmp/fix-demo --apply && agentpreflight scan /tmp/fix-demo --profile strict
+→ trust_score=100  verdict=pass  findings=0  (prints green)
+```
+
+Under 2 minutes. Entirely offline by default. Codex sees only a 5-line redacted snippet — never the full codebase.
+
+What shipped:
+✅ 21-rule engine — each rule traces to a published incident or CVE (MCPTox, peer-reviewed at AAAI; Snyk ToxicSkills; OWASP MCP; Equixly audit)
+✅ Two fix modes: live Codex AI patch proposals + deterministic offline fix
+✅ Trust score 0–100, SARIF 2.1.0, GitHub Action PR gate
+✅ 30/30 tests, 0.079s avg scan, fix loop verified trust_score=0→100
+✅ Zero API calls in default scan — APIs only on high-severity triage
+
+GitHub Copilot Autofix showed developers fix vulnerabilities more than 3x faster with AI-generated proposals. AgentPreflight brings that model to MCP/skill supply-chain artifacts — the attack surface no existing tool has addressed with a Codex patch loop and rescan proof.
+
+TeMPOraL on Hacker News, 621 votes: "all it takes is some little bug in your input parser, and suddenly data becomes code."
+
+That community has been waiting for this gate. AgentPreflight is it.
+
+#OpenAIHackathon #OutskillHackathon #MCP #Codex #AgentSecurity #DevSecOps
+
+---
+
+### X (Twitter) Thread — Go-Live
+
+**Tweet 1:**
+🔐 AgentPreflight is live. #OpenAIHackathon
+
+Agent skills inherit shell, filesystem, and credential access from the agents that run them. One poisoned tool description hijacks the whole agent before runtime guardrails see it.
+
+We built the pre-deployment gate.
+
+**Tweet 2:**
+The evidence is 12 months of named incidents:
+→ GitHub MCP prompt injection (financial data exfiltrated)
+→ Asana MCP leak (~1,000 enterprise customers, 35 days)
+→ Postmark supply chain (BCC on every password reset)
+→ Gemini MCP 0-day — Google's own implementation
+→ Anthropic declined to patch the STDIO flaw. The protocol won't change.
+
+**Tweet 3:**
+trust_score=0 → Codex patch → trust_score=100. Under 2 minutes.
+
+scan: sub-second, offline, zero API cost
+fix --codex: live codex-mini-latest call, 5-line window, reviewable diff
+rescan: proves the fix held
+
+**Tweet 4:**
+21 rules. Not hundreds.
+
+Each rule traces to a published incident or peer-reviewed study. MCPTox (AAAI), Snyk ToxicSkills, OWASP MCP, Equixly audit. Zero guesswork.
+
+Alert fatigue is how developers stop trusting a scanner.
+
+**Tweet 5:**
+✅ 30/30 tests passing
+✅ 113-artifact scan: 0.079s avg
+✅ SARIF 2.1.0 validates
+✅ Fix loop cold-run verified
+✅ $0.00 default scan
+
+First to market on the complete scan → Codex patch → rescan proof loop for MCP security.
+
+github.com/skysavv/agentpreflight
+
+---
+
+### Form field answers (Day 5 / May 30)
+
+**"What have you built today?"**
+AgentPreflight go-live version — all submission artifacts finalized. Improved all 5 submission docs (pitch deck, judge one-pager, winner product brief, submission summary, README) against 7 judging criteria. Added Gemini MCP 0-day to incident timeline, MCPTox AAAI peer-review citation, HN commenter attribution (TeMPOraL 621pts), alert-fatigue argument for 21-rule precision design. All docs cover C1–C7 explicitly. GitHub repo organized with briefs/ directory exposed in research table. 30/30 tests, 0.079s scan, trust_score=0→100 verified.
+
+**"Let us know if you are facing any issue"**
+No blockers. Submission complete.
