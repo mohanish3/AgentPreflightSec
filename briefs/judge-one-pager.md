@@ -131,6 +131,8 @@ Three things that hold up under scrutiny:
 2. **Codex as the fix layer, not templates** — template substitution replaces `os.system(cmd)` with a comment or a `# TODO`. Codex generates `subprocess.run([...], check=True)` — a compilable drop-in replacement a developer merges with confidence.
 3. **Rescan proof closes the PR** — existing fix tools change files. AgentPreflight confirms `trust_score=100, findings=0` after fix. The loop closes.
 
+The remediation-first model is validated in adjacent markets: GitHub Copilot Autofix data shows developers fixed vulnerabilities **more than 3x faster** with AI-generated proposals, covering 90%+ of alert types with fixes requiring little or no editing. AgentPreflight applies "found means fixed" to MCP and agent-skill artifacts — the gap no existing tool has closed with a Codex patch loop and rescan proof.
+
 ---
 
 ## Why Now

@@ -33,6 +33,8 @@ AgentPreflight shifts agent security left, acting like `npm audit` for the agent
 - **Terminal Output**: Rich color-coded dashboard — trust score prints green/yellow/red by verdict, findings render in a structured table (severity, rule ID, file, line, evidence), `CODEX PATCH` highlighted in bold. When rescan flips `trust_score` from red to green, the state change is visible at a glance. Designed for the demo: every state transition reads clearly on screen.
 - **Continuous Integration**: Emits unified Trust Scores (0–100, thresholds: 85+=pass, 70–84=warn, <70=fail; any critical finding caps score at 50) and exports standard JSON/SARIF files, blocking insecure PRs automatically in GitHub Actions.
 
+The remediation-first model is validated: GitHub Copilot Autofix showed developers fixed vulnerabilities **more than 3x faster** with AI-generated proposals, and covered 90%+ of alert types with fixes requiring little or no editing. AgentPreflight applies this "found means fixed" model to MCP and agent-skill supply-chain artifacts — the attack surface no existing tool addressed with an AI-patch loop and rescan proof.
+
 ---
 
 ## 5. Technology Stack
