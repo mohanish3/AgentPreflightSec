@@ -74,7 +74,7 @@ trust_score=100 verdict=pass findings=0 offline=True
 
 ### Judge message
 
-In September 2025, a supply-chain attacker BCC'd every password reset email through a fake Postmark MCP server — 15 versions of fake history, undetected by any CI check. Equixly audited popular MCP server implementations and found 43% had command injection, 30% had SSRF. Their conclusion: "It feels like we're facing a regression in security."
+In September 2025, a supply-chain attacker BCC'd every password reset token and payment notification through a fake Postmark MCP server — 15 versions of fake history, undetected by any CI check. Equixly audited popular MCP server implementations and found 43% had command injection, 30% had SSRF. Their conclusion: "It feels like we're facing a regression in security."
 
 AgentPreflight is the gate that stops this at PR review time. The scan is entirely static — never executes the MCP server or skill scripts, zero API calls, sub-second. The fix is Codex doing selection: code rewriting is cheap; which of the infinite possible rewrites is minimal, compilable, and review-ready is not. Codex sees only the flagged 5-line window — no secrets, no file paths — and returns the drop-in replacement. The rescan proves the fix held. Under two minutes, `trust_score=0` → `trust_score=100`, findings confirmed closed.
 
