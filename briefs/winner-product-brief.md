@@ -92,6 +92,8 @@ The same loop handles unsafe shell execution, hidden Unicode, remote pipe instal
 
 **Codex as decision layer:** Code rewriting is cheap. The scarce resource in security remediation is selection — which of the infinite possible rewrites is minimal, secure, compilable, and review-ready. Codex makes that selection: given the flagged line, the rule ID, and the constraint "return only the drop-in replacement," it produces the version a developer actually merges.
 
+The `SYSTEM_PROMPT` in `prompt_builder.py` enforces this with five explicit rules — the last one worth noting: **Rule 5 scrubs comments or strings that could be interpreted as prompt-injection payloads.** The remediation engine itself defends against prompt injection: Codex cannot generate a patch that re-introduces a poisoned instruction. The constraint is recursive. Source is auditable in the repo.
+
 **What's structurally next:** The fix loop uses Codex to generate patches. The next version uses Codex to generate rules. When a new MCP CVE drops: feed the advisory to Codex, produce the detection regex + test fixture + remediation prompt automatically. Security coverage stays current without manual rule authorship.
 
 ---
