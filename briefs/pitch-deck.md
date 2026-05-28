@@ -88,7 +88,7 @@ rescan → trust_score=100, findings=0  ← flips to green
 | **Pain** | Installing community MCP servers and skills from npm/GitHub without a security gate |
 | **Trigger** | Read about Postmark MCP attack, Snyk ToxicSkills report, or CVE-2025-6514 |
 | **Decision** | Adds AgentPreflight to PR workflow in one `pip install` |
-| **Value** | Finds risky extensions before they reach production agents; conservative time model: 15 min saved per PR, 30–60 min per high-risk finding with Codex patch proposal |
+| **Value** | Finds risky extensions before they reach production agents; conservative time model: 15 min saved per PR, 30–60 min per high-risk finding with Codex patch proposal, 1–2 days saved per team bootstrapping agent-security policy |
 
 **Secondary ICP: Enterprise AppSec team**
 
