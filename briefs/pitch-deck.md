@@ -31,11 +31,12 @@ In September 2025, an attacker copied the legitimate Postmark MCP server on npm.
 
 **The fix loop (under 2 minutes end-to-end):**
 ```
-scan → trust_score=0, findings=15
+scan → trust_score=0, findings=15     ← prints red in terminal
 fix --codex → Codex AI patch proposal (live API, redacted snippet only)
 fix --apply → deterministic offline fix (14 rules, no API key)
-rescan → trust_score=100, findings=0
+rescan → trust_score=100, findings=0  ← flips to green
 ```
+`trust_score` prints red for fail, green for pass; `CODEX PATCH` highlighted bold yellow; findings render in a Rich table — severity, rule ID, file, line, evidence. Score flip from 0 to 100 is unmissable.
 
 **Key features:**
 - **21-rule engine** mapped to OWASP MCP Top 10 and Agentic Skills guidance — tool poisoning, Unicode smuggling, unsafe shell, secrets, remote instruction fetch, transport hardening, least privilege
