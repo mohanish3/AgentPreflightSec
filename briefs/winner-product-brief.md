@@ -39,7 +39,7 @@ agentpreflight scan demo/poisoned --profile strict --fail-on high
 trust_score=0  verdict=fail  findings=15   critical=7  high=5
 ```
 
-Every finding maps to a OWASP rule ID, file, and line. One trust score (0–100) drives the CI gate: 85–100 = pass, 70–84 = warn, 0–69 = fail. Any critical finding caps the score at 50 — a critical MCP flaw cannot pass, regardless of other scores. Any secrets finding caps at 55. Three or more high findings cap at 60. Combination caps go lower: unsafe shell execution paired with network egress caps at 45; Unicode smuggling paired with a prompt override caps at 50. The score encodes threat model, not just finding count.
+Every finding maps to a OWASP rule ID, file, and line. One trust score (0–100) drives the CI gate: 85–100 = pass, 70–84 = warn, 0–69 = fail. Any critical finding caps the score at 50 — a critical MCP flaw cannot pass, regardless of other scores. Any secrets finding caps at 55. Three or more high findings cap at 60. Combination caps go lower: unsafe shell execution paired with network egress caps at 45; Unicode smuggling paired with a prompt override caps at 50; privileged file access paired with remote instruction fetch caps at 45. The score encodes threat model, not just finding count.
 
 **The fix loop — two modes, one workflow:**
 
