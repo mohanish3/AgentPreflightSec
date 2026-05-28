@@ -37,7 +37,7 @@ agentpreflight scan demo/poisoned --profile strict --fail-on high
 trust_score=0  verdict=fail  findings=15   critical=7  high=5
 ```
 
-Every finding maps to a OWASP rule ID, file, and line. One trust score (0–100) drives the CI gate.
+Every finding maps to a OWASP rule ID, file, and line. One trust score (0–100) drives the CI gate: 85–100 = pass, 70–84 = warn, 0–69 = fail. Any critical finding caps the score at 50 — a critical MCP flaw cannot pass, regardless of other scores.
 
 **The fix loop — two modes, one workflow:**
 
