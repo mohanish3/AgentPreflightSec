@@ -40,7 +40,7 @@ rescan → trust_score=100, findings=0
 **Key features:**
 - **21-rule engine** mapped to OWASP MCP Top 10 and Agentic Skills guidance — tool poisoning, Unicode smuggling, unsafe shell, secrets, remote instruction fetch, transport hardening, least privilege
 - **Two fix modes:** `--codex` (OpenAI Codex live API, human-reviewable patch) + `--apply` (deterministic regex, CI-safe, zero cost)
-- **Trust score (0–100):** one number drives the CI gate
+- **Trust score (0–100):** one number drives the CI gate — 85+=pass, 70–84=warn, <70=fail; any critical finding caps at 50
 - **SARIF 2.1.0 output:** integrates with GitHub Security tab
 - **GitHub Action:** blocks risky PRs, auto-posts scorecard comment
 - **Offline-first:** zero API calls, zero token cost in default scan mode

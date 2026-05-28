@@ -9,7 +9,7 @@
 
 In September 2025, an attacker copied the legitimate Postmark MCP server on npm, maintained 15 versions to look real, then inserted a single BCC line into the `send_email` function. Every password reset token and payment confirmation silently forwarded to an attacker address. No CI check caught it.
 
-This was not an edge case. Snyk's ToxicSkills study scanned 3,984 agent skills and found **36.82% had at least one security flaw; 13.4% had a critical issue**. Researchers identified **76 confirmed malicious payloads** for credential theft, backdoors, and data exfiltration — 91% combined prompt injection with traditional malware techniques. **8 of those 76 payloads remained publicly available at time of publication.** The ecosystem cannot self-clean fast enough. `mcp-remote` — the npm package Claude Desktop uses to connect to remote MCP servers — had a CVSS 9.6 RCE vulnerability in 437,000+ downloads. Anthropic's own official filesystem MCP server had a sandbox escape (CVSS 8.4) that went unpatched for three months.
+This was not an edge case. Snyk's ToxicSkills study scanned 3,984 agent skills and found **36.82% had at least one security flaw; 13.4% had a critical issue**. Researchers identified **76 confirmed malicious payloads** for credential theft, backdoors, and data exfiltration — 91% combined prompt injection with traditional malware techniques. **8 of those 76 payloads remained publicly available at time of publication.** The ecosystem cannot self-clean fast enough. `mcp-remote` — the npm package Claude Desktop uses to connect to remote MCP servers — had a CVSS 9.6 RCE vulnerability in 437,000+ downloads. Anthropic's own official filesystem MCP server had a sandbox escape (CVSS 8.4, CVE-2025-53109/53110) — discovered March 30, 2025, acknowledged May 1, patched July 1. Three-month disclosure lag on Anthropic's own reference implementation.
 
 Equixly's March 2025 audit found **43% of popular MCP server implementations had command injection, 30% had SSRF, and 22% had path traversal**. Their conclusion: **"It feels like we're facing a regression in security."** Vendor response: 30% acknowledged and fixed, **45% dismissed findings as "theoretical," 25% gave no response**. The official Anthropic-maintained Puppeteer MCP server — 91,000 monthly downloads — had SSRF, prompt injection, and sandbox bypass simultaneously. It was archived rather than patched.
 
@@ -37,7 +37,7 @@ agentpreflight scan demo/poisoned --profile strict --fail-on high
 trust_score=0  verdict=fail  findings=15   critical=7  high=5
 ```
 
-Every finding maps to a OWASP rule ID, file, and line. One trust score (0–100) drives the CI gate: 85–100 = pass, 70–84 = warn, 0–69 = fail. Any critical finding caps the score at 50 — a critical MCP flaw cannot pass, regardless of other scores.
+Every finding maps to a OWASP rule ID, file, and line. One trust score (0–100) drives the CI gate: 85–100 = pass, 70–84 = warn, 0–69 = fail. Any critical finding caps the score at 50 — a critical MCP flaw cannot pass, regardless of other scores. Combination caps go lower: unsafe shell execution paired with network egress caps at 45; Unicode smuggling paired with a prompt override caps at 50. The score encodes threat model, not just finding count.
 
 **The fix loop — two modes, one workflow:**
 
