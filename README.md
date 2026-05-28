@@ -117,8 +117,8 @@ Full workflow: `.github/workflows/agentpreflight.yml`
 |---|---|
 | MCP | AP-MCP-001 prompt override, AP-MCP-002 trust claim, AP-MCP-003 untrusted result, AP-MCP-004 loose schema, AP-MCP-005 privileged tool |
 | Skill | AP-SKILL-001 prompt injection, AP-SKILL-002 hidden Unicode, AP-SKILL-003 remote dependency, AP-SKILL-004 credential seeking, AP-SKILL-005 capability mismatch |
-| Code | AP-CODE-001 unsafe shell, AP-CODE-002 dynamic exec, AP-CODE-003 remote pipe exec, AP-CODE-004 file access, AP-CODE-005 network exfiltration |
-| Secrets | AP-SEC-001 private key, AP-SEC-002 API token, AP-SEC-003 committed env file |
+| Code | AP-CODE-001 unsafe shell **(crit)**, AP-CODE-002 dynamic exec, AP-CODE-003 remote pipe exec **(crit)**, AP-CODE-004 file access, AP-CODE-005 network exfiltration |
+| Secrets | AP-SEC-001 private key **(crit)**, AP-SEC-002 API token, AP-SEC-003 committed env file |
 | Transport | AP-NET-001 broad bind, AP-NET-002 missing origin validation, AP-NET-003 plain HTTP tool |
 
 ---
@@ -209,7 +209,7 @@ agentpreflight scan (rescan):
 
 Scan path: offline by default, no model calls, no token cost.  
 Fix path: `--codex` sends a 5-line code window around the violation (redacted — no secrets, no file paths) to `codex-mini-latest`. Code rewriting is cheap; the scarce resource is *selection* — which of the infinite possible rewrites is minimal, compilable, and review-ready. Codex makes that call.  
-CI path: `--fail-on high` exits 1 on violations; trust score thresholds: 85+=pass, 70–84=warn, <70=fail (critical finding caps at 50; secrets cap at 55; 3+ high cap at 60; combo caps lower); SARIF uploads to GitHub Security tab.
+CI path: `--fail-on high` exits 1 on violations; trust score thresholds: 85+=pass, 70–84=warn, <70=fail (critical finding caps at 50; secrets cap at 55; 3+ high cap at 60; combo caps lower); critical rules: AP-CODE-001 (unsafe shell), AP-CODE-003 (remote pipe exec), AP-SEC-001 (private key); SARIF uploads to GitHub Security tab.
 
 ---
 
