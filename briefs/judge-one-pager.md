@@ -73,7 +73,7 @@ The terminal output is color-coded: `trust_score` prints green for pass, yellow 
 
 | Rule family | Source |
 |---|---|
-| `tool_poisoning` | MCPTox & InjecAgent (72.8% attack success in one evaluated setting, 45 real servers), OWASP MCP Top 10 |
+| `tool_poisoning` | MCPTox (peer-reviewed, AAAI) & InjecAgent — 72.8% attack success in one evaluated setting across 45 real servers, OWASP MCP Top 10 |
 | `unicode_smuggling` | OWASP Agentic Skills, Snyk ToxicSkills (76 confirmed payloads) |
 | `unsafe_exec` | Snyk ToxicSkills (13.4% of 3,984 skills critical), Equixly audit (43% command injection) |
 | `remote_instruction_fetch` | Snyk ToxicSkills, Invariant Labs rug pull |
@@ -141,7 +141,7 @@ The remediation-first model is validated in adjacent markets: GitHub Copilot Aut
 - MCP protocol adoption is accelerating: 150M+ downloads on core packages.
 - OWASP released MCP and Agentic Skills security guidance in 2025 — the standards infrastructure now exists.
 - 14 documented incidents in 12 months — the risk is active, not theoretical.
-- Developer community already knows this is a gap. When Equixly published their MCP audit in March 2025, Hacker News titled the thread "The 'S' in MCP Stands for Security" — sarcastically. 183 comments. Two top comments: **621 points** — "all it takes is some little bug in your input parser, and suddenly data becomes code." **602 points** — "The fact that all LLM input gets treated equally seems like a critical flaw that must be fixed before LLMs can be given control over anything privileged." An Invariant Labs engineer (lbeurerkellner) added the cross-server attack dimension directly in the thread. That community is the primary user of AgentPreflight.
+- Developer community already knows this is a gap. When Equixly published their MCP audit in March 2025, Hacker News titled the thread "The 'S' in MCP Stands for Security" — sarcastically. 183 comments. Two top comments: **TeMPOraL (621 points)** — "all it takes is some little bug in your input parser, and suddenly data becomes code." **wat10000 (602 points)** — "The fact that all LLM input gets treated equally seems like a critical flaw that must be fixed before LLMs can be given control over anything privileged." An Invariant Labs engineer (lbeurerkellner) added the cross-server attack dimension directly in the thread. That community is the primary user of AgentPreflight.
 - Developer toolchain (GitHub Actions, SARIF, PR review) is exactly where this gate belongs.
 - Existing AppSec tools cannot fill this gap. Bandit and Semgrep are AST-based code linters — entirely blind to MCP tool descriptions, SKILL.md instructions, and natural-language prompt-injection patterns. They scan Python syntax; they do not parse the semantic content of tool metadata strings. A Postmark-style BCC injection in a tool description is invisible to every general-purpose SAST tool on the market.
 - No dominant remediation-first tool exists yet. The scanner market is crowded; the fix market is not.
