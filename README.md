@@ -23,7 +23,7 @@ This was not isolated:
 - **April 2026**: OX Security found STDIO architectural flaw across 150M+ downloads — Anthropic declined to modify the protocol
 - **Runtime defenses fail by design**: Invariant Labs demonstrated a "rug pull" — malicious server served innocent descriptions on first launch, then switched to data-exfiltrating instructions on second launch, after trust was already granted
 
-MCP tool descriptions are natural-language, invisible to standard CI checks. A poisoned description hijacks an agent before runtime guardrails see anything. The protocol won't change. AgentPreflight is the pre-deployment gate: scan → trust score → Codex patch → rescan proof. Under two minutes, entirely static — never executes the server to analyze it.
+MCP tool descriptions are natural-language, invisible to standard CI checks. Bandit and Semgrep scan Python syntax — they do not parse the semantic content of tool metadata strings. A Postmark-style BCC injection in a tool description is invisible to every general-purpose SAST tool on the market. The protocol won't change. AgentPreflight is the pre-deployment gate: scan → trust score → Codex patch → rescan proof. Under two minutes, entirely static — never executes the server to analyze it.
 
 ---
 
