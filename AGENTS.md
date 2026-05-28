@@ -55,7 +55,7 @@ Use these files as source of truth before coding:
 - `briefs/github-action-plan.md` - SARIF and CI integration plan.
 - `briefs/demo-script.md` - hackathon demo flow.
 - `briefs/submission-summary.md` - concise submission copy.
-- `briefs/judge-one-pager.md` - judge-facing product narrative.
+- `briefs/investor-one-pager.md` - investor-facing product narrative.
 - `competitors/competitor-landscape.md`, `competitors/remediation-first-competitor-analysis.md`, `competitors/competitive-run-2026-05-25-remediation.md`, `competitors/competitive-run-2026-05-25-agent-security-2.md`, `competitors/competitive-run-2026-05-25-agent-security-3.md`, `research/competitors.md`, and `research/competitive-recheck.md` - max-10 competitor analysis and direct-scanner recheck.
 - `research/infra-redeployment-analysis.md`, `competitors/infra-redeployment-competitors.md`, `briefs/infra-redeploy-product-brief.md`, and `evaluation/infra-redeploy-scorecard.md` - infrastructure redeploy preflight research and competitor evaluation.
 - `evaluation/scoring-rubric.md` and `evaluation/evidence-matrix.md` - evaluation method and evidence mapping.

@@ -218,7 +218,7 @@ CI path: `--fail-on high` exits 1 on violations; trust score thresholds: 85+=pas
 | File | Contents |
 |---|---|
 | `briefs/winner-product-brief.md` | Full product brief — problem, solution, Codex integration, why this wins |
-| `briefs/judge-one-pager.md` | Investment brief — competitive position, proof, ICP |
+| `briefs/investor-one-pager.md` | Investment brief — competitive position, proof, ICP |
 | `briefs/submission-summary.md` | Devpost/Luma submission entry |
 | `briefs/pitch-deck.md` | 4-slide pitch deck |
 | `PRODUCT.md` | Build plan, MVP scope, success metrics |

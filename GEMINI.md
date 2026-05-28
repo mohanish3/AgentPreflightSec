@@ -73,7 +73,7 @@ To add once implementation starts:
 - `briefs/github-action-plan.md`
 - `briefs/demo-script.md`
 - `briefs/submission-summary.md`
-- `briefs/judge-one-pager.md`
+- `briefs/investor-one-pager.md`
 - `competitors/competitor-landscape.md`
 - `competitors/remediation-first-competitor-analysis.md`
 - `competitors/competitive-run-2026-05-25-remediation.md`
