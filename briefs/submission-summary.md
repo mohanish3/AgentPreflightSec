@@ -35,7 +35,7 @@ AgentPreflight shifts agent security left, acting like `npm audit` for the agent
 - **Terminal Output**: Rich color-coded dashboard — trust score prints green/yellow/red by verdict, findings render in a structured table (severity, rule ID, file, line, evidence), `CODEX PATCH` highlighted in bold yellow. When rescan flips `trust_score` from red 0 to green 100, the state change is unmissable. Zero plain-text logs in the critical path — every state transition communicates clearly.
 - **Continuous Integration**: Emits unified Trust Scores (0–100, thresholds: 85+=pass, 70–84=warn, <70=fail; any critical finding caps score at 50; secrets findings cap at 55; 3+ high findings cap at 60) and exports standard JSON/SARIF files, blocking insecure PRs automatically in GitHub Actions.
 
-The remediation-first model is validated: GitHub Copilot Autofix showed developers fixed vulnerabilities **more than 3x faster** with AI-generated proposals, and covered 90%+ of alert types with fixes requiring little or no editing. AgentPreflight applies this "found means fixed" model to MCP and agent-skill supply-chain artifacts — the attack surface no existing tool addressed with an AI-patch loop and rescan proof.
+The remediation-first model is validated: GitHub Copilot Autofix showed developers fixed vulnerabilities **more than 3x faster** with AI-generated proposals, and covered 90%+ of alert types with fixes requiring little or no editing. AgentPreflight applies this "found means fixed" model to MCP and agent-skill supply-chain artifacts — the attack surface no existing tool addressed with automated Codex diff-patches and rescan proof. AgentPreflight is first to market on the complete scan-to-Codex-patch-to-rescan-proof workflow for MCP security.
 
 ---
 
