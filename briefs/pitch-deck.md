@@ -62,7 +62,7 @@ rescan → trust_score=100, findings=0
 
 **Codex integration:** `agentpreflight fix --codex` sends only a 5-line code window around the violation (redacted — no secrets, no file paths) to `codex-mini-latest` and returns a structured patch proposal. Developer reviews one diff. Rescan confirms.
 
-**Shipped proof:** 30/30 tests passing, 113-artifact scan in 0.079s avg, SARIF 2.1.0 validates, fix loop cold-run `trust_score=0 → 100` verified May 27 2026.
+**Shipped proof:** 30/30 tests passing, 113-artifact scan in 0.079s avg, SARIF 2.1.0 validates, fix loop cold-run `trust_score=0 → 100` verified May 28 2026.
 
 ---
 
@@ -90,7 +90,7 @@ rescan → trust_score=100, findings=0
 |---|---|
 | **Role** | AppSec lead or CISO at company deploying internal AI agents |
 | **Pain** | No visibility into what MCP tools their developers are installing and running |
-| **Trigger** | Compliance audit, internal agent breach incident, or board-level AI governance pressure |
+| **Trigger** | Compliance audit, internal agent breach incident, or board-level AI governance pressure. IBM 2025: 63% of organizations lack AI governance policies; 97% of orgs with AI security incidents lacked proper AI access controls. |
 | **Decision** | Deploys AgentPreflight as mandatory PR gate across agent-related repositories |
 | **Value** | SARIF output integrates with existing GitHub code scanning; trust score gives board-level metric |
 
