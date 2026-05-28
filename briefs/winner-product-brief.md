@@ -25,6 +25,8 @@ The attack succeeds because of timing, not model capability. Invariant Labs demo
 
 The cost of getting it wrong: IBM's 2025 Cost of a Data Breach report puts the global average breach at $4.4M. 97% of organizations that experienced an AI-related security incident lacked proper AI access controls; 63% lacked AI governance policies entirely. Extensive AI security automation was associated with **$1.9M in cost savings** versus organizations without it.
 
+The MCP specification itself acknowledges the problem: it explicitly requires clients to treat tool annotations from untrusted servers as untrusted. But the protocol provides no enforcement mechanism. Anthropic declined to modify the STDIO architecture (OX Security, April 2026) and closed GitHub Issue #630 — "MCP Server terminology creates dangerous user misconceptions" — as "not planned." The specification warns; the protocol doesn't enforce; the ecosystem can't self-clean. The gate must be built outside the protocol layer.
+
 Developers need a fast, pre-deployment gate — the same way `npm audit` gates package installation.
 
 ---

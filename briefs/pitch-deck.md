@@ -66,7 +66,7 @@ rescan → trust_score=100, findings=0  ← flips to green
 | **Output formats** | Terminal (Rich tables), JSON, SARIF 2.1.0, Markdown PR comment |
 | **CI/CD** | GitHub Actions, `--fail-on` exit code gate, SARIF upload to GitHub Security tab |
 | **Optional API** | FastAPI + Uvicorn (`POST /v1/scans`) |
-| **Testing** | pytest, 30 unit tests, seeded malicious + clean fixtures |
+| **Testing** | pytest, 30 unit tests, seeded malicious + clean fixtures (includes mocked Codex API integration tests) |
 
 **Codex integration:** `agentpreflight fix --codex` sends only a 5-line code window around the violation (redacted — no secrets, no file paths) to `codex-mini-latest` and returns a structured patch proposal — a live `chat.completions.create` call, not a template fill. Developer reviews one diff. Rescan confirms. The `SYSTEM_PROMPT` enforces five explicit rules — Rule 5 scrubs any comments or strings that could be interpreted as prompt-injection payloads: the remediation engine itself defends against prompt injection. Codex cannot generate a patch that re-introduces a poisoned instruction. The constraint is recursive.
 
