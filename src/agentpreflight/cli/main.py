@@ -22,6 +22,8 @@ rules_app = typer.Typer(no_args_is_help=True)
 app.add_typer(rules_app, name="rules")
 console = Console()
 
+_MAX_TABLE_ROWS = 20
+
 
 class OutputFormat(str, Enum):
     table = "table"
@@ -32,6 +34,13 @@ class OutputFormat(str, Enum):
 
 _SEVERITY_RANK = {"low": 1, "medium": 2, "high": 3, "critical": 4}
 
+_SEVERITY_COLOR = {
+    "critical": "bold red",
+    "high": "bold yellow",
+    "medium": "yellow",
+    "low": "dim",
+}
+
 
 def _should_fail(findings, fail_on: str | None) -> bool:
     if not fail_on:
@@ -41,9 +50,13 @@ def _should_fail(findings, fail_on: str | None) -> bool:
 
 
 def _render_table(result) -> None:
-    color = "green" if result.verdict == "pass" else "yellow" if result.verdict == "warn" else "red"
+    verdict_color = "green" if result.verdict == "pass" else "yellow" if result.verdict == "warn" else "red"
     console.print(f"[bold]AgentPreflight[/bold] target={result.target}")
-    console.print(f"trust_score=[bold {color}]{result.trust_score}[/bold {color}] verdict=[bold {color}]{result.verdict}[/bold {color}] findings={len(result.findings)} offline={result.offline}")
+    console.print(
+        f"trust_score=[bold {verdict_color}]{result.trust_score}[/bold {verdict_color}]"
+        f" verdict=[bold {verdict_color}]{result.verdict}[/bold {verdict_color}]"
+        f" findings={len(result.findings)} offline={result.offline}"
+    )
     console.print(
         f"summary critical={result.summary['critical']} high={result.summary['high']} "
         f"medium={result.summary['medium']} low={result.summary['low']} "
@@ -51,24 +64,30 @@ def _render_table(result) -> None:
     )
     if not result.findings:
         return
+    sorted_findings = sorted(result.findings, key=lambda f: _SEVERITY_RANK[f.severity], reverse=True)
+    shown = sorted_findings[:_MAX_TABLE_ROWS]
+    hidden = len(sorted_findings) - len(shown)
     table = Table(show_header=True, header_style="bold")
-    table.add_column("Severity")
+    table.add_column("Severity", min_width=8)
     table.add_column("Rule")
     table.add_column("Path")
     table.add_column("Line", justify="right")
     table.add_column("Evidence")
-    for finding in result.findings[:12]:
+    for finding in shown:
+        sev_color = _SEVERITY_COLOR.get(finding.severity, "")
         table.add_row(
-            finding.severity,
+            f"[{sev_color}]{finding.severity}[/{sev_color}]",
             finding.id,
             Path(finding.path).name,
             str(finding.line or ""),
             finding.evidence,
         )
     console.print(table)
+    if hidden:
+        console.print(f"[dim]...and {hidden} more finding{'s' if hidden > 1 else ''} — use --format json for full output[/dim]")
     fixable = sum(1 for f in result.findings if f.fix_available)
     if fixable:
-        console.print(f"fix_available={fixable} run: agentpreflight fix {result.target}")
+        console.print(f"[cyan]fix_available={fixable}[/cyan] run: agentpreflight fix {result.target}")
 
 
 @app.callback()
@@ -92,7 +111,12 @@ def scan(
     if fail_on and fail_on not in _SEVERITY_RANK:
         raise typer.BadParameter("fail-on must be low, medium, high, or critical")
 
-    result = scan_path(target, profile=profile, suppression_file=suppressions)
+    if format == OutputFormat.table:
+        with console.status(f"[dim]scanning {target} (profile={profile})...[/dim]"):
+            result = scan_path(target, profile=profile, suppression_file=suppressions)
+    else:
+        result = scan_path(target, profile=profile, suppression_file=suppressions)
+
     if format == OutputFormat.json:
         rendered = json_reporter.render(result)
     elif format == OutputFormat.sarif:
@@ -148,6 +172,61 @@ def fix(
     console.print(f"changed={len(changed)}")
     for path in changed:
         console.print(path)
+
+
+def _collect_mtimes(target: Path) -> dict[Path, float]:
+    paths = list(target.rglob("*")) if target.is_dir() else [target]
+    return {p: p.stat().st_mtime for p in paths if p.is_file()}
+
+
+@app.command()
+def watch(
+    target: Path = typer.Argument(..., exists=True, help="Path to watch and rescan on change."),
+    profile: str = typer.Option("balanced", "--profile", help="dev, balanced, or strict."),
+    fail_on: str | None = typer.Option(None, "--fail-on", help="low, medium, high, or critical."),
+    interval: int = typer.Option(3, "--interval", help="Poll interval in seconds."),
+    suppressions: Path | None = typer.Option(None, "--suppressions", help="Path to suppressions file."),
+) -> None:
+    """Watch target for changes and rescan automatically."""
+    if profile not in {"dev", "balanced", "strict"}:
+        raise typer.BadParameter("profile must be dev, balanced, or strict")
+    if fail_on and fail_on not in _SEVERITY_RANK:
+        raise typer.BadParameter("fail-on must be low, medium, high, or critical")
+
+    console.print(f"[bold]AgentPreflight watch[/bold] target={target} interval={interval}s profile={profile}")
+    console.print("[dim]Press Ctrl+C to stop.[/dim]\n")
+
+    mtimes: dict[Path, float] = {}
+    scan_count = 0
+
+    try:
+        while True:
+            current = _collect_mtimes(target)
+            changed = current != mtimes
+
+            if changed:
+                mtimes = current
+                scan_count += 1
+                ts = time.strftime("%H:%M:%S")
+
+                if scan_count > 1:
+                    console.rule(f"[dim]{ts} change detected — rescanning[/dim]")
+                else:
+                    console.rule(f"[dim]{ts} initial scan[/dim]")
+
+                with console.status(f"[dim]scanning (profile={profile})...[/dim]"):
+                    result = scan_path(target, profile=profile, suppression_file=suppressions)
+
+                _render_table(result)
+
+                if _should_fail(result.findings, fail_on):
+                    console.print(f"[bold red]FAIL[/bold red] threshold={fail_on} exceeded")
+                else:
+                    console.print(f"[dim]watching... next poll in {interval}s[/dim]")
+
+            time.sleep(interval)
+    except KeyboardInterrupt:
+        console.print("\n[dim]watch stopped[/dim]")
 
 
 @app.command()
