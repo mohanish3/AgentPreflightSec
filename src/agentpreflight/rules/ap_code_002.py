@@ -10,6 +10,8 @@ _PATTERNS = [
     (re.compile(r"\beval\s*\("), "eval() call"),
     (re.compile(r"\bexec\s*\("), "exec() call"),
     (re.compile(r"\bFunction\s*\("), "Function constructor"),
+    # Shell-specific: eval with a string or variable expansion (no parentheses)
+    (re.compile(r'\beval\s+["\$`]'), "shell eval with string/variable"),
 ]
 
 
@@ -17,7 +19,7 @@ class DynamicCodeExecRule(Rule):
     id = "AP-CODE-002"
     severity = "high"
     category = "unsafe_exec"
-    applies_to = {"code_py", "code_js"}
+    applies_to = {"code_py", "code_js", "code_sh"}
 
     def check(self, artifact: Artifact) -> list[Finding]:
         findings: list[Finding] = []

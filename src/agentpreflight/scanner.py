@@ -21,8 +21,9 @@ def scan_path(
     target: str | Path,
     profile: str = "balanced",
     suppression_file: str | Path | None = None,
+    exclude: list[str] | None = None,
 ) -> ScanResult:
-    artifacts = normalize_all(collect(target))
+    artifacts = normalize_all(collect(target, exclude=exclude))
     findings = RuleEngine(ALL_RULES).run(artifacts)
     target_root = Path(target).resolve()
     findings, inline_suppressed = apply_inline_suppressions(findings, artifacts)

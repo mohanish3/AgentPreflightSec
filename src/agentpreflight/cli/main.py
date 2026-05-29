@@ -109,18 +109,20 @@ def scan(
     output: Path | None = typer.Option(None, "--output", "-o", help="Write JSON/SARIF output to file."),
     suppressions: Path | None = typer.Option(None, "--suppressions", help="Path to .agentpreflight.json suppressions file."),
     quiet: bool = typer.Option(False, "--quiet", "-q", help="Print one-line summary only (CI-friendly)."),
+    exclude: list[str] = typer.Option([], "--exclude", "-x", help="Glob patterns to exclude (e.g. 'tests/**' 'docs/')."),
 ) -> None:
     if profile not in {"dev", "balanced", "strict"}:
         raise typer.BadParameter("profile must be dev, balanced, or strict")
     if fail_on and fail_on not in _SEVERITY_RANK:
         raise typer.BadParameter("fail-on must be low, medium, high, or critical")
 
+    exclude_list = list(exclude) if exclude else None
     try:
         if format == OutputFormat.table and not quiet:
             with console.status(f"[dim]scanning {target} (profile={profile})...[/dim]"):
-                result = scan_path(target, profile=profile, suppression_file=suppressions)
+                result = scan_path(target, profile=profile, suppression_file=suppressions, exclude=exclude_list)
         else:
-            result = scan_path(target, profile=profile, suppression_file=suppressions)
+            result = scan_path(target, profile=profile, suppression_file=suppressions, exclude=exclude_list)
     except PermissionError as exc:
         console.print(f"[red]error:[/red] permission denied: {exc}")
         raise typer.Exit(2)
@@ -244,6 +246,7 @@ def watch(
     fail_on: str | None = typer.Option(None, "--fail-on", help="low, medium, high, or critical."),
     interval: int = typer.Option(3, "--interval", help="Poll interval in seconds."),
     suppressions: Path | None = typer.Option(None, "--suppressions", help="Path to suppressions file."),
+    exclude: list[str] = typer.Option([], "--exclude", "-x", help="Glob patterns to exclude."),
 ) -> None:
     """Watch target for changes and rescan automatically."""
     if profile not in {"dev", "balanced", "strict"}:
@@ -251,6 +254,7 @@ def watch(
     if fail_on and fail_on not in _SEVERITY_RANK:
         raise typer.BadParameter("fail-on must be low, medium, high, or critical")
 
+    exclude_list = list(exclude) if exclude else None
     console.print(f"[bold]AgentPreflight watch[/bold] target={target} interval={interval}s profile={profile}")
     console.print("[dim]Press Ctrl+C to stop.[/dim]\n")
 
@@ -273,7 +277,7 @@ def watch(
                     console.rule(f"[dim]{ts} initial scan[/dim]")
 
                 with console.status(f"[dim]scanning (profile={profile})...[/dim]"):
-                    result = scan_path(target, profile=profile, suppression_file=suppressions)
+                    result = scan_path(target, profile=profile, suppression_file=suppressions, exclude=exclude_list)
 
                 _render_table(result)
 

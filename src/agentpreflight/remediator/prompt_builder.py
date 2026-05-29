@@ -17,10 +17,13 @@ Rules:
 """
 
 _SECRET_PATTERNS = [
-    re.compile(r"sk-[A-Za-z0-9_-]{12,}"),
-    re.compile(r"ghp_[A-Za-z0-9_]{12,}"),
-    re.compile(r"xox[baprs]-[A-Za-z0-9-]{12,}"),
-    re.compile(r"(?i)(api[_-]?key|secret|token|password)(\s*=\s*)['\"]?[A-Za-z0-9_\-./+=]{8,}"),
+    re.compile(r"sk-[A-Za-z0-9_-]{20,}"),           # OpenAI
+    re.compile(r"sk-ant-[A-Za-z0-9_-]{40,}"),        # Anthropic
+    re.compile(r"gh[pos]_[A-Za-z0-9_]{20,}"),        # GitHub tokens
+    re.compile(r"xox[baprs]-[A-Za-z0-9-]{20,}"),     # Slack
+    re.compile(r"AKIA[A-Z0-9]{16}"),                  # AWS access key
+    re.compile(r"AIza[A-Za-z0-9_-]{35,}"),           # Google API key
+    re.compile(r"(?i)(api[_-]?key|secret|token|password)(\s*=\s*)['\"]?[A-Za-z0-9_\-./+=]{16,}"),
 ]
 
 
@@ -80,7 +83,8 @@ def _instruction(finding: Finding) -> str:
 
 def _redact(text: str) -> str:
     redacted = text
-    for pattern in _SECRET_PATTERNS[:3]:
+    # Last pattern captures groups (key=value form) — must use back-reference
+    for pattern in _SECRET_PATTERNS[:-1]:
         redacted = pattern.sub("REDACTED", redacted)
-    redacted = _SECRET_PATTERNS[3].sub(r"\1\2REDACTED", redacted)
+    redacted = _SECRET_PATTERNS[-1].sub(r"\1\2REDACTED", redacted)
     return redacted

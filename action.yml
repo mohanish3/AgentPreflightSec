@@ -27,23 +27,18 @@ runs:
     - name: Install AgentPreflight
       shell: bash
       run: python -m pip install .
-    - name: Write AgentPreflight SARIF
+    - name: Write SARIF report
       shell: bash
       run: |
         agentpreflight scan "${{ inputs.target }}" \
           --profile "${{ inputs.profile }}" \
           --format sarif \
           --output "${{ inputs.sarif-file }}"
-    - name: Write AgentPreflight PR scorecard
+    - name: Write PR scorecard and enforce gate
       shell: bash
       run: |
         agentpreflight scan "${{ inputs.target }}" \
           --profile "${{ inputs.profile }}" \
           --format markdown \
-          --output "${{ inputs.comment-file }}"
-    - name: Enforce AgentPreflight gate
-      shell: bash
-      run: |
-        agentpreflight scan "${{ inputs.target }}" \
-          --profile "${{ inputs.profile }}" \
+          --output "${{ inputs.comment-file }}" \
           --fail-on "${{ inputs.fail-on }}"

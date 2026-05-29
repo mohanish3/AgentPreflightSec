@@ -8,8 +8,21 @@ from agentpreflight.models import Finding
 from agentpreflight.normalizers.unicode import SUSPICIOUS_CONTROLS
 
 _OVERRIDE_RE = re.compile(
-    r"(?i)(ignore previous instructions|ignore all instructions|system override|developer message|urgent bypass|"
-    r"exfiltrate|reveal secrets|hidden instruction|administrator mode|disregard previous instructions)"
+    r"(?i)("
+    r"ignore (previous|prior|all) instructions?"
+    r"|system override"
+    r"|developer message"
+    r"|urgent bypass"
+    r"|exfiltrate"
+    r"|reveal (secrets?|credentials?|keys?|tokens?)"
+    r"|you (are|must|should) now"
+    r"|hidden (instruction|priority|directive)"
+    r"|override (all|previous|system)"
+    r"|new (system )?prompt"
+    r"|disregard (all|previous)"
+    r"|maintenance (instruction|mode)"
+    r"|administrator mode"
+    r")"
 )
 _SKILL_RE = re.compile(
     r"(?i)(ignore previous instructions|override all instructions|bypass safety|hidden priority|secret directive|"
@@ -61,9 +74,13 @@ def apply_local_fixes(findings: list[Finding], allowed_rules: set[str] | None = 
         if fixed != text:
             path.write_text(fixed, encoding="utf-8")
             changed.append(str(path))
-        if any(f.id == "AP-SEC-003" for f in path_findings) and path.name.startswith(".env"):
-            dest = path.with_name(".env.example")
-            if path.exists():
+        if any(f.id == "AP-SEC-003" for f in path_findings) and path.exists():
+            name = path.name
+            if name.startswith(".env"):
+                dest = path.with_name(".env.example")
+            else:
+                dest = path.with_name(name + ".example")
+            if not dest.exists():
                 path.replace(dest)
                 changed.append(f"{path} -> {dest}")
     return changed
@@ -121,8 +138,11 @@ def _fix_code_lines(text: str, findings: list[Finding]) -> str:
             out.append(line)
             continue
         indent = line[:len(line) - len(line.lstrip())]
+        stripped = line.strip()
         if "eval(" in line or "exec(" in line or "Function(" in line:
             out.append(f"{indent}raise ValueError(\"dynamic execution disabled by AgentPreflight\")")
+        elif stripped.startswith("eval ") or " eval " in line:
+            out.append(f"{indent}# AgentPreflight removed shell eval: use explicit command invocation")
         elif "curl" in line or "wget" in line:
             out.append(f"{indent}# AgentPreflight removed remote script execution")
         elif "os.system" in line or "shell=True" in line or "commands.getoutput" in line:
@@ -133,14 +153,17 @@ def _fix_code_lines(text: str, findings: list[Finding]) -> str:
 
 
 def _redact_tokens(text: str) -> str:
-    patterns = [
+    literal_patterns = [
         re.compile(r"sk-[A-Za-z0-9_-]{20,}"),
-        re.compile(r"ghp_[A-Za-z0-9_]{20,}"),
+        re.compile(r"sk-ant-[A-Za-z0-9_-]{40,}"),
+        re.compile(r"gh[pos]_[A-Za-z0-9_]{20,}"),
         re.compile(r"xox[baprs]-[A-Za-z0-9-]{20,}"),
-        re.compile(r"(?i)(api[_-]?key|secret|token|password)(\s*=\s*)['\"]?[A-Za-z0-9_\-./+=]{16,}"),
+        re.compile(r"AKIA[A-Z0-9]{16}"),
+        re.compile(r"AIza[A-Za-z0-9_-]{35,}"),
     ]
+    kv_pattern = re.compile(r"(?i)(api[_-]?key|secret|token|password)(\s*=\s*)['\"]?[A-Za-z0-9_\-./+=]{16,}")
     fixed = text
-    for pattern in patterns[:3]:
+    for pattern in literal_patterns:
         fixed = pattern.sub("REDACTED", fixed)
-    fixed = patterns[3].sub(r"\1\2REDACTED", fixed)
+    fixed = kv_pattern.sub(r"\1\2REDACTED", fixed)
     return fixed

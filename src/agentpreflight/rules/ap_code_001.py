@@ -9,6 +9,10 @@ _PATTERNS = [
     (re.compile(r'\bos\.system\s*\('), "os.system() call"),
     (re.compile(r'\bsubprocess\.\w+\s*\([^)]*shell\s*=\s*True'), "subprocess with shell=True"),
     (re.compile(r'\bcommands\.getoutput\s*\('), "commands.getoutput() call"),
+    # JS: child_process.exec/execSync always run via shell — equivalent to os.system
+    (re.compile(r'\bchild_process\.(exec|execSync)\s*\('), "child_process.exec() call"),
+    # JS: spawn/spawnSync with shell:true is also vulnerable
+    (re.compile(r'\bchild_process\.(spawn|spawnSync)\s*\([^)]*shell\s*:\s*true', re.I), "child_process.spawn with shell:true"),
 ]
 
 

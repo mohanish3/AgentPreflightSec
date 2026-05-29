@@ -30,11 +30,16 @@ MCP tool descriptions are natural-language, invisible to standard CI checks. Ban
 ## Install
 
 ```bash
-pip install .
+# From PyPI (recommended):
+pip install agentpreflight
 agentpreflight --version
 
-# For Codex AI remediation (optional):
-pip install ".[codex]"
+# From source:
+pip install .
+
+# Optional extras:
+pip install "agentpreflight[api]"     # FastAPI scan endpoint
+pip install "agentpreflight[codex]"   # Codex AI remediation
 export OPENAI_API_KEY=<your-key>
 ```
 
