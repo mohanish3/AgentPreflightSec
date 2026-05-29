@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+from agentpreflight import __version__
 from agentpreflight.models import ScanResult
 
 _LEVELS = {
@@ -55,7 +56,7 @@ def render(result: ScanResult) -> str:
             "tool": {
                 "driver": {
                     "name": result.tool,
-                    "semanticVersion": "0.1.0",
+                    "semanticVersion": __version__,
                     "rules": list(rules.values()),
                 }
             },

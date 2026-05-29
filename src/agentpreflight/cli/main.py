@@ -108,6 +108,7 @@ def scan(
     format: OutputFormat = typer.Option(OutputFormat.table, "--format"),
     output: Path | None = typer.Option(None, "--output", "-o", help="Write JSON/SARIF output to file."),
     suppressions: Path | None = typer.Option(None, "--suppressions", help="Path to .agentpreflight.json suppressions file."),
+    quiet: bool = typer.Option(False, "--quiet", "-q", help="Print one-line summary only (CI-friendly)."),
 ) -> None:
     if profile not in {"dev", "balanced", "strict"}:
         raise typer.BadParameter("profile must be dev, balanced, or strict")
@@ -115,7 +116,7 @@ def scan(
         raise typer.BadParameter("fail-on must be low, medium, high, or critical")
 
     try:
-        if format == OutputFormat.table:
+        if format == OutputFormat.table and not quiet:
             with console.status(f"[dim]scanning {target} (profile={profile})...[/dim]"):
                 result = scan_path(target, profile=profile, suppression_file=suppressions)
         else:
@@ -127,7 +128,15 @@ def scan(
         console.print(f"[red]error:[/red] could not read target: {exc}")
         raise typer.Exit(2)
 
-    if format == OutputFormat.json:
+    if quiet:
+        verdict_color = "green" if result.verdict == "pass" else "yellow" if result.verdict == "warn" else "red"
+        console.print(
+            f"trust_score=[bold {verdict_color}]{result.trust_score}[/bold {verdict_color}]"
+            f" verdict=[bold {verdict_color}]{result.verdict}[/bold {verdict_color}]"
+            f" findings={len(result.findings)}"
+            f" profile={result.profile}"
+        )
+    elif format == OutputFormat.json:
         rendered = json_reporter.render(result)
     elif format == OutputFormat.sarif:
         rendered = sarif_reporter.render(result)
@@ -137,13 +146,14 @@ def scan(
         rendered = ""
         _render_table(result)
 
-    if output:
-        output.write_text(rendered, encoding="utf-8")
-        console.print(f"wrote={output}")
-    elif rendered:
-        sys.stdout.write(rendered)
-        if not rendered.endswith("\n"):
-            sys.stdout.write("\n")
+    if not quiet:
+        if output:
+            output.write_text(rendered, encoding="utf-8")
+            console.print(f"wrote={output}")
+        elif rendered:
+            sys.stdout.write(rendered)
+            if not rendered.endswith("\n"):
+                sys.stdout.write("\n")
 
     if _should_fail(result.findings, fail_on):
         raise typer.Exit(1)
@@ -258,7 +268,7 @@ def watch(
                 ts = time.strftime("%H:%M:%S")
 
                 if scan_count > 1:
-                    console.rule(f"[dim]{ts} change detected -rescanning[/dim]")
+                    console.rule(f"[dim]{ts} change detected - rescanning[/dim]")
                 else:
                     console.rule(f"[dim]{ts} initial scan[/dim]")
 
@@ -308,13 +318,16 @@ def prompts(
     output: Path | None = typer.Option(None, "--output", "-o", help="Write prompt pack to file."),
     max_findings: int = typer.Option(10, "--max-findings", help="Maximum fixable findings to include."),
 ) -> None:
-    result = scan_path(target, profile="strict")
+    with console.status(f"[dim]scanning {target} (profile=strict)...[/dim]"):
+        result = scan_path(target, profile="strict")
     rendered = build_prompt_pack(result.findings, max_findings=max_findings)
     if output:
         output.write_text(rendered, encoding="utf-8")
         console.print(f"wrote={output}")
     else:
-        console.print(rendered)
+        sys.stdout.write(rendered)
+        if not rendered.endswith("\n"):
+            sys.stdout.write("\n")
 
 
 @rules_app.command("list")

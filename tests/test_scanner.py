@@ -119,6 +119,33 @@ def test_init_does_not_overwrite_without_force(tmp_path: Path) -> None:
     assert json.loads(existing.read_text())["version"] == "mine"
 
 
+def test_scan_quiet_prints_one_line_summary() -> None:
+    runner = CliRunner()
+    result = runner.invoke(app, ["scan", str(ROOT / "demo" / "poisoned"), "--quiet"])
+
+    assert result.exit_code == 0
+    lines = [l for l in result.output.strip().splitlines() if l.strip()]
+    assert len(lines) == 1
+    assert "trust_score=" in lines[0]
+    assert "verdict=" in lines[0]
+
+
+def test_scan_quiet_with_fail_on_exits_nonzero() -> None:
+    runner = CliRunner()
+    result = runner.invoke(app, ["scan", str(ROOT / "demo" / "poisoned"), "--quiet", "--fail-on", "high"])
+
+    assert result.exit_code == 1
+
+
+def test_sarif_uses_package_version() -> None:
+    result = scan_path(ROOT / "demo" / "poisoned", profile="strict")
+    from agentpreflight import __version__
+    from agentpreflight.reporters import sarif_reporter
+    payload = json.loads(sarif_reporter.render(result))
+
+    assert payload["runs"][0]["tool"]["driver"]["semanticVersion"] == __version__
+
+
 def test_cli_fail_on_high_exits_nonzero() -> None:
     runner = CliRunner()
     result = runner.invoke(app, ["scan", str(ROOT / "demo" / "poisoned"), "--profile", "strict", "--fail-on", "high"])

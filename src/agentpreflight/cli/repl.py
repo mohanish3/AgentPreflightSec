@@ -260,19 +260,12 @@ def _cmd_rules() -> None:
 
 
 def _build_prompt(session: dict) -> str:
-    parts = ["agentpreflight"]
     last_result = session.get("last_result")
     last_target = session.get("last_target")
     if last_target:
-        parts.append(f"({Path(last_target).name}")
-        if last_result:
-            score = last_result.trust_score
-            verdict = last_result.verdict
-            color_open = "\033[32m" if verdict == "pass" else "\033[33m" if verdict == "warn" else "\033[31m"
-            color_close = "\033[0m"
-            parts[-1] += f" {color_open}{score}{color_close}"
-        parts[-1] += ")"
-    return " ".join(parts) + "> "
+        score_hint = f" {last_result.trust_score}" if last_result else ""
+        return f"agentpreflight ({Path(last_target).name}{score_hint})> "
+    return "agentpreflight> "
 
 
 def run_repl(initial_target: Path | None = None, profile: str = "balanced", fail_on: str | None = None) -> None:
