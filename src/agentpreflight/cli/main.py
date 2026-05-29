@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import json
 import time
 from enum import Enum
 from pathlib import Path
@@ -10,6 +9,7 @@ from rich.console import Console
 from rich.table import Table
 
 from agentpreflight import __version__
+from agentpreflight.cli.repl import run_repl
 from agentpreflight.remediator.codex_fix import run_codex_fix
 from agentpreflight.remediator.local_fix import apply_local_fixes
 from agentpreflight.remediator.prompt_builder import build_prompt_pack
@@ -145,7 +145,8 @@ def fix(
     codex: bool = typer.Option(False, "--codex", help="Generate Codex AI patch proposals (requires OPENAI_API_KEY)."),
     codex_model: str = typer.Option("codex-mini-latest", "--codex-model", help="OpenAI model for Codex remediation."),
 ) -> None:
-    result = scan_path(target, profile="strict")
+    with console.status(f"[dim]scanning {target} (profile=strict)...[/dim]"):
+        result = scan_path(target, profile="strict")
     allowed = {item.strip() for item in rules.split(",")} if rules else None
     fixable = [f for f in result.findings if f.fix_available and (not allowed or f.id in allowed)]
     console.print(f"fixable={len(fixable)} target={target}")
@@ -164,9 +165,23 @@ def fix(
         return
 
     if not apply:
+        dry_table = Table(show_header=True, header_style="bold")
+        dry_table.add_column("Severity", min_width=8)
+        dry_table.add_column("Rule")
+        dry_table.add_column("Path")
+        dry_table.add_column("Line", justify="right")
+        dry_table.add_column("Fix")
         for finding in fixable:
-            console.print(f"{finding.id} {finding.path}:{finding.line or ''} -> {finding.fix}")
-        console.print("dry_run=true use --apply to modify files")
+            sev_color = _SEVERITY_COLOR.get(finding.severity, "")
+            dry_table.add_row(
+                f"[{sev_color}]{finding.severity}[/{sev_color}]",
+                finding.id,
+                Path(finding.path).name,
+                str(finding.line or ""),
+                finding.fix,
+            )
+        console.print(dry_table)
+        console.print("[dim]dry_run=true — use --apply to modify files[/dim]")
         return
     changed = apply_local_fixes(fixable, allowed)
     console.print(f"changed={len(changed)}")
@@ -176,7 +191,14 @@ def fix(
 
 def _collect_mtimes(target: Path) -> dict[Path, float]:
     paths = list(target.rglob("*")) if target.is_dir() else [target]
-    return {p: p.stat().st_mtime for p in paths if p.is_file()}
+    result: dict[Path, float] = {}
+    for p in paths:
+        try:
+            if p.is_file():
+                result[p] = p.stat().st_mtime
+        except OSError:
+            pass
+    return result
 
 
 @app.command()
@@ -273,12 +295,30 @@ def prompts(
 def list_rules() -> None:
     table = Table(show_header=True, header_style="bold")
     table.add_column("Rule")
-    table.add_column("Severity")
+    table.add_column("Severity", min_width=8)
     table.add_column("Category")
     table.add_column("Applies to")
     for rule in ALL_RULES:
-        table.add_row(rule.id, rule.severity, rule.category, ", ".join(sorted(rule.applies_to)))
+        sev_color = _SEVERITY_COLOR.get(rule.severity, "")
+        table.add_row(
+            rule.id,
+            f"[{sev_color}]{rule.severity}[/{sev_color}]",
+            rule.category,
+            ", ".join(sorted(rule.applies_to)),
+        )
     console.print(table)
+
+
+@app.command()
+def shell(
+    target: Path | None = typer.Argument(None, help="Optional path to scan immediately on entry."),
+    profile: str = typer.Option("balanced", "--profile", help="Default profile for session."),
+    fail_on: str | None = typer.Option(None, "--fail-on", help="Fail threshold for session."),
+) -> None:
+    """Start interactive shell with session state and command history."""
+    if profile not in {"dev", "balanced", "strict"}:
+        raise typer.BadParameter("profile must be dev, balanced, or strict")
+    run_repl(initial_target=target, profile=profile, fail_on=fail_on)
 
 
 def run() -> None:

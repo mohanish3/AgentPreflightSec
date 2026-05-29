@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from pathlib import Path
 
 from agentpreflight.models import ScanResult
 
@@ -10,6 +11,14 @@ _LEVELS = {
     "medium": "warning",
     "low": "note",
 }
+
+
+def _relative_uri(path: str, target_root: str) -> str:
+    """Return a POSIX-style relative URI for SARIF artifactLocation."""
+    try:
+        return Path(path).resolve().relative_to(Path(target_root).resolve()).as_posix()
+    except ValueError:
+        return Path(path).name
 
 
 def render(result: ScanResult) -> str:
@@ -33,7 +42,7 @@ def render(result: ScanResult) -> str:
             "message": {"text": finding.evidence},
             "locations": [{
                 "physicalLocation": {
-                    "artifactLocation": {"uri": finding.path.replace("\\", "/")},
+                    "artifactLocation": {"uri": _relative_uri(finding.path, result.target)},
                     "region": region,
                 }
             }],

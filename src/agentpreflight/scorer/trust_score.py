@@ -57,16 +57,23 @@ def score(findings: list[Finding], profile: str = "balanced") -> ScoreDetail:
         sev = f.severity
         if profile == "strict" and sev == "medium":
             sev = "high"
-        deduction_log[f.severity] += DEDUCTIONS.get(sev, 0)
+        deduction_log[sev] += DEDUCTIONS.get(sev, 0)
 
     raw = base - sum(deduction_log.values())
     raw = max(0, raw)
 
     raw, caps_applied = _apply_caps(raw, findings)
 
+    effective_counts: dict[str, int] = {"critical": 0, "high": 0, "medium": 0, "low": 0}
+    for f in findings:
+        eff = f.severity
+        if profile == "strict" and eff == "medium":
+            eff = "high"
+        effective_counts[eff] += 1
+
     deductions_list = [
-        {"severity": sev, "count": sum(1 for f in findings if f.severity == sev), "points": pts}
-        for sev, pts in deduction_log.items()
+        {"severity": bucket, "count": effective_counts[bucket], "points": pts}
+        for bucket, pts in deduction_log.items()
         if pts > 0
     ]
 
