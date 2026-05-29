@@ -55,17 +55,6 @@ Core rule families: `tool_poisoning`, `unicode_smuggling`, `unsafe_exec`, `remot
 
 ---
 
-## 4-day build plan
-
-| Day | Build |
-|---|---|
-| 1 | Collectors for MCP config, skills, Markdown, Python/TS files; Unicode normalizer; first 15 rules. |
-| 2 | Scoring engine, CLI, JSON/SARIF, suppressions, test fixtures. |
-| 3 | `fix` command with `--codex` (live API) and `--apply` (deterministic), Codex remediation prompt templates, demo poisoned repo. |
-| 4 | Packaging, docs, benchmark timings, sample policies, release checklist, final demo. |
-
----
-
 ## MVP success metrics
 
 - Catches 90%+ of seeded malicious fixtures.
@@ -102,44 +91,12 @@ AgentPreflight is `npm audit fix` for agent extensions.
 
 ---
 
-## Why it can win
+## Source language guidelines
 
-- MCP/skill supply-chain risk is high-impact and documented.
-- Four-day build is realistic.
-- Codex remediation loop is core, constrained to reviewable high-confidence patches.
-- Trust score + SARIF + fix + rescan demo is easy to understand and hard to dismiss as research.
-- DeployPreflight has scale, but IaC/drift/remediation tooling is mature; scope creep risk is high.
-- RAG and prompt-audit alternatives are weaker for demo and delivery.
-
----
-
-## Candidate problem ranking
-
-| Idea | Codex leverage | 4-day viability | Developer value | Market timing | Novelty | Total | Verdict |
-|---|---:|---:|---:|---:|---:|---:|---|
-| MCP and agent-skill preflight scanner | 5 | 5 | 5 | 5 | 2 | 22 | Build now as safe remediation-first |
-| Infrastructure redeploy preflight | 5 | 4 | 5 | 5 | 2 | 21 | Runner-up / future module |
-| RAG ingestion poisoning gate | 4 | 3 | 5 | 4 | 4 | 20 | Runner-up |
-| System prompt leakage audit gate | 5 | 5 | 3 | 4 | 3 | 20 | Module/fallback |
-| Codex config linter | 4 | 5 | 4 | 3 | 3 | 19 | Future module |
-| Dynamic skill sandbox | 4 | 3 | 5 | 4 | 5 | 21 | Stretch after MVP |
-
----
-
-## Judge-facing summary
-
-AgentPreflight is a local-first security scanner for MCP servers and agent skills. Every agent extension gets a trust score before the agent runs it. Codex generates minimal reviewable remediation patches. A rescan proves the fix.
-
-**Before:** trust_score=0 verdict=fail findings=15 — `agentpreflight fix . --apply` — **After:** trust_score=100 verdict=pass findings=0. Under two minutes.
-
----
-
-## Submission-safe source language
-
-Use:
-- Snyk ToxicSkills: 3,984 skills scanned; 36.82% had at least one flaw; 13.4% had at least one critical issue.
+Use verified statistics only:
+- Snyk ToxicSkills: 3,984 skills scanned; 36.82% had at least one flaw; 13.4% had a critical issue.
 - MCPTox: 72.8% attack success is one evaluated setting, not universal.
 - OWASP MCP/Agentic Skills guidance supports the problem category.
 - IBM 2025 breach report and GitHub Octoverse support impact/scale, not direct ROI proof.
 
-Do NOT use: unverified model names, competitor acquisitions, exact adoption percentages, or dollar-impact estimates unless source is in `sources/source-register.md` or `EVIDENCE.md` (verification audit section) says verified.
+Do NOT use: unverified model names, competitor acquisitions, exact adoption percentages, or dollar-impact estimates unless source is in `sources/source-register.md` or `EVIDENCE.md` says verified.
