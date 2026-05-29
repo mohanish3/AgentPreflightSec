@@ -49,6 +49,37 @@ def test_sarif_report_shape() -> None:
     assert payload["runs"][0]["results"]
 
 
+def test_sarif_artifact_uris_are_relative() -> None:
+    result = scan_path(ROOT / "demo" / "poisoned", profile="strict")
+    payload = json.loads(sarif_reporter.render(result))
+
+    for sarif_result in payload["runs"][0]["results"]:
+        uri = sarif_result["locations"][0]["physicalLocation"]["artifactLocation"]["uri"]
+        assert not uri.startswith("C:"), f"absolute Windows path in SARIF: {uri}"
+        assert not uri.startswith("/"), f"absolute Unix path in SARIF: {uri}"
+        assert "\\" not in uri, f"backslash in SARIF URI: {uri}"
+
+
+def test_clean_scan_cli_shows_no_issues_found() -> None:
+    runner = CliRunner()
+    result = runner.invoke(app, ["scan", str(ROOT / "demo" / "clean"), "--profile", "strict"])
+
+    assert result.exit_code == 0
+    assert "no issues found" in result.output
+
+
+def test_fix_prove_shows_rescan_delta(tmp_path: Path) -> None:
+    target = tmp_path / "poisoned"
+    shutil.copytree(ROOT / "demo" / "poisoned", target)
+    runner = CliRunner()
+
+    result = runner.invoke(app, ["fix", str(target), "--apply", "--prove"])
+
+    assert result.exit_code == 0
+    assert "rescan" in result.output
+    assert "delta=" in result.output
+
+
 def test_cli_fail_on_high_exits_nonzero() -> None:
     runner = CliRunner()
     result = runner.invoke(app, ["scan", str(ROOT / "demo" / "poisoned"), "--profile", "strict", "--fail-on", "high"])

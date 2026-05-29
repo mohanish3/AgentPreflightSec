@@ -1,4 +1,4 @@
-"""Interactive shell for AgentPreflight — persistent session with command history."""
+"""Interactive shell for AgentPreflight -persistent session with command history."""
 from __future__ import annotations
 
 import shlex
@@ -8,11 +8,12 @@ from rich.console import Console
 from rich.table import Table
 
 from agentpreflight import __version__
-from agentpreflight.models import ScanResult
 from agentpreflight.remediator.local_fix import apply_local_fixes
 from agentpreflight.reporters import json_reporter, sarif_reporter
 from agentpreflight.rules.catalog import ALL_RULES
 from agentpreflight.scanner import scan_path
+
+_HISTORY_FILE = Path.home() / ".agentpreflight_history"
 
 console = Console()
 
@@ -27,7 +28,7 @@ _SEVERITY_COLOR = {
 _COMMANDS = ["scan", "fix", "rescan", "rules", "export", "clear", "help", "exit", "quit"]
 
 _HELP = """\
-[bold]AgentPreflight shell[/bold] — available commands
+[bold]AgentPreflight shell[/bold] -available commands
 
   [cyan]scan[/cyan] [path] [--profile dev|balanced|strict] [--fail-on low|medium|high|critical]
       Scan a target. Omit path to rescan the last target.
@@ -55,17 +56,29 @@ _HELP = """\
 """
 
 
-def _try_enable_readline() -> None:
+def _try_enable_readline(history_file: Path = _HISTORY_FILE) -> None:
     try:
         import readline
-        import rlcompleter
+
+        if history_file.exists():
+            readline.read_history_file(str(history_file))
+        readline.set_history_length(500)
 
         commands = _COMMANDS
         readline.set_completer(lambda text, state: (
             [c for c in commands if c.startswith(text)] + [None]
         )[state])
         readline.parse_and_bind("tab: complete")
-    except ImportError:
+    except (ImportError, OSError):
+        pass
+
+
+def _save_readline_history(history_file: Path = _HISTORY_FILE) -> None:
+    try:
+        import readline
+        history_file.parent.mkdir(parents=True, exist_ok=True)
+        readline.write_history_file(str(history_file))
+    except (ImportError, OSError):
         pass
 
 
@@ -96,7 +109,7 @@ def _cmd_scan(args: list[str], session: dict) -> None:
 
     target = Path(path_arg) if path_arg else session.get("last_target")
     if target is None:
-        console.print("[red]error:[/red] no target — provide a path or run scan after a previous target was set")
+        console.print("[red]error:[/red] no target -provide a path or run scan after a previous target was set")
         return
     if not target.exists():
         console.print(f"[red]error:[/red] path does not exist: {target}")
@@ -177,20 +190,36 @@ def _cmd_fix(args: list[str], session: dict) -> None:
                 finding.fix,
             )
         console.print(table)
-        console.print("[dim]dry_run=true — use --apply to modify files[/dim]")
+        console.print("[dim]dry_run=true -use --apply to modify files[/dim]")
         return
 
+    score_before = result.trust_score
     changed = apply_local_fixes(fixable, rules_filter)
     console.print(f"changed={len(changed)}")
     for p in changed:
         console.print(p)
-    session["last_result"] = None  # invalidate — rescan needed
+    session["last_result"] = None  # invalidate -rescan needed
+
+    if changed:
+        with console.status("[dim]rescanning to verify fixes...[/dim]"):
+            after = scan_path(target, profile="strict")
+        session["last_result"] = after
+        session["last_target"] = target
+        verdict_color = "green" if after.verdict == "pass" else "yellow" if after.verdict == "warn" else "red"
+        delta = after.trust_score - score_before
+        delta_str = f"+{delta}" if delta > 0 else str(delta)
+        console.print(
+            f"rescan trust_score=[bold {verdict_color}]{after.trust_score}[/bold {verdict_color}]"
+            f" verdict=[bold {verdict_color}]{after.verdict}[/bold {verdict_color}]"
+            f" delta=[{'bold green' if delta > 0 else 'bold red'}]{delta_str}[/{'bold green' if delta > 0 else 'bold red'}]"
+            f" findings={len(after.findings)}"
+        )
 
 
 def _cmd_export(args: list[str], session: dict) -> None:
     result = session.get("last_result")
     if result is None:
-        console.print("[red]error:[/red] no scan result — run scan first")
+        console.print("[red]error:[/red] no scan result -run scan first")
         return
 
     fmt = args[0] if args else "json"
@@ -201,7 +230,7 @@ def _cmd_export(args: list[str], session: dict) -> None:
     elif fmt == "sarif":
         rendered = sarif_reporter.render(result)
     else:
-        console.print(f"[red]error:[/red] unknown format {fmt!r} — use json or sarif")
+        console.print(f"[red]error:[/red] unknown format {fmt!r} -use json or sarif")
         return
 
     if out_path:
@@ -228,6 +257,22 @@ def _cmd_rules() -> None:
     console.print(table)
 
 
+def _build_prompt(session: dict) -> str:
+    parts = ["agentpreflight"]
+    last_result = session.get("last_result")
+    last_target = session.get("last_target")
+    if last_target:
+        parts.append(f"({Path(last_target).name}")
+        if last_result:
+            score = last_result.trust_score
+            verdict = last_result.verdict
+            color_open = "\033[32m" if verdict == "pass" else "\033[33m" if verdict == "warn" else "\033[31m"
+            color_close = "\033[0m"
+            parts[-1] += f" {color_open}{score}{color_close}"
+        parts[-1] += ")"
+    return " ".join(parts) + "> "
+
+
 def run_repl(initial_target: Path | None = None, profile: str = "balanced", fail_on: str | None = None) -> None:
     _try_enable_readline()
 
@@ -238,7 +283,7 @@ def run_repl(initial_target: Path | None = None, profile: str = "balanced", fail
         "fail_on": fail_on,
     }
 
-    console.print(f"[bold]AgentPreflight[/bold] {__version__} — type [cyan]help[/cyan] for commands, [cyan]exit[/cyan] to quit")
+    console.print(f"[bold]AgentPreflight[/bold] {__version__} -type [cyan]help[/cyan] for commands, [cyan]exit[/cyan] to quit")
     if initial_target:
         console.print(f"[dim]target={initial_target}[/dim]")
 
@@ -248,10 +293,10 @@ def run_repl(initial_target: Path | None = None, profile: str = "balanced", fail
 
     while True:
         try:
-            target_hint = f" ({Path(session['last_target']).name})" if session.get("last_target") else ""
-            line = input(f"agentpreflight{target_hint}> ").strip()
+            line = input(_build_prompt(session)).strip()
         except (EOFError, KeyboardInterrupt):
             console.print("\n[dim]bye[/dim]")
+            _save_readline_history()
             break
 
         if not line:
@@ -268,6 +313,7 @@ def run_repl(initial_target: Path | None = None, profile: str = "balanced", fail
 
         if cmd in ("exit", "quit"):
             console.print("[dim]bye[/dim]")
+            _save_readline_history()
             break
         elif cmd == "help" or cmd == "?":
             console.print(_HELP)
@@ -287,4 +333,4 @@ def run_repl(initial_target: Path | None = None, profile: str = "balanced", fail
         elif cmd == "rules":
             _cmd_rules()
         else:
-            console.print(f"[yellow]unknown command:[/yellow] {cmd!r} — type [cyan]help[/cyan]")
+            console.print(f"[yellow]unknown command:[/yellow] {cmd!r} -type [cyan]help[/cyan]")

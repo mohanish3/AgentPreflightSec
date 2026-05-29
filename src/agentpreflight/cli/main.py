@@ -63,6 +63,7 @@ def _render_table(result) -> None:
         f"suppressed={result.summary.get('suppressed', 0)} artifacts={result.summary['artifacts_scanned']}"
     )
     if not result.findings:
+        console.print("[bold green]PASS: no issues found[/bold green]")
         return
     sorted_findings = sorted(result.findings, key=lambda f: _SEVERITY_RANK[f.severity], reverse=True)
     shown = sorted_findings[:_MAX_TABLE_ROWS]
@@ -84,7 +85,7 @@ def _render_table(result) -> None:
         )
     console.print(table)
     if hidden:
-        console.print(f"[dim]...and {hidden} more finding{'s' if hidden > 1 else ''} — use --format json for full output[/dim]")
+        console.print(f"[dim]...and {hidden} more finding{'s' if hidden > 1 else ''} -use --format json for full output[/dim]")
     fixable = sum(1 for f in result.findings if f.fix_available)
     if fixable:
         console.print(f"[cyan]fix_available={fixable}[/cyan] run: agentpreflight fix {result.target}")
@@ -142,11 +143,13 @@ def fix(
     target: Path = typer.Argument(..., exists=True, help="Path to scan and locally remediate."),
     rules: str | None = typer.Option(None, "--rules", help="Comma-separated rule IDs to fix."),
     apply: bool = typer.Option(False, "--apply", help="Apply local safe fixes."),
+    prove: bool = typer.Option(False, "--prove", help="Rescan after --apply to show before/after score."),
     codex: bool = typer.Option(False, "--codex", help="Generate Codex AI patch proposals (requires OPENAI_API_KEY)."),
     codex_model: str = typer.Option("codex-mini-latest", "--codex-model", help="OpenAI model for Codex remediation."),
 ) -> None:
     with console.status(f"[dim]scanning {target} (profile=strict)...[/dim]"):
         result = scan_path(target, profile="strict")
+    score_before = result.trust_score
     allowed = {item.strip() for item in rules.split(",")} if rules else None
     fixable = [f for f in result.findings if f.fix_available and (not allowed or f.id in allowed)]
     console.print(f"fixable={len(fixable)} target={target}")
@@ -181,12 +184,24 @@ def fix(
                 finding.fix,
             )
         console.print(dry_table)
-        console.print("[dim]dry_run=true — use --apply to modify files[/dim]")
+        console.print("[dim]dry_run=true -use --apply to modify files[/dim]")
         return
     changed = apply_local_fixes(fixable, allowed)
     console.print(f"changed={len(changed)}")
     for path in changed:
         console.print(path)
+
+    if prove and changed:
+        with console.status("[dim]rescanning to verify fixes...[/dim]"):
+            after = scan_path(target, profile="strict")
+        verdict_color = "green" if after.verdict == "pass" else "yellow" if after.verdict == "warn" else "red"
+        delta = after.trust_score - score_before
+        delta_str = f"[bold green]+{delta}[/bold green]" if delta > 0 else f"[bold red]{delta}[/bold red]" if delta < 0 else "0"
+        console.print(
+            f"rescan trust_score=[bold {verdict_color}]{after.trust_score}[/bold {verdict_color}]"
+            f" verdict=[bold {verdict_color}]{after.verdict}[/bold {verdict_color}]"
+            f" delta={delta_str} findings={len(after.findings)}"
+        )
 
 
 def _collect_mtimes(target: Path) -> dict[Path, float]:
@@ -232,7 +247,7 @@ def watch(
                 ts = time.strftime("%H:%M:%S")
 
                 if scan_count > 1:
-                    console.rule(f"[dim]{ts} change detected — rescanning[/dim]")
+                    console.rule(f"[dim]{ts} change detected -rescanning[/dim]")
                 else:
                     console.rule(f"[dim]{ts} initial scan[/dim]")
 

@@ -23,3 +23,27 @@ def test_scoring_caps_critical_to_50() -> None:
 
     assert detail.final == 50
     assert verdict(detail.final) == "fail"
+
+
+def test_strict_profile_escalates_medium_deduction_to_high_rate() -> None:
+    from agentpreflight.models import Finding
+    finding = Finding(
+        id="AP-TEST",
+        severity="medium",
+        category="test",
+        title="test",
+        path="x.py",
+        evidence="x",
+        risk="x",
+        fix="x",
+    )
+    balanced_detail = score([finding], profile="balanced")
+    strict_detail = score([finding], profile="strict")
+
+    assert balanced_detail.final == 100 - 7   # medium rate
+    assert strict_detail.final == 100 - 15    # escalated to high rate
+    # deductions list attributes points to 'high' bucket in strict mode
+    high_bucket = next((d for d in strict_detail.deductions if d["severity"] == "high"), None)
+    assert high_bucket is not None
+    assert high_bucket["points"] == 15
+    assert high_bucket["count"] == 1
