@@ -5,9 +5,11 @@ import shlex
 from pathlib import Path
 
 from rich.console import Console
+from rich.markup import escape
 from rich.table import Table
 
 from agentpreflight import __version__
+from agentpreflight.models import ScanResult
 from agentpreflight.remediator.local_fix import apply_local_fixes
 from agentpreflight.reporters import json_reporter, sarif_reporter
 from agentpreflight.rules.catalog import ALL_RULES
@@ -115,7 +117,7 @@ def _cmd_scan(args: list[str], session: dict) -> None:
         console.print(f"[red]error:[/red] path does not exist: {target}")
         return
     if profile not in {"dev", "balanced", "strict"}:
-        console.print(f"[red]error:[/red] profile must be dev, balanced, or strict")
+        console.print("[red]error:[/red] profile must be dev, balanced, or strict")
         return
 
     with console.status(f"[dim]scanning {target} (profile={profile})...[/dim]"):
@@ -187,10 +189,10 @@ def _cmd_fix(args: list[str], session: dict) -> None:
                 finding.id,
                 Path(finding.path).name,
                 str(finding.line or ""),
-                finding.fix,
+                escape(finding.fix),
             )
         console.print(table)
-        console.print("[dim]dry_run=true -use --apply to modify files[/dim]")
+        console.print("[dim]dry_run=true - use --apply to modify files[/dim]")
         return
 
     score_before = result.trust_score

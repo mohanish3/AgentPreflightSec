@@ -1,5 +1,6 @@
 from __future__ import annotations
 import json
+from agentpreflight import __version__
 from agentpreflight.models import ScanResult
 
 
@@ -45,6 +46,7 @@ def render(result: ScanResult) -> str:
     out = {
         "schema_version": result.schema_version,
         "tool": result.tool,
+        "tool_version": __version__,
         "target": result.target,
         "profile": result.profile,
         "offline": result.offline,

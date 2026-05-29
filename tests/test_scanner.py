@@ -80,6 +80,45 @@ def test_fix_prove_shows_rescan_delta(tmp_path: Path) -> None:
     assert "delta=" in result.output
 
 
+def test_json_output_includes_tool_version() -> None:
+    result = scan_path(ROOT / "demo" / "poisoned", profile="strict")
+    payload = json.loads(json_reporter.render(result))
+
+    assert "tool_version" in payload
+    assert payload["tool_version"].count(".") >= 1  # semver-ish
+
+
+def test_json_output_pipes_cleanly_without_markup() -> None:
+    runner = CliRunner()
+    result = runner.invoke(app, ["scan", str(ROOT / "demo" / "poisoned"), "--format", "json"])
+
+    assert result.exit_code == 0
+    payload = json.loads(result.output)
+    assert payload["tool"] == "AgentPreflight"
+
+
+def test_init_creates_suppression_template(tmp_path: Path) -> None:
+    runner = CliRunner()
+    result = runner.invoke(app, ["init", str(tmp_path)])
+
+    assert result.exit_code == 0
+    out_file = tmp_path / ".agentpreflight.json"
+    assert out_file.exists()
+    data = json.loads(out_file.read_text())
+    assert data["version"] == "1.0"
+    assert "suppressions" in data
+
+
+def test_init_does_not_overwrite_without_force(tmp_path: Path) -> None:
+    existing = tmp_path / ".agentpreflight.json"
+    existing.write_text('{"version": "mine"}', encoding="utf-8")
+    runner = CliRunner()
+    result = runner.invoke(app, ["init", str(tmp_path)])
+
+    assert result.exit_code == 0
+    assert json.loads(existing.read_text())["version"] == "mine"
+
+
 def test_cli_fail_on_high_exits_nonzero() -> None:
     runner = CliRunner()
     result = runner.invoke(app, ["scan", str(ROOT / "demo" / "poisoned"), "--profile", "strict", "--fail-on", "high"])

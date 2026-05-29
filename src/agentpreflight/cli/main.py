@@ -1,11 +1,13 @@
 from __future__ import annotations
 
+import sys
 import time
 from enum import Enum
 from pathlib import Path
 
 import typer
 from rich.console import Console
+from rich.markup import escape
 from rich.table import Table
 
 from agentpreflight import __version__
@@ -81,11 +83,11 @@ def _render_table(result) -> None:
             finding.id,
             Path(finding.path).name,
             str(finding.line or ""),
-            finding.evidence,
+            escape(finding.evidence),
         )
     console.print(table)
     if hidden:
-        console.print(f"[dim]...and {hidden} more finding{'s' if hidden > 1 else ''} -use --format json for full output[/dim]")
+        console.print(f"[dim]...and {hidden} more finding{'s' if hidden > 1 else ''} - use --format json for full output[/dim]")
     fixable = sum(1 for f in result.findings if f.fix_available)
     if fixable:
         console.print(f"[cyan]fix_available={fixable}[/cyan] run: agentpreflight fix {result.target}")
@@ -112,11 +114,18 @@ def scan(
     if fail_on and fail_on not in _SEVERITY_RANK:
         raise typer.BadParameter("fail-on must be low, medium, high, or critical")
 
-    if format == OutputFormat.table:
-        with console.status(f"[dim]scanning {target} (profile={profile})...[/dim]"):
+    try:
+        if format == OutputFormat.table:
+            with console.status(f"[dim]scanning {target} (profile={profile})...[/dim]"):
+                result = scan_path(target, profile=profile, suppression_file=suppressions)
+        else:
             result = scan_path(target, profile=profile, suppression_file=suppressions)
-    else:
-        result = scan_path(target, profile=profile, suppression_file=suppressions)
+    except PermissionError as exc:
+        console.print(f"[red]error:[/red] permission denied: {exc}")
+        raise typer.Exit(2)
+    except OSError as exc:
+        console.print(f"[red]error:[/red] could not read target: {exc}")
+        raise typer.Exit(2)
 
     if format == OutputFormat.json:
         rendered = json_reporter.render(result)
@@ -132,7 +141,9 @@ def scan(
         output.write_text(rendered, encoding="utf-8")
         console.print(f"wrote={output}")
     elif rendered:
-        console.print(rendered)
+        sys.stdout.write(rendered)
+        if not rendered.endswith("\n"):
+            sys.stdout.write("\n")
 
     if _should_fail(result.findings, fail_on):
         raise typer.Exit(1)
@@ -181,10 +192,10 @@ def fix(
                 finding.id,
                 Path(finding.path).name,
                 str(finding.line or ""),
-                finding.fix,
+                escape(finding.fix),
             )
         console.print(dry_table)
-        console.print("[dim]dry_run=true -use --apply to modify files[/dim]")
+        console.print("[dim]dry_run=true - use --apply to modify files[/dim]")
         return
     changed = apply_local_fixes(fixable, allowed)
     console.print(f"changed={len(changed)}")
@@ -334,6 +345,50 @@ def shell(
     if profile not in {"dev", "balanced", "strict"}:
         raise typer.BadParameter("profile must be dev, balanced, or strict")
     run_repl(initial_target=target, profile=profile, fail_on=fail_on)
+
+
+_SUPPRESSION_TEMPLATE = """{
+  "version": "1.0",
+  "suppressions": []
+}
+"""
+
+_SUPPRESSION_EXAMPLE = """\
+Example suppression entry:
+  {
+    "rule": "AP-SEC-003",
+    "path": ".env",
+    "reason": "env file intentionally included for local dev only",
+    "owner": "appsec",
+    "expires": "2026-12-31"
+  }
+
+Fields:
+  rule    - rule ID or "*" to suppress all rules for the path
+  path    - filename or glob (e.g. "*.env", "tests/*")
+  reason  - required human description
+  owner   - team or person responsible
+  expires - ISO date; suppression becomes inactive after this date
+"""
+
+
+@app.command()
+def init(
+    target: Path = typer.Argument(Path("."), help="Directory to create suppression file in."),
+    force: bool = typer.Option(False, "--force", help="Overwrite existing file."),
+) -> None:
+    """Create a .agentpreflight.json suppression template in target directory."""
+    if not target.is_dir():
+        console.print(f"[red]error:[/red] {target} is not a directory")
+        raise typer.Exit(1)
+    out = target / ".agentpreflight.json"
+    if out.exists() and not force:
+        console.print(f"[yellow]exists:[/yellow] {out} (use --force to overwrite)")
+        raise typer.Exit(0)
+    out.write_text(_SUPPRESSION_TEMPLATE, encoding="utf-8")
+    console.print(f"[green]created:[/green] {out}")
+    console.print()
+    console.print(_SUPPRESSION_EXAMPLE)
 
 
 def run() -> None:
