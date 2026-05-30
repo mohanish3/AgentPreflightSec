@@ -190,6 +190,12 @@ def scan(
         raise typer.BadParameter("profile must be dev, balanced, or strict")
     if fail_on and fail_on not in _SEVERITY_RANK:
         raise typer.BadParameter("fail-on must be low, medium, high, or critical")
+    if format == OutputFormat.table and output:
+        console.print(
+            "[red]error:[/red] table format cannot be written to a file; "
+            "use [bold]--format markdown[/bold], [bold]json[/bold], or [bold]sarif[/bold]"
+        )
+        raise typer.Exit(2)
 
     exclude_list = list(exclude) if exclude else None
     if format == OutputFormat.table and not quiet:
