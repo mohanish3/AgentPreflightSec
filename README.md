@@ -66,48 +66,68 @@ agentpreflight scan /tmp/fix-demo --profile strict
 
 ## Sample Output
 
-**Scanning a poisoned MCP repo:**
+**Scan a poisoned MCP repo:**
 
 ```
 $ agentpreflight scan demo/poisoned --profile strict
 
-AgentPreflight  trust_score=0  verdict=fail  findings=15  offline=True
-summary  critical=7  high=5  medium=3  low=0  suppressed=0  artifacts=6
-
-+-----------------------------------------------------------------------------+
-| Severity | Rule         | Path       | Line | Evidence                      |
-|----------+--------------+------------+------+-------------------------------|
-| critical | AP-CODE-003  | install.sh |    3 | Remote pipe: curl ...| bash   |
-| critical | AP-CODE-001  | run.py     |    5 | os.system() call              |
-| critical | AP-CODE-001  | server.py  |    6 | os.system() call              |
-| critical | AP-CODE-001  | server.py  |    7 | subprocess with shell=True    |
-| critical | AP-CODE-003  | SKILL.md   |   10 | Remote pipe: curl ...| sh     |
-| high     | AP-SEC-002   | .env       |    1 | Secret-like token pattern     |
-| high     | AP-MCP-001   | mcp.json   |      | Tool description: "Hidden     |
-|          |              |            |      | instruction"                  |
-| high     | AP-SKILL-001 | SKILL.md   |    5 | Injection phrase: "Secret     |
-|          |              |            |      | directive"                    |
-| ...      |              |            |      |                               |
-+-----------------------------------------------------------------------------+
+╔════════════════════════════════════════════════════╗
+║  ▄▀▄  █▀█                                          ║
+║  █▀█  █▀   AgentPreflight  v0.1.0                  ║
+║  ▀ ▀  ▀    Pre-deployment MCP & skill scanner      ║
+║               offline · static · SARIF · 21 rules  ║
+╚════════════════════════════════════════════════════╝
+AgentPreflight target=demo/poisoned
+trust_score=0 verdict=fail findings=15 offline=True
+summary critical=7 high=5 medium=3 low=0 suppressed=0 artifacts=6
+┌──────────┬──────────────┬────────────┬──────┬───────────────────────────────┐
+│ Severity │ Rule         │ Path       │ Line │ Evidence                      │
+├──────────┼──────────────┼────────────┼──────┼───────────────────────────────┤
+│ critical │ AP-CODE-003  │ install.sh │    3 │ Remote pipe: curl … | bash    │
+│ critical │ AP-CODE-001  │ run.py     │    5 │ os.system() call              │
+│ critical │ AP-CODE-001  │ server.py  │    6 │ os.system() call              │
+│ critical │ AP-CODE-001  │ server.py  │    7 │ subprocess with shell=True    │
+│ critical │ AP-CODE-003  │ SKILL.md   │   10 │ Remote pipe: curl … | sh      │
+│ high     │ AP-SEC-002   │ .env       │    1 │ Secret-like token pattern     │
+│ high     │ AP-MCP-001   │ mcp.json   │      │ Tool description contains:    │
+│          │              │            │      │ "Hidden instruction"          │
+│ high     │ AP-SKILL-001 │ SKILL.md   │    5 │ Injection phrase: "Secret     │
+│          │              │            │      │ directive"                    │
+│ …        │              │            │      │                               │
+└──────────┴──────────────┴────────────┴──────┴───────────────────────────────┘
 fix_available=14  run: agentpreflight fix demo/poisoned
 ```
 
-**Applying fixes and rescanning:**
+**Apply fixes and rescan:**
 
 ```
 $ agentpreflight fix demo/poisoned --apply
 fixable=14  changed=7
 
 $ agentpreflight scan demo/poisoned --profile strict
-AgentPreflight  trust_score=100  verdict=pass  findings=0  offline=True
+╔════════════════════════════════════════════════════╗
+║  ▄▀▄  █▀█                                          ║
+║  █▀█  █▀   AgentPreflight  v0.1.0                  ║
+║  ▀ ▀  ▀    Pre-deployment MCP & skill scanner      ║
+║               offline · static · SARIF · 21 rules  ║
+╚════════════════════════════════════════════════════╝
+AgentPreflight target=demo/poisoned
+trust_score=100 verdict=pass findings=0 offline=True
 PASS: no issues found
 ```
 
-**Scanning a clean repo:**
+**Scan a clean repo:**
 
 ```
 $ agentpreflight scan demo/clean --profile strict
-AgentPreflight  trust_score=100  verdict=pass  findings=0  offline=True
+╔════════════════════════════════════════════════════╗
+║  ▄▀▄  █▀█                                          ║
+║  █▀█  █▀   AgentPreflight  v0.1.0                  ║
+║  ▀ ▀  ▀    Pre-deployment MCP & skill scanner      ║
+║               offline · static · SARIF · 21 rules  ║
+╚════════════════════════════════════════════════════╝
+AgentPreflight target=demo/clean
+trust_score=100 verdict=pass findings=0 offline=True
 PASS: no issues found
 ```
 

@@ -5,10 +5,17 @@ import time
 from enum import Enum
 from pathlib import Path
 
+import rich.box
 import typer
 from rich.console import Console
 from rich.markup import escape
+from rich.panel import Panel
 from rich.table import Table
+
+# Ensure stdout/stderr use UTF-8 so block-art chars render on all platforms.
+for _stream in (sys.stdout, sys.stderr):
+    if hasattr(_stream, "reconfigure"):
+        _stream.reconfigure(encoding="utf-8", errors="replace")
 
 from agentpreflight import __version__
 from agentpreflight.cli.repl import run_repl
@@ -24,7 +31,30 @@ rules_app = typer.Typer(no_args_is_help=True)
 app.add_typer(rules_app, name="rules")
 console = Console()
 
+# AP pixel art: A and P using half-block Unicode chars (▀▄█).
+# Each character encodes 2 pixel rows: ▀=top, ▄=bottom, █=both, space=none.
+# A rows 0-4: .X. / X.X / XXX / X.X / X.X  → ▄▀▄ / █▀█ / ▀ ▀
+# P rows 0-4: XXX / X.X / XX. / X.. / X..  → █▀█ / █▀  / ▀
+_BANNER_CONTENT = (
+    "[bold cyan]▄▀▄  █▀█[/bold cyan]\n"
+    "[bold cyan]█▀█  █▀[/bold cyan]   [bold white]AgentPreflight[/bold white]  [dim]v{version}[/dim]\n"
+    "[bold cyan]▀ ▀  ▀[/bold cyan]    [dim]Pre-deployment MCP & skill scanner[/dim]\n"
+    "             [dim]offline · static · SARIF · 21 rules[/dim]"
+)
+
 _MAX_TABLE_ROWS = 20
+
+
+def _print_banner() -> None:
+    console.print(
+        Panel(
+            _BANNER_CONTENT.format(version=__version__),
+            box=rich.box.DOUBLE,
+            border_style="bright_blue",
+            expand=False,
+            padding=(0, 2),
+        )
+    )
 
 
 class OutputFormat(str, Enum):
@@ -117,6 +147,8 @@ def scan(
         raise typer.BadParameter("fail-on must be low, medium, high, or critical")
 
     exclude_list = list(exclude) if exclude else None
+    if format == OutputFormat.table and not quiet:
+        _print_banner()
     try:
         if format == OutputFormat.table and not quiet:
             with console.status(f"[dim]scanning {target} (profile={profile})...[/dim]"):
