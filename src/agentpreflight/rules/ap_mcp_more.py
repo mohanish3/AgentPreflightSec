@@ -28,6 +28,9 @@ class McpTrustClaimRule(Rule):
     severity = "medium"
     category = "tool_poisoning"
     applies_to = {"mcp_config"}
+    description = "Unsupported trust claims in MCP tool descriptions that bias agent routing."
+    remediation = "Remove broad trust claims. Describe concrete inputs, outputs, and limits."
+    references = ["OWASP MCP Security"]
 
     _pattern = re.compile(r"\b(always safe|fully trusted|guaranteed safe|verified secure|no review needed)\b", re.I)
 
@@ -58,6 +61,9 @@ class McpUntrustedResultRule(Rule):
     severity = "high"
     category = "tool_poisoning"
     applies_to = {"mcp_config"}
+    description = "Tool result forwarded directly to model without untrusted-data boundary."
+    remediation = "Mark tool output as untrusted data and require summarization or escaping before model use."
+    references = ["OWASP Agentic AI Security"]
 
     _pattern = re.compile(r"\b(pass|send|forward|append).{0,40}(result|output|response).{0,40}(model|prompt|context)\b", re.I)
 
@@ -87,6 +93,9 @@ class McpLooseSchemaRule(Rule):
     severity = "medium"
     category = "schema_hardening"
     applies_to = {"mcp_config"}
+    description = "Loose MCP input schema — missing required fields or additionalProperties not locked."
+    remediation = "Declare required fields and set additionalProperties=false for object schemas."
+    references = ["JSON Schema Validation", "OWASP MCP Security"]
 
     def check(self, artifact: Artifact) -> list[Finding]:
         findings: list[Finding] = []
@@ -123,6 +132,9 @@ class McpPrivilegedToolRule(Rule):
     severity = "high"
     category = "privileged_access"
     applies_to = {"mcp_config"}
+    description = "Privileged capability (shell, secrets, email, browser) exposed via MCP tool without access controls."
+    remediation = "Restrict caller context, require confirmation or auth, and document least-privilege scope."
+    references = ["OWASP Agentic AI Security", "Principle of Least Privilege"]
 
     _pattern = re.compile(r"\b(shell|terminal|execute command|environment variables|secrets|cookies|email|browser|http request)\b", re.I)
 

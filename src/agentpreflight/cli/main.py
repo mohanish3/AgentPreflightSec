@@ -413,6 +413,50 @@ def prompts(
             sys.stdout.write("\n")
 
 
+def _render_rule_info(rule) -> None:
+    """Render a rule info panel — shared by CLI and REPL."""
+    sev_color = _SEVERITY_COLOR.get(rule.severity, "")
+    lines = [
+        f"[bold]{rule.id}[/bold]",
+        "",
+        f"  [dim]Severity[/dim]  [{sev_color}]{rule.severity}[/{sev_color}]",
+        f"  [dim]Category[/dim]  {rule.category}",
+        f"  [dim]Applies[/dim]   {', '.join(sorted(rule.applies_to))}",
+    ]
+    if rule.description:
+        lines += ["", "  [dim]What[/dim]", f"  {escape(rule.description)}"]
+    if rule.remediation:
+        lines += ["", "  [dim]Fix[/dim]", f"  {escape(rule.remediation)}"]
+    if rule.references:
+        lines += ["", f"  [dim]References[/dim]  {' · '.join(rule.references)}"]
+    lines += [
+        "",
+        f"  [dim]Quick fix[/dim]  agentpreflight fix <target> --rules {rule.id} --apply",
+    ]
+    console.print(
+        Panel(
+            "\n".join(lines),
+            box=rich.box.ROUNDED,
+            border_style="bright_blue",
+            expand=False,
+            padding=(0, 2),
+        )
+    )
+
+
+@rules_app.command("info")
+def rule_info(
+    rule_id: str = typer.Argument(..., help="Rule ID e.g. AP-CODE-001"),
+) -> None:
+    """Show description, remediation, and references for a rule."""
+    target = rule_id.upper()
+    rule = next((r for r in ALL_RULES if r.id == target), None)
+    if rule is None:
+        console.print(f"[red]error:[/red] unknown rule: {rule_id}")
+        raise typer.Exit(1)
+    _render_rule_info(rule)
+
+
 @rules_app.command("list")
 def list_rules() -> None:
     table = Table(show_header=True, header_style="bold")

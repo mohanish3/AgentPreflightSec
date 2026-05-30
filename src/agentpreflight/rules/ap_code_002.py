@@ -20,6 +20,9 @@ class DynamicCodeExecRule(Rule):
     severity = "high"
     category = "unsafe_exec"
     applies_to = {"code_py", "code_js", "code_sh"}
+    description = "Dynamic code execution via eval, exec, or Function constructor."
+    remediation = "Replace dynamic execution with explicit dispatch or parsed data."
+    references = ["CWE-94", "OWASP A03 Injection"]
 
     def check(self, artifact: Artifact) -> list[Finding]:
         findings: list[Finding] = []

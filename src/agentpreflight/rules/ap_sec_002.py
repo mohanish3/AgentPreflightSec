@@ -24,6 +24,9 @@ class ApiTokenRule(Rule):
     severity = "high"
     category = "secrets"
     applies_to = {"*"}
+    description = "API token or credential pattern committed to source (OpenAI, Anthropic, GitHub, AWS, Slack, Google)."
+    remediation = "Remove token, rotate it immediately, and load secrets from a secret manager or local environment."
+    references = ["CWE-798", "OWASP A02 Cryptographic Failures"]
 
     def check(self, artifact: Artifact) -> list[Finding]:
         findings: list[Finding] = []
@@ -51,6 +54,9 @@ class EnvFileRule(Rule):
     severity = "medium"
     category = "secrets"
     applies_to = {"env_file"}
+    description = "Environment file (.env) committed to scan target — often contains credentials."
+    remediation = "Move secrets to local environment or secret manager. Commit only .env.example."
+    references = ["CWE-526"]
 
     def check(self, artifact: Artifact) -> list[Finding]:
         return [Finding(

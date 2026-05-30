@@ -10,6 +10,9 @@ class Rule(ABC):
     severity: str
     category: str
     applies_to: set[str]
+    description: str = ""
+    remediation: str = ""
+    references: list[str] = []
 
     @abstractmethod
     def check(self, artifact: Artifact) -> list[Finding]:

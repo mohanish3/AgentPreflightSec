@@ -18,6 +18,9 @@ class RemoteScriptExecRule(Rule):
     severity = "critical"
     category = "unsafe_exec"
     applies_to = {"code_py", "code_js", "code_sh", "markdown", "skill_md", "config", "other"}
+    description = "Remote script execution — curl/wget piped directly to shell without integrity check."
+    remediation = "Download to a file, verify checksum, review content before executing."
+    references = ["OWASP A08 Software Integrity Failures", "CWE-494"]
 
     def check(self, artifact: Artifact) -> list[Finding]:
         findings = []

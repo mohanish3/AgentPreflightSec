@@ -12,6 +12,9 @@ class SkillRemoteDependencyRule(Rule):
     severity = "medium"
     category = "tool_poisoning"
     applies_to = {"skill_md", "markdown"}
+    description = "Remote instruction dependency — skill fetches external URLs that can deliver new payloads after review."
+    remediation = "Pin reviewed local instructions or use signed, allowlisted remote sources."
+    references = ["OWASP Agentic AI Security"]
 
     _pattern = re.compile(r"\b(fetch|download|follow|load|read).{0,40}(https?://|remote|url)\b|https?://", re.I)
 
@@ -41,6 +44,9 @@ class SkillCredentialSeekingRule(Rule):
     severity = "high"
     category = "secrets"
     applies_to = {"skill_md", "markdown"}
+    description = "Credential-seeking skill instruction requesting env vars, tokens, or keys from the agent."
+    remediation = "Remove secret access from instructions or document exact least-privilege secret names."
+    references = ["OWASP Agentic AI Security", "CWE-522"]
 
     _pattern = re.compile(r"\b(env vars?|tokens?|api keys?|keychain|cookies?|ssh keys?|credentials?|auth files?)\b", re.I)
 
@@ -71,6 +77,9 @@ class SkillCapabilityMismatchRule(Rule):
     severity = "medium"
     category = "capability_mismatch"
     applies_to = {"skill_md", "markdown"}
+    description = "Skill capability mismatch — narrow description coexists with shell/filesystem/network operations."
+    remediation = "Align stated capability with actual behavior or split privileged operations into reviewed tools."
+    references = ["OWASP Agentic AI Security", "Principle of Least Privilege"]
 
     _narrow = re.compile(r"\b(summarize|format|translate|lint|review text|documentation only)\b", re.I)
     _power = re.compile(r"\b(shell|subprocess|delete files|write files|network request|curl|wget|execute)\b", re.I)

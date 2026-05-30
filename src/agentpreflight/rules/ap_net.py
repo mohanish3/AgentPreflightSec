@@ -12,6 +12,9 @@ class BroadBindRule(Rule):
     severity = "high"
     category = "transport_hardening"
     applies_to = {"code_py", "code_js", "config", "mcp_config"}
+    description = "Broad network bind to 0.0.0.0 exposes local tooling beyond localhost."
+    remediation = "Bind to 127.0.0.1 by default and require explicit auth for remote access."
+    references = ["AP-NET-001", "OWASP MCP Security"]
 
     _pattern = re.compile(r"(host\s*[:=]\s*['\"]?0\.0\.0\.0|bind\s*\([^)]*0\.0\.0\.0|listen\s*\([^)]*0\.0\.0\.0|::)", re.I)
 
@@ -41,6 +44,9 @@ class MissingOriginValidationRule(Rule):
     severity = "high"
     category = "transport_hardening"
     applies_to = {"code_py", "code_js", "config", "mcp_config"}
+    description = "Missing origin validation or wildcard CORS — local server can be driven by malicious web pages."
+    remediation = "Validate Origin and Host headers, require bearer token auth, and avoid wildcard CORS."
+    references = ["AP-NET-002", "OWASP A05 Security Misconfiguration"]
 
     _pattern = re.compile(r"(allow_unauthenticated_localhost\s*[:=]\s*true|Access-Control-Allow-Origin['\"]?\s*[:,]\s*['\"]\*|cors\s*\(\s*\))", re.I)
 
@@ -70,6 +76,9 @@ class PlainHttpToolRule(Rule):
     severity = "medium"
     category = "transport_hardening"
     applies_to = {"config", "mcp_config", "skill_md", "markdown"}
+    description = "Plain HTTP URL in tool configuration or skill — traffic can be intercepted or modified before agent use."
+    remediation = "Use HTTPS or a pinned local transport for all remote tool URLs."
+    references = ["AP-NET-003", "OWASP A02 Cryptographic Failures"]
 
     _pattern = re.compile(r"http://(?!127\.0\.0\.1|localhost)", re.I)
 

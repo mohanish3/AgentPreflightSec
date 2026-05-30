@@ -188,6 +188,9 @@ agentpreflight bench <path> --runs 5
 
 # list all 21 rules
 agentpreflight rules list
+
+# show description, remediation, and references for a rule
+agentpreflight rules info AP-CODE-001
 ```
 
 ---
@@ -272,12 +275,12 @@ export AGENTPREFLIGHT_RATE_LIMIT_PER_MINUTE=60
 
 ## Validation
 
-61 tests pass (`pytest tests/ -q`). Covers: all 21 rules, scanner exclude, suppression, scoring caps, Codex API mock, SARIF output, fix proofs, API auth/rate limiting, benchmark, `--verbose` snippet context.
+73 tests pass (`pytest tests/ -q`). Covers: all 21 rules, scanner exclude, suppression, scoring caps, Codex API mock, SARIF output, fix proofs, API auth/rate limiting, benchmark, `--verbose` snippet context, `rules info` all 21 rules.
 
 ```
 $ pytest tests/ -q
-.............................................................     [100%]
-61 passed in 0.58s
+.......................................................................     [100%]
+73 passed in 0.74s
 ```
 
 Scan → fix → rescan proof:

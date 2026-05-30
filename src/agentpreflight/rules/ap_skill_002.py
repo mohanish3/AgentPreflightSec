@@ -13,6 +13,9 @@ class HiddenUnicodeRule(Rule):
     # code_py/js/sh included for Trojan Source (CVE-2021-42574): bidi overrides
     # in source make code appear different to humans than to the interpreter.
     applies_to = {"skill_md", "markdown", "mcp_config", "config", "code_py", "code_js", "code_sh", "env_file"}
+    description = "Hidden Unicode control characters (zero-width, bidi) that conceal model-facing instructions from code review."
+    remediation = "Remove zero-width and bidi control characters. Keep all model-facing text visible."
+    references = ["CVE-2021-42574", "OWASP Agentic AI Security", "CWE-838"]
 
     def check(self, artifact: Artifact) -> list[Finding]:
         findings: list[Finding] = []

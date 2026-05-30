@@ -55,6 +55,9 @@ class McpPromptOverrideRule(Rule):
     severity = "high"
     category = "tool_poisoning"
     applies_to = {"mcp_config"}
+    description = "Prompt-override phrases in MCP tool descriptions that hijack agent behavior."
+    remediation = "Rewrite tool description as neutral capability text. Remove instruction-like language."
+    references = ["OWASP MCP Tool Poisoning", "MCPTox"]
 
     def check(self, artifact: Artifact) -> list[Finding]:
         findings = []

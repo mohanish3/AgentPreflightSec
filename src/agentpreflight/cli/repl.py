@@ -47,6 +47,9 @@ _HELP = """\
   [cyan]rules[/cyan]
       List all rules.
 
+  [cyan]rules info[/cyan] <rule-id>
+      Show description, remediation, and references for a rule.
+
   [cyan]clear[/cyan]
       Clear the screen.
 
@@ -87,6 +90,16 @@ def _save_readline_history(history_file: Path = _HISTORY_FILE) -> None:
 def _render_result(result: ScanResult) -> None:
     from agentpreflight.cli.main import _render_table
     _render_table(result)
+
+
+def _cmd_rule_info(rule_id: str) -> None:
+    from agentpreflight.cli.main import _render_rule_info
+    target = rule_id.upper()
+    rule = next((r for r in ALL_RULES if r.id == target), None)
+    if rule is None:
+        console.print(f"[red]error:[/red] unknown rule: {rule_id}")
+        return
+    _render_rule_info(rule)
 
 
 def _cmd_scan(args: list[str], session: dict) -> None:
@@ -326,6 +339,12 @@ def run_repl(initial_target: Path | None = None, profile: str = "balanced", fail
         elif cmd == "export":
             _cmd_export(args, session)
         elif cmd == "rules":
-            _cmd_rules()
+            if args and args[0] == "info":
+                if len(args) < 2:
+                    console.print("[yellow]usage:[/yellow] rules info <rule-id>")
+                else:
+                    _cmd_rule_info(args[1])
+            else:
+                _cmd_rules()
         else:
             console.print(f"[yellow]unknown command:[/yellow] {cmd!r} -type [cyan]help[/cyan]")

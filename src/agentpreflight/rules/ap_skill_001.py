@@ -29,6 +29,9 @@ class SkillPromptInjectionRule(Rule):
     severity = "high"
     category = "tool_poisoning"
     applies_to = {"skill_md", "markdown"}
+    description = "Prompt injection language in SKILL.md — override/bypass phrases that hijack agent behavior at load time."
+    remediation = "Remove instruction-hierarchy manipulation. Rewrite as plain capability description."
+    references = ["OWASP Agentic AI Security", "OWASP LLM01"]
 
     def check(self, artifact: Artifact) -> list[Finding]:
         findings = []

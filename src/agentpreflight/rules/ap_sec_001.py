@@ -16,6 +16,9 @@ class PrivateKeyRule(Rule):
     severity = "critical"
     category = "secrets"
     applies_to = {"*"}
+    description = "Private key material (PEM block) committed to source or config."
+    remediation = "Remove key from source. Rotate immediately. Use secrets manager or environment variable."
+    references = ["CWE-321", "OWASP A02 Cryptographic Failures"]
 
     def check(self, artifact: Artifact) -> list[Finding]:
         findings = []

@@ -12,6 +12,9 @@ class ArbitraryFileAccessRule(Rule):
     severity = "high"
     category = "unsafe_file_access"
     applies_to = {"code_py", "code_js", "code_sh"}
+    description = "Unvalidated file path access with user or model-controlled input."
+    remediation = "Use allowlisted roots, path normalization, and explicit filename validation."
+    references = ["CWE-22", "OWASP A01 Broken Access Control"]
 
     _pattern = re.compile(
         r"\b(open|Path\s*\([^)]*\)\.read_text|readFileSync|writeFileSync|fs\.(readFile|writeFile))\s*\([^)]*(user_input|request|req\.|args|argv|input)",
@@ -44,6 +47,9 @@ class NetworkExfiltrationRule(Rule):
     severity = "high"
     category = "network_egress"
     applies_to = {"code_py", "code_js", "code_sh"}
+    description = "Potential network exfiltration — secret access and outbound POST coexist in same file."
+    remediation = "Separate secret access from network egress, add allowlisted destinations, and redact sensitive values."
+    references = ["CWE-200", "OWASP A09 Security Logging"]
 
     _secret = re.compile(r"\b(os\.environ|getenv|process\.env|\.env|secret|token|api_key|password)\b", re.I)
     _network = re.compile(r"\b(requests\.(post|put)|httpx\.(post|put)|fetch\s*\(|axios\.(post|put)|curl\s+(-X\s+)?POST)\b", re.I)

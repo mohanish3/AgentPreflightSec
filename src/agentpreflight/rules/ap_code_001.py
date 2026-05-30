@@ -21,6 +21,9 @@ class UnsafeShellRule(Rule):
     severity = "critical"
     category = "unsafe_exec"
     applies_to = {"code_py", "code_js", "code_sh"}
+    description = "Shell string execution via os.system or subprocess shell=True."
+    remediation = "Replace shell string execution with argument-list form. Never pass shell=True with untrusted input."
+    references = ["OWASP A03 Injection", "CWE-78"]
 
     def check(self, artifact: Artifact) -> list[Finding]:
         findings = []
