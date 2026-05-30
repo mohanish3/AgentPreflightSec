@@ -125,6 +125,31 @@ def _should_fail(findings, fail_on: str | None) -> bool:
     return any(_SEVERITY_RANK[f.severity] >= threshold for f in findings)
 
 
+_CAP_LABELS: dict[str, str] = {
+    "any_critical_cap_50": "critical→cap50",
+    "three_high_cap_60": "3high→cap60",
+    "secret_cap_55": "secret→cap55",
+    "shell_network_combo_cap_45": "shell+network→cap45",
+    "unicode_override_combo_cap_50": "unicode+override→cap50",
+    "privileged_remote_combo_cap_45": "privileged+remote→cap45",
+}
+
+
+def _render_score_breakdown(result) -> None:
+    """Print deduction breakdown when score < 100 (table format only)."""
+    if result.trust_score >= 100 or not result.score or not result.score.deductions:
+        return
+    parts = []
+    for d in result.score.deductions:
+        sev_color = _SEVERITY_COLOR.get(d["severity"], "")
+        parts.append(f"[{sev_color}]-{d['severity']}x{d['count']}({d['points']}pts)[/{sev_color}]")
+    line = "score: " + " ".join(parts)
+    if result.score.caps_applied:
+        caps = [_CAP_LABELS.get(c, c) for c in result.score.caps_applied]
+        line += f"  [dim]caps: {', '.join(caps)}[/dim]"
+    console.print(f"[dim]{line}[/dim]")
+
+
 def _render_table(result) -> None:
     verdict_color = "green" if result.verdict == "pass" else "yellow" if result.verdict == "warn" else "red"
     console.print(f"[bold]AgentPreflight[/bold] target={result.target}")
@@ -138,6 +163,7 @@ def _render_table(result) -> None:
         f"medium={result.summary['medium']} low={result.summary['low']} "
         f"suppressed={result.summary.get('suppressed', 0)} artifacts={result.summary['artifacts_scanned']}"
     )
+    _render_score_breakdown(result)
     if not result.findings:
         console.print("[bold green]PASS: no issues found[/bold green]")
         return
