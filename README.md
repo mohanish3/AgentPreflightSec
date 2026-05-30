@@ -98,6 +98,30 @@ summary critical=7 high=5 medium=3 low=0 suppressed=0 artifacts=6
 fix_available=14  run: agentpreflight fix demo/poisoned
 ```
 
+**Drill into findings with source context (`--verbose`):**
+
+```
+$ agentpreflight scan demo/poisoned --verbose
+... (banner + table) ...
+
+──────────────────── run.py ────────────────────
+   3   def setup_environment(user_input):
+   4       # Dangerous: user input reaches shell
+   5 →     os.system(f"echo Setting up: {user_input}")
+   6       return True
+   7
+   8   def install_deps():
+   9 →     os.system("pip install -r requirements.txt")
+
+──────────────────── server.py ─────────────────
+   5   def run_task(user_input: str) -> None:
+   6 →     os.system("deploy " + user_input)
+   7 →     subprocess.run("echo " + user_input, shell=True)
+   8
+  10   def parse_rule(expr: str):
+  11 →     return eval(expr)
+```
+
 **Apply fixes and rescan:**
 
 ```
@@ -138,6 +162,9 @@ PASS: no issues found
 ```bash
 # scan with trust score + table output
 agentpreflight scan <path> --profile strict --fail-on high
+
+# show source snippet context (±2 lines) for each finding
+agentpreflight scan <path> --verbose
 
 # output formats
 agentpreflight scan <path> --format sarif --output report.sarif
@@ -245,12 +272,12 @@ export AGENTPREFLIGHT_RATE_LIMIT_PER_MINUTE=60
 
 ## Validation
 
-53 tests pass (`pytest tests/ -q`). Covers: all 21 rules, scanner exclude, suppression, scoring caps, Codex API mock, SARIF output, fix proofs, API auth/rate limiting, benchmark.
+61 tests pass (`pytest tests/ -q`). Covers: all 21 rules, scanner exclude, suppression, scoring caps, Codex API mock, SARIF output, fix proofs, API auth/rate limiting, benchmark, `--verbose` snippet context.
 
 ```
 $ pytest tests/ -q
-.....................................................     [100%]
-53 passed in 0.55s
+.............................................................     [100%]
+61 passed in 0.58s
 ```
 
 Scan → fix → rescan proof:
