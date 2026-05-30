@@ -44,6 +44,50 @@ _BANNER_CONTENT = (
 
 _MAX_TABLE_ROWS = 20
 
+_SEVERITY_RANK_MAP = {"low": 1, "medium": 2, "high": 3, "critical": 4}
+
+
+def _print_snippets(findings: list) -> None:
+    """Show ±2-line source context for each finding that has a line number."""
+    by_path: dict[str, list] = {}
+    for f in findings:
+        if f.line is not None:
+            by_path.setdefault(f.path, []).append(f)
+    if not by_path:
+        return
+
+    console.print()
+    for path, path_findings in sorted(by_path.items()):
+        try:
+            source_lines = Path(path).read_text(encoding="utf-8", errors="replace").splitlines()
+        except OSError:
+            continue
+
+        console.rule(f"[dim]{Path(path).name}[/dim]")
+
+        # Map lineno → highest severity for that line
+        finding_lines: dict[int, str] = {}
+        context_set: set[int] = set()
+        for f in path_findings:
+            existing = finding_lines.get(f.line)
+            if existing is None or _SEVERITY_RANK_MAP.get(f.severity, 0) > _SEVERITY_RANK_MAP.get(existing, 0):
+                finding_lines[f.line] = f.severity
+            for i in range(max(1, f.line - 2), min(len(source_lines) + 1, f.line + 3)):
+                context_set.add(i)
+
+        prev: int | None = None
+        for lineno in sorted(context_set):
+            if prev is not None and lineno > prev + 1:
+                console.print("[dim]  ...[/dim]")
+            prev = lineno
+            src = source_lines[lineno - 1] if lineno <= len(source_lines) else ""
+            if lineno in finding_lines:
+                color = _SEVERITY_COLOR.get(finding_lines[lineno], "")
+                console.print(f"[{color}]{lineno:4d} → {escape(src)}[/{color}]")
+            else:
+                console.print(f"[dim]{lineno:4d}[/dim]   {escape(src)}")
+        console.print()
+
 
 def _print_banner() -> None:
     console.print(
@@ -139,6 +183,7 @@ def scan(
     output: Path | None = typer.Option(None, "--output", "-o", help="Write JSON/SARIF output to file."),
     suppressions: Path | None = typer.Option(None, "--suppressions", help="Path to .agentpreflight.json suppressions file."),
     quiet: bool = typer.Option(False, "--quiet", "-q", help="Print one-line summary only (CI-friendly)."),
+    verbose: bool = typer.Option(False, "--verbose", "-v", help="Show source snippet context for each finding."),
     exclude: list[str] = typer.Option([], "--exclude", "-x", help="Glob patterns to exclude (e.g. 'tests/**' 'docs/')."),
 ) -> None:
     if profile not in {"dev", "balanced", "strict"}:
@@ -179,6 +224,8 @@ def scan(
     else:
         rendered = ""
         _render_table(result)
+        if verbose and not quiet:
+            _print_snippets(result.findings)
 
     if not quiet:
         if output:
