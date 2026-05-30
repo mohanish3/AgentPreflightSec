@@ -85,7 +85,7 @@ The direct competitor landscape is crowded. AgentPreflight should not claim "fir
 
 > AgentPreflight combines MCP/skill preflight scanning, trust scoring, SARIF CI output, and Codex-assisted remediation in one developer workflow.
 
-**Winning wedge:** time-to-fix. Existing scanners help teams find risk. AgentPreflight helps developers fix it in the same PR with constrained, auditable patches and rescan proof. Demo: failed poisoned repo → passing repo in under two minutes.
+**Differentiator:** time-to-fix. Existing scanners help teams find risk. AgentPreflight helps developers fix it in the same PR with constrained, auditable patches and rescan proof. Demo: failed poisoned repo → passing repo in under two minutes.
 
 AgentPreflight is `npm audit fix` for agent extensions.
 

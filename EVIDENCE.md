@@ -247,7 +247,7 @@ Frame: preflight gate, not full runtime sandbox.
 
 | Risk | Impact | Likelihood | Mitigation |
 |---|---|---:|---|
-| Demo feels like grep | judges discount novelty | medium | use subtle poisoned payloads, trust score drop, SARIF CI view, Codex patch loop |
+| Demo feels like grep | reviewers discount novelty | medium | use subtle poisoned payloads, trust score drop, SARIF CI view, Codex patch loop |
 | SARIF upload fails | CI demo weakens | medium | validate SARIF locally, use GitHub official upload action, keep JSON fallback |
 | False positives too noisy | developer utility weak | medium | severity tiers, suppressions with expiry, benign fixtures |
 | Static scan misses runtime behavior | false confidence | high | position as preflight gate; dynamic sandbox is stretch, not core claim |

@@ -17,7 +17,7 @@ The direct competitor landscape is crowded. AgentPreflight must not claim "first
 | Rank | Competitor | Unique capability | AgentPreflight wedge |
 |---:|---|---|---|
 | 1 | SkillScan | Offline MCP/skill scanner with 150+ rules, SARIF, GitHub Actions. | Constrained patches and polished demo flow. |
-| 2 | sinewaveai agent-security-scanner-mcp | MCP scanner server with 1000+ rules, SARIF, auto-fix claim. | Safer/static and easier to judge in two minutes. |
+| 2 | sinewaveai agent-security-scanner-mcp | MCP scanner server with 1000+ rules, SARIF, auto-fix claim. | Safer/static and demonstrable in two minutes. |
 | 3 | SkillRisk | Local/browser skill scanner with security score and remediation. | Repo/CI workflow and rescan proof. |
 | 4 | AgentSeal | OSS scanner for prompts, MCP, skills, machine guard, SARIF/JUnit, BYOK. | Static file-only fix/rescan simplicity. |
 | 5 | Firmis | Agent-stack scanner with Deep Scan, Auto-Fix, Monitor. | Narrower and more auditable; demo-polished. |
@@ -25,7 +25,7 @@ The direct competitor landscape is crowded. AgentPreflight must not claim "first
 | 7 | Inkog | CLI + MCP server that scans, explains, and applies fixes inside Claude/Cursor. | Better CI/SARIF and local static guarantees. |
 | 8 | AgentAuditKit | MCP pipeline scanner with `fix`, SARIF, many rules, OWASP mapping. | Avoid feature sprawl; win UX and demo polish. |
 | 9 | Snyk Agent Scan | Enterprise-backed: scans agents, MCP, skills, prompts, resources; local discovery, fleet reporting. | Free local fix/rescan path; no dangerous-flag requirement. |
-| 10 | Aguara / agent-audit | Local/static scanners with SARIF/GitHub workflows. | Safer remediation; polished hackathon demo. |
+| 10 | Aguara / agent-audit | Local/static scanners with SARIF/GitHub workflows. | Safer remediation; polished demo flow. |
 
 Watchlist (reinforce scanner saturation): SafeSkills, Backslash, AiSkillsGuard, SkillShield, SkillTester, SkillProbe, SkillAttack, skill-lab.
 
@@ -111,7 +111,7 @@ Snyk Agent Scan, SkillScan, SkillRisk, AgentSeal, Firmis, HackMyAgent, Inkog, Ag
 - transparent rule packs and trust scoring
 - SARIF-first GitHub code scanning
 - local policy customization
-- concise hackathon demo flow
+- concise two-minute demo flow
 - rule mapping to OWASP MCP, OWASP Agentic Skills, MCPTox-style risks
 - rescan proof that fixed rule IDs disappeared
 

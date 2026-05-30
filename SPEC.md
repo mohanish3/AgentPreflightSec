@@ -502,7 +502,7 @@ SARIF output from every scan. GitHub Action uploads SARIF. Findings map to stabl
 
 Reusable policy profiles: `balanced` locally, `strict` in CI. JSON output includes active profile.
 
-### Hackathon judge
+### Evaluator / reviewer
 
 Poisoned repo fails, gets patched by Codex, passes — in under two minutes. Demo repo has believable malicious MCP/skill payloads. Remediation creates visible diff. Second scan passes.
 
@@ -529,7 +529,7 @@ No network calls during `scan`. Remediation disabled unless explicitly requested
 - `agentpreflight fix <findings.json>` for top high-confidence rule classes.
 - Rescan proof in demo: fail → patch → pass.
 
-### P1: hackathon differentiators
+### P1: launch differentiators
 
 - GitHub Action wrapper.
 - SARIF upload workflow docs.
@@ -546,7 +546,7 @@ No network calls during `scan`. Remediation disabled unless explicitly requested
 - Benchmark timing output.
 - More language collectors.
 
-### P3: post-hackathon
+### P3: roadmap
 
 - Dynamic skill sandbox.
 - RAG ingestion gate.

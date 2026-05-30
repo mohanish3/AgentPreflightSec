@@ -51,4 +51,4 @@ AgentPreflight redefines developer security by integrating a **Codex-Assisted Re
 
 - **Time Saved**: Slashes the time required to research, rewrite, and verify prompt-injections or dangerous python calls from **hours to seconds**.
 - **Higher Compliance**: Makes security compliance the path of least resistance for developers, as they can remediate issues with a single keystroke.
-- **Judge Personal Leverage**: Since the hackathon judges are active AI builders using Codex, an automated Codex-driven security repair tool has massive direct utility and appeal.
+- **Developer Personal Leverage**: Active AI builders using Codex have direct day-to-day utility from an automated Codex-driven security repair tool.

@@ -72,7 +72,7 @@ agentpreflight scan /tmp/fix-demo --profile strict --fail-on high
 trust_score=100 verdict=pass findings=0 offline=True
 ```
 
-### Judge message
+### Why AgentPreflight
 
 In September 2025, a supply-chain attacker BCC'd every password reset token and payment notification through a fake Postmark MCP server — 15 versions of fake history, undetected by any CI check. Equixly audited popular MCP server implementations and found 43% had command injection, 30% had SSRF. Their conclusion: "It feels like we're facing a regression in security."
 
@@ -269,7 +269,7 @@ jobs:
 
 ## Launch checklist
 
-### Required for MVP submission
+### Required for MVP
 
 - CLI runs on local path.
 - Scanner reads `mcp.json`, `SKILL.md`, Markdown, Python, JavaScript/TypeScript, and `.env`-like files.
@@ -280,7 +280,6 @@ jobs:
 - Default scan makes no network calls.
 - Demo repo includes poisoned and clean examples.
 - README includes install, scan, SARIF, and CI examples.
-- Submission summary explains problem, solution, market timing, and Codex remediation.
 
 ### Required for go-live version
 
