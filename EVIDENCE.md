@@ -270,7 +270,7 @@ Cut first: FastAPI, HTML report, dynamic sandbox, hosted service, broad TypeScri
 - Competitor count reduced to max 10 to match `workflow.md`.
 - Unsupported "occupied/solved" claims removed.
 - Product naming normalized to **AgentPreflight**.
-- Static MCP/skill scanning kept as winner — verified sources show need remains active despite Snyk Agent Scan existing.
+- Static MCP/skill scanning confirmed as primary product — verified sources show need remains active despite Snyk Agent Scan existing.
 - Codex config linter moved to future module — official OpenAI/Codex config source validation needed first.
 - Dynamic skill sandbox moved to stretch — Docker/network tracing raises four-day delivery risk.
 

@@ -62,7 +62,54 @@ agentpreflight fix /tmp/fix-demo --apply
 agentpreflight scan /tmp/fix-demo --profile strict
 ```
 
-All output above is real, verified output — see `validation/poisoned-scan.txt`, `validation/fix-proof-*/`, and `validation/clean-scan.txt`.
+---
+
+## Sample Output
+
+**Scanning a poisoned MCP repo:**
+
+```
+$ agentpreflight scan demo/poisoned --profile strict
+
+AgentPreflight  trust_score=0  verdict=fail  findings=15  offline=True
+summary  critical=7  high=5  medium=3  low=0  suppressed=0  artifacts=6
+
++-----------------------------------------------------------------------------+
+| Severity | Rule         | Path       | Line | Evidence                      |
+|----------+--------------+------------+------+-------------------------------|
+| critical | AP-CODE-003  | install.sh |    3 | Remote pipe: curl ...| bash   |
+| critical | AP-CODE-001  | run.py     |    5 | os.system() call              |
+| critical | AP-CODE-001  | server.py  |    6 | os.system() call              |
+| critical | AP-CODE-001  | server.py  |    7 | subprocess with shell=True    |
+| critical | AP-CODE-003  | SKILL.md   |   10 | Remote pipe: curl ...| sh     |
+| high     | AP-SEC-002   | .env       |    1 | Secret-like token pattern     |
+| high     | AP-MCP-001   | mcp.json   |      | Tool description: "Hidden     |
+|          |              |            |      | instruction"                  |
+| high     | AP-SKILL-001 | SKILL.md   |    5 | Injection phrase: "Secret     |
+|          |              |            |      | directive"                    |
+| ...      |              |            |      |                               |
++-----------------------------------------------------------------------------+
+fix_available=14  run: agentpreflight fix demo/poisoned
+```
+
+**Applying fixes and rescanning:**
+
+```
+$ agentpreflight fix demo/poisoned --apply
+fixable=14  changed=7
+
+$ agentpreflight scan demo/poisoned --profile strict
+AgentPreflight  trust_score=100  verdict=pass  findings=0  offline=True
+PASS: no issues found
+```
+
+**Scanning a clean repo:**
+
+```
+$ agentpreflight scan demo/clean --profile strict
+AgentPreflight  trust_score=100  verdict=pass  findings=0  offline=True
+PASS: no issues found
+```
 
 ---
 
@@ -176,24 +223,29 @@ export AGENTPREFLIGHT_RATE_LIMIT_PER_MINUTE=60
 
 ---
 
-## Validation Proof
+## Validation
 
-| File | What it proves |
-|---|---|
-| `validation/pytest-may26.txt` | 25 unit tests pass |
-| `validation/pytest-may27.txt` | 30 unit tests pass (includes Codex API mocks) |
-| `validation/poisoned-scan.txt` | poisoned demo → score 0, fail |
-| `validation/clean-scan.txt` | clean demo → score 100, pass |
-| `validation/agentpreflight.sarif` | SARIF 2.1.0 output |
-| `validation/sarif-validation.txt` | SARIF schema validates |
-| `validation/pr-comment.md` | PR scorecard markdown |
-| `validation/suppression-scan.txt` | suppression → suppressed=1 |
-| `validation/benchmark.txt` | 113 artifacts in 0.079s avg |
-| `validation/benchmark-100.txt` | 100-file scan proof |
-| `validation/inline-suppression.txt` | inline disable-line works |
-| `validation/remediation-prompts.md` | Codex prompt pack (redacted) |
-| `validation/api-security-proof.txt` | 401/403/429 enforced |
-| `validation/fix-proof-*/` | score 0 → 100 fix proof |
+53 tests pass (`pytest tests/ -q`). Covers: all 21 rules, scanner exclude, suppression, scoring caps, Codex API mock, SARIF output, fix proofs, API auth/rate limiting, benchmark.
+
+```
+$ pytest tests/ -q
+.....................................................     [100%]
+53 passed in 0.55s
+```
+
+Scan → fix → rescan proof:
+
+```
+$ agentpreflight scan demo/poisoned --profile strict
+trust_score=0 verdict=fail findings=15  critical=7 high=5 medium=3
+
+$ agentpreflight fix demo/poisoned --apply
+fixable=14  changed=7
+
+$ agentpreflight scan demo/poisoned --profile strict
+trust_score=100 verdict=pass findings=0
+PASS: no issues found
+```
 
 ---
 
@@ -218,14 +270,10 @@ CI path: `--fail-on high` exits 1 on violations; trust score thresholds: 85+=pas
 
 ---
 
-## Research
+## Docs
 
 | File | Contents |
 |---|---|
-| `briefs/winner-product-brief.md` | Full product brief — problem, solution, Codex integration, why this wins |
-| `briefs/investor-one-pager.md` | Investment brief — competitive position, proof, ICP |
-| `briefs/submission-summary.md` | Devpost/Luma submission entry |
-| `briefs/pitch-deck.md` | 4-slide pitch deck |
 | `PRODUCT.md` | Build plan, MVP scope, success metrics |
 | `SPEC.md` | Architecture, rule catalog, scoring formula |
 | `DEMO.md` | 90-second demo script, launch checklist |

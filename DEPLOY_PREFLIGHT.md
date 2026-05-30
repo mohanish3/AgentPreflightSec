@@ -1,6 +1,6 @@
 # DeployPreflight: Infrastructure Redeploy Preflight
 
-Status: **runner-up / future module**. Do not replace AgentPreflight as current winner. Ship only if MCP/skill scanner implementation stalls.
+Status: **runner-up / future module**. AgentPreflight is the primary product. Ship only if MCP/skill scanner implementation stalls.
 
 ---
 
@@ -80,7 +80,7 @@ Fresh 2026 pass found: Gomboc, Kestrel, DriftOps, DevPlus, ThreatMitigator, Drif
 | 4 | Snyk IaC | IaC scanning + unmanaged resource/drift visibility and fix advice. | Enterprise focus; not lightweight destination profile patcher. |
 | 5 | Spacelift | Drift detection/remediation inside IaC orchestration platform. | Requires platform adoption; not a drop-in repo analyzer. |
 | 6 | env0 | Drift detection and AI drift-cause analysis. | Platform-centric; not local PR-first discrepancy patcher. |
-| 7 | Firefly | Cloud asset inventory, drift, unmanaged resource discovery, IaC generation. | Needs cloud integration; heavier than hackathon MVP. |
+| 7 | Firefly | Cloud asset inventory, drift, unmanaged resource discovery, IaC generation. | Needs cloud integration; heavier than MVP scope. |
 | 8 | KICS | Multi-format IaC security scanner. | Finds policy violations, not destination-specific redeploy blockers. |
 | 9 | Infracost | PR-native cloud cost estimates and guardrails. | Cost-only; not functional/security redeploy discrepancy. |
 | 10 | Scalr | Terraform/OpenTofu drift detection with notifications. | Terraform platform scope; not cross-file app/IaC/CI/deploy readiness. |
@@ -106,7 +106,7 @@ Full URLs in `sources/source-register.md`.
 | Differentiation | 4 | 6 |
 | **Total** | **51** | **60** |
 
-**Why not winner for this hackathon:**
+**Why DeployPreflight is secondary to AgentPreflight:**
 - Infra/IaC market is mature and crowded; fresh competitor pass found many AI-native rivals.
 - Broad drift detection needs live cloud credentials and state access.
 - Static repo-only checks risk feeling like another linter.
