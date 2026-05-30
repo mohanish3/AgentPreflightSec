@@ -31,6 +31,14 @@ rules_app = typer.Typer(no_args_is_help=True)
 app.add_typer(rules_app, name="rules")
 console = Console()
 
+
+def _display_path(path_str: str) -> str:
+    """Return cwd-relative posix path when possible, else the original string."""
+    try:
+        return Path(path_str).relative_to(Path.cwd()).as_posix()
+    except ValueError:
+        return path_str
+
 # AP pixel art: A and P using half-block Unicode chars (▀▄█).
 # Each character encodes 2 pixel rows: ▀=top, ▄=bottom, █=both, space=none.
 # A rows 0-4: .X. / X.X / XXX / X.X / X.X  → ▄▀▄ / █▀█ / ▀ ▀
@@ -152,7 +160,7 @@ def _render_score_breakdown(result) -> None:
 
 def _render_table(result) -> None:
     verdict_color = "green" if result.verdict == "pass" else "yellow" if result.verdict == "warn" else "red"
-    console.print(f"[bold]AgentPreflight[/bold] target={result.target}")
+    console.print(f"[bold]AgentPreflight[/bold] target={_display_path(result.target)}")
     console.print(
         f"trust_score=[bold {verdict_color}]{result.trust_score}[/bold {verdict_color}]"
         f" verdict=[bold {verdict_color}]{result.verdict}[/bold {verdict_color}]"
@@ -190,7 +198,7 @@ def _render_table(result) -> None:
         console.print(f"[dim]...and {hidden} more finding{'s' if hidden > 1 else ''} - use --format json for full output[/dim]")
     fixable = sum(1 for f in result.findings if f.fix_available)
     if fixable:
-        console.print(f"[cyan]fix_available={fixable}[/cyan] run: agentpreflight fix {result.target}")
+        console.print(f"[cyan]fix_available={fixable}[/cyan] run: agentpreflight fix {_display_path(result.target)}")
 
 
 @app.callback()
