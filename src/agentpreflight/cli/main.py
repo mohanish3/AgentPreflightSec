@@ -222,6 +222,7 @@ def scan(
     verbose: bool = typer.Option(False, "--verbose", "-v", help="Show source snippet context for each finding."),
     exclude: list[str] = typer.Option([], "--exclude", "-x", help="Glob patterns to exclude (e.g. 'tests/**' 'docs/')."),
     top: int = typer.Option(_MAX_TABLE_ROWS, "--top", help="Max findings rows in table (0 = unlimited)."),
+    no_banner: bool = typer.Option(False, "--no-banner", help="Suppress the ASCII art banner (useful in scripts)."),
 ) -> None:
     if profile not in {"dev", "balanced", "strict"}:
         raise typer.BadParameter("profile must be dev, balanced, or strict")
@@ -235,7 +236,7 @@ def scan(
         raise typer.Exit(2)
 
     exclude_list = list(exclude) if exclude else None
-    if format == OutputFormat.table and not quiet:
+    if format == OutputFormat.table and not quiet and not no_banner:
         _print_banner()
     try:
         if format == OutputFormat.table and not quiet:
@@ -432,11 +433,13 @@ def bench(
         times.append(elapsed)
         console.print(f"run={i+1} elapsed={elapsed:.3f}s artifacts={result.summary['artifacts_scanned']} findings={len(result.findings)}")
     avg = sum(times) / len(times)
+    artifacts = result.summary['artifacts_scanned'] if result else 0
+    throughput = artifacts / avg if avg > 0 else 0.0
     console.print(
         f"bench target={target} runs={runs} avg={avg:.3f}s "
         f"min={min(times):.3f}s max={max(times):.3f}s "
-        f"artifacts={result.summary['artifacts_scanned'] if result else 0} "
-        f"rules={len(ALL_RULES)}"
+        f"artifacts={artifacts} rules={len(ALL_RULES)} "
+        f"throughput={throughput:.1f}/s"
     )
 
 
@@ -628,6 +631,47 @@ def init(
     console.print(f"[green]created:[/green] {out}")
     console.print()
     console.print(_SUPPRESSION_EXAMPLE)
+
+
+@app.command()
+def profiles() -> None:
+    """Show scoring profiles and what each one does."""
+    from agentpreflight.scorer.trust_score import DEDUCTIONS, VERDICTS
+
+    # Profile descriptions — factually grounded in trust_score.py:
+    # - dev and balanced are functionally identical (no branch for either)
+    # - strict promotes medium→high before deduction
+    rows = [
+        ("dev",      "same as balanced",    "All medium findings deducted as medium (7 pts each)"),
+        ("balanced", "same as dev",         "All medium findings deducted as medium (7 pts each)"),
+        ("strict",   "medium → high",       "Medium findings promoted to high before scoring (+8 pts each)"),
+    ]
+
+    table = Table(show_header=True, header_style="bold", title="Scan Profiles")
+    table.add_column("Profile", min_width=10)
+    table.add_column("Alias / Note", min_width=14)
+    table.add_column("Effect on scoring")
+    for name, note, effect in rows:
+        table.add_row(name, f"[dim]{note}[/dim]", effect)
+    console.print(table)
+
+    deduction_table = Table(show_header=True, header_style="bold", title="Deduction Points (all profiles)")
+    deduction_table.add_column("Severity")
+    deduction_table.add_column("Points per finding", justify="right")
+    for sev in ("critical", "high", "medium", "low"):
+        color = _SEVERITY_COLOR.get(sev, "")
+        pts = DEDUCTIONS.get(sev, 0)
+        deduction_table.add_row(f"[{color}]{sev}[/{color}]", str(pts))
+    console.print(deduction_table)
+
+    verdict_table = Table(show_header=True, header_style="bold", title="Verdict Thresholds (all profiles)")
+    verdict_table.add_column("Verdict")
+    verdict_table.add_column("Trust score", justify="right")
+    for threshold, label in VERDICTS:
+        color = "green" if label == "pass" else "yellow" if label == "warn" else "red"
+        verdict_table.add_row(f"[{color}]{label}[/{color}]", f"≥ {threshold}")
+    console.print(verdict_table)
+    console.print("[dim]Tip: dev and balanced are identical — strict is the recommended CI gate profile.[/dim]")
 
 
 def run() -> None:
