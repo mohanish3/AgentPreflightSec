@@ -158,13 +158,14 @@ def _render_score_breakdown(result) -> None:
     console.print(f"[dim]{line}[/dim]")
 
 
-def _render_table(result) -> None:
+def _render_table(result, max_rows: int = _MAX_TABLE_ROWS) -> None:
     verdict_color = "green" if result.verdict == "pass" else "yellow" if result.verdict == "warn" else "red"
+    affected_files = len({f.path for f in result.findings})
     console.print(f"[bold]AgentPreflight[/bold] target={_display_path(result.target)}")
     console.print(
         f"trust_score=[bold {verdict_color}]{result.trust_score}[/bold {verdict_color}]"
         f" verdict=[bold {verdict_color}]{result.verdict}[/bold {verdict_color}]"
-        f" findings={len(result.findings)} offline={result.offline}"
+        f" findings={len(result.findings)} affected_files={affected_files} offline={result.offline}"
     )
     console.print(
         f"summary critical={result.summary['critical']} high={result.summary['high']} "
@@ -176,7 +177,8 @@ def _render_table(result) -> None:
         console.print("[bold green]PASS: no issues found[/bold green]")
         return
     sorted_findings = sorted(result.findings, key=lambda f: _SEVERITY_RANK[f.severity], reverse=True)
-    shown = sorted_findings[:_MAX_TABLE_ROWS]
+    limit = max_rows if max_rows > 0 else len(sorted_findings)
+    shown = sorted_findings[:limit]
     hidden = len(sorted_findings) - len(shown)
     table = Table(show_header=True, header_style="bold")
     table.add_column("Severity", min_width=8)
@@ -219,6 +221,7 @@ def scan(
     quiet: bool = typer.Option(False, "--quiet", "-q", help="Print one-line summary only (CI-friendly)."),
     verbose: bool = typer.Option(False, "--verbose", "-v", help="Show source snippet context for each finding."),
     exclude: list[str] = typer.Option([], "--exclude", "-x", help="Glob patterns to exclude (e.g. 'tests/**' 'docs/')."),
+    top: int = typer.Option(_MAX_TABLE_ROWS, "--top", help="Max findings rows in table (0 = unlimited)."),
 ) -> None:
     if profile not in {"dev", "balanced", "strict"}:
         raise typer.BadParameter("profile must be dev, balanced, or strict")
@@ -263,7 +266,7 @@ def scan(
         rendered = markdown_reporter.render(result)
     else:
         rendered = ""
-        _render_table(result)
+        _render_table(result, max_rows=top)
         if verbose and not quiet:
             _print_snippets(result.findings)
 
@@ -500,13 +503,20 @@ def rule_info(
 @rules_app.command("list")
 def list_rules(
     severity: str | None = typer.Option(None, "--severity", help="Filter by severity: low, medium, high, or critical."),
+    category: str | None = typer.Option(None, "--category", help="Filter by category name (e.g. secrets, unsafe_exec, tool_poisoning)."),
 ) -> None:
     if severity is not None:
         severity = severity.lower()
         if severity not in _SEVERITY_RANK:
             console.print(f"[red]error:[/red] invalid severity {severity!r} — must be low, medium, high, or critical")
             raise typer.Exit(1)
-    rules = [r for r in ALL_RULES if severity is None or r.severity == severity]
+    if category is not None:
+        category = category.lower()
+        known_categories = {r.category for r in ALL_RULES}
+        if category not in known_categories:
+            console.print(f"[red]error:[/red] invalid category {category!r} — known: {', '.join(sorted(known_categories))}")
+            raise typer.Exit(1)
+    rules = [r for r in ALL_RULES if (severity is None or r.severity == severity) and (category is None or r.category == category)]
     table = Table(show_header=True, header_style="bold")
     table.add_column("Rule")
     table.add_column("Severity", min_width=8)
