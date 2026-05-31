@@ -296,13 +296,14 @@ def fix(
     prove: bool = typer.Option(False, "--prove", help="Rescan after --apply to show before/after score."),
     codex: bool = typer.Option(False, "--codex", help="Generate Codex AI patch proposals (requires OPENAI_API_KEY)."),
     codex_model: str = typer.Option("codex-mini-latest", "--codex-model", help="OpenAI model for Codex remediation."),
+    quiet: bool = typer.Option(False, "--quiet", "-q", help="Compact output — suppresses dry-run table and per-file list."),
 ) -> None:
     with console.status(f"[dim]scanning {target} (profile=strict)...[/dim]"):
         result = scan_path(target, profile="strict")
     score_before = result.trust_score
     allowed = {item.strip() for item in rules.split(",")} if rules else None
     fixable = [f for f in result.findings if f.fix_available and (not allowed or f.id in allowed)]
-    console.print(f"fixable={len(fixable)} target={target}")
+    console.print(f"fixable={len(fixable)} findings={len(result.findings)} target={_display_path(str(target))}")
 
     if codex:
         console.print("[bold cyan]Connecting to OpenAI Codex...[/bold cyan]")
@@ -318,28 +319,30 @@ def fix(
         return
 
     if not apply:
-        dry_table = Table(show_header=True, header_style="bold")
-        dry_table.add_column("Severity", min_width=8)
-        dry_table.add_column("Rule")
-        dry_table.add_column("Path")
-        dry_table.add_column("Line", justify="right")
-        dry_table.add_column("Fix")
-        for finding in fixable:
-            sev_color = _SEVERITY_COLOR.get(finding.severity, "")
-            dry_table.add_row(
-                f"[{sev_color}]{finding.severity}[/{sev_color}]",
-                finding.id,
-                Path(finding.path).name,
-                str(finding.line or ""),
-                escape(finding.fix),
-            )
-        console.print(dry_table)
-        console.print("[dim]dry_run=true - use --apply to modify files[/dim]")
+        if not quiet:
+            dry_table = Table(show_header=True, header_style="bold")
+            dry_table.add_column("Severity", min_width=8)
+            dry_table.add_column("Rule")
+            dry_table.add_column("Path")
+            dry_table.add_column("Line", justify="right")
+            dry_table.add_column("Fix")
+            for finding in fixable:
+                sev_color = _SEVERITY_COLOR.get(finding.severity, "")
+                dry_table.add_row(
+                    f"[{sev_color}]{finding.severity}[/{sev_color}]",
+                    finding.id,
+                    Path(finding.path).name,
+                    str(finding.line or ""),
+                    escape(finding.fix),
+                )
+            console.print(dry_table)
+            console.print("[dim]dry_run=true - use --apply to modify files[/dim]")
         return
     changed = apply_local_fixes(fixable, allowed)
     console.print(f"changed={len(changed)}")
-    for path in changed:
-        console.print(path)
+    if not quiet:
+        for path in changed:
+            console.print(path)
 
     if prove and changed:
         with console.status("[dim]rescanning to verify fixes...[/dim]"):
