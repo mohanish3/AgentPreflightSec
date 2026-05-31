@@ -498,13 +498,54 @@ def rule_info(
 
 
 @rules_app.command("list")
-def list_rules() -> None:
+def list_rules(
+    severity: str | None = typer.Option(None, "--severity", help="Filter by severity: low, medium, high, or critical."),
+) -> None:
+    if severity is not None:
+        severity = severity.lower()
+        if severity not in _SEVERITY_RANK:
+            console.print(f"[red]error:[/red] invalid severity {severity!r} — must be low, medium, high, or critical")
+            raise typer.Exit(1)
+    rules = [r for r in ALL_RULES if severity is None or r.severity == severity]
     table = Table(show_header=True, header_style="bold")
     table.add_column("Rule")
     table.add_column("Severity", min_width=8)
     table.add_column("Category")
     table.add_column("Applies to")
-    for rule in ALL_RULES:
+    for rule in rules:
+        sev_color = _SEVERITY_COLOR.get(rule.severity, "")
+        table.add_row(
+            rule.id,
+            f"[{sev_color}]{rule.severity}[/{sev_color}]",
+            rule.category,
+            ", ".join(sorted(rule.applies_to)),
+        )
+    console.print(table)
+
+
+@rules_app.command("search")
+def search_rules(
+    term: str = typer.Argument(..., help="Text to search across rule IDs, categories, descriptions, and remediation."),
+) -> None:
+    """Search rules by keyword across ID, category, description, and remediation."""
+    needle = term.lower()
+    matched = [
+        r for r in ALL_RULES
+        if needle in r.id.lower()
+        or needle in r.category.lower()
+        or needle in r.description.lower()
+        or needle in r.remediation.lower()
+        or any(needle in ref.lower() for ref in r.references)
+    ]
+    if not matched:
+        console.print(f"[dim]no rules matched {term!r}[/dim]")
+        return
+    table = Table(show_header=True, header_style="bold")
+    table.add_column("Rule")
+    table.add_column("Severity", min_width=8)
+    table.add_column("Category")
+    table.add_column("Applies to")
+    for rule in matched:
         sev_color = _SEVERITY_COLOR.get(rule.severity, "")
         table.add_row(
             rule.id,
