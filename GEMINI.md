@@ -17,7 +17,9 @@
 - `agentpreflight fix <path> --apply`
 - `agentpreflight fix <path> --codex`  # Codex AI patches (requires OPENAI_API_KEY)
 - `agentpreflight rules list --description`  # include description column in table
+- `agentpreflight rules list --applies-to code_py`  # filter by artifact type
 - `agentpreflight rules list --severity critical --category unsafe_exec --json`
+- `agentpreflight explain AP-CODE-001`  # top-level shortcut (alias for rules info)
 - `agentpreflight rules info AP-CODE-001`
 - `agentpreflight rules search "shell"`
 - `agentpreflight watch <path>`  # rescan on file change
@@ -32,6 +34,7 @@
 
 - `--fail-on-score <int>` (1-100): gates CI on trust score; complementary to `--fail-on` severity
 - `--description` on `rules list`: adds truncated description column to table output
+- `--applies-to <type>` on `rules list`: filters rules by artifact type (code_py, skill_md, mcp_config, etc.); rules with `*` in applies_to always match
 
 ## Security Rules
 

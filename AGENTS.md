@@ -47,7 +47,7 @@ CLI scan first → JSON/SARIF second → constrained `fix` command third → Git
 # Core scan
 agentpreflight scan <path> [--profile dev|balanced|strict] [--fail-on low|medium|high|critical]
 agentpreflight scan <path> --fail-on-score 70   # fail if trust_score < 70
-agentpreflight scan <path> --format json|sarif|markdown [--output file]
+agentpreflight scan <path> --format json|sarif|markdown|github [--output file]
 agentpreflight scan <path> --quiet              # one-line CI summary
 agentpreflight scan <path> --verbose            # show ±2-line source context per finding
 agentpreflight scan <path> --exclude 'tests/**' # glob exclusion
@@ -61,12 +61,14 @@ agentpreflight fix <path> --codex              # Codex AI patch proposals (requi
 agentpreflight fix <path> --rules AP-CODE-001,AP-MCP-001  # target specific rules
 
 # Rules
-agentpreflight rules list                       # table of all 21 rules
-agentpreflight rules list --description         # include description column (truncated to 60 chars)
-agentpreflight rules list --severity critical   # filter by severity
-agentpreflight rules list --category unsafe_exec
-agentpreflight rules list --json               # JSON array for programmatic use
+agentpreflight rules list                             # table of all 21 rules
+agentpreflight rules list --description               # include description column (truncated to 60 chars)
+agentpreflight rules list --severity critical         # filter by severity
+agentpreflight rules list --category unsafe_exec      # filter by category
+agentpreflight rules list --applies-to code_py        # filter by artifact type (code_py, skill_md, mcp_config, ...)
+agentpreflight rules list --json                      # JSON array for programmatic use
 agentpreflight rules info AP-CODE-001          # full rule detail panel
+agentpreflight explain AP-CODE-001             # same as rules info — top-level shortcut
 agentpreflight rules search "shell"            # keyword search across IDs, categories, descriptions
 
 # Other commands
@@ -82,6 +84,25 @@ agentpreflight profiles                        # show scoring profiles and deduc
 
 - `--fail-on-score <int>` (1-100): gates CI on trust score, complementing `--fail-on` severity. Example: `--fail-on-score 70` exits 1 if score < 70. Works with `--exit-zero`. Both `--fail-on` and `--fail-on-score` can be combined (OR logic).
 - `--description` flag on `rules list`: adds a truncated description column to the rules table without changing other output.
+- `explain <rule_id>`: top-level alias for `rules info`
+- `--format github`: GitHub Actions annotation format (`::error`/`::warning`/`::notice` lines); displays inline on PR diffs without SARIF upload; works on all GitHub plans including free — `agentpreflight explain AP-CODE-001` reads more naturally after seeing a finding ID in scan output; reduces subcommand hierarchy friction.
+- `--applies-to <type>` flag on `rules list`: filters by artifact type (code_py, code_js, code_sh, skill_md, mcp_config, env_file, markdown). Rules with `*` in their applies_to set always match. Combines with `--severity`, `--category`, `--description`, and `--json`.
+
+## Post-MVP Feature Rationale
+
+Why each post-MVP feature was added (sources: user-stories.md, briefs/user-flow.md, briefs/implementation-backlog.md):
+
+**`scan --fail-on-score <int>`**
+- Source: user-stories.md AC 2.1 requires CI to "block...extensions from merging" but severity thresholds alone are blunt - a repo with 10 medium findings (trust_score=30) would pass `--fail-on high` even though it is clearly risky. Score-based gating closes that gap. Teams already express risk appetite as numbers ("we require a trust score of at least 70") rather than just severity levels.
+- Non-breaking: additive flag, existing `--fail-on` unchanged.
+
+**`rules list --description`**
+- Source: user-flow.md "Developer discovers an MCP security risk" - the typical first action after `rules list` is repeated `rules info <id>` calls to understand what each rule catches. Adding a truncated description column eliminates most of those lookups without changing the table for users who don't need it.
+- Non-breaking: opt-in flag, default output unchanged.
+
+**`rules list --applies-to <type>`**
+- Source: briefs/rule-catalog.md shows 21 rules across 9 artifact types. A Python-only MCP server developer scanning for relevant rules would see JS-specific rules (code_js) that don't apply to their stack, creating noise. Filtering by artifact type surfaces only actionable rules.
+- Non-breaking: additive flag, default output unchanged. Invalid type exits 1 with known-types hint.
 
 ## Build, Test, and Development Commands
 

@@ -113,6 +113,22 @@ class OutputFormat(str, Enum):
     json = "json"
     sarif = "sarif"
     markdown = "markdown"
+    github = "github"
+
+
+_GITHUB_LEVEL = {"critical": "error", "high": "error", "medium": "warning", "low": "notice"}
+
+
+def _render_github_annotations(result) -> str:
+    lines = []
+    for f in result.findings:
+        level = _GITHUB_LEVEL.get(f.severity, "warning")
+        loc = f"file={f.path}"
+        if f.line:
+            loc += f",line={f.line}"
+        msg = f"{f.title}: {f.evidence}".replace("\n", " ")
+        lines.append(f"::{level} {loc},title={f.id}::{msg}")
+    return "\n".join(lines) + ("\n" if lines else "")
 
 
 _SEVERITY_RANK = {"low": 1, "medium": 2, "high": 3, "critical": 4}
@@ -270,6 +286,8 @@ def scan(
         rendered = sarif_reporter.render(result)
     elif format == OutputFormat.markdown:
         rendered = markdown_reporter.render(result)
+    elif format == OutputFormat.github:
+        rendered = _render_github_annotations(result)
     else:
         rendered = ""
         _render_table(result, max_rows=top)
@@ -516,10 +534,24 @@ def rule_info(
     _render_rule_info(rule)
 
 
+@app.command()
+def explain(
+    rule_id: str = typer.Argument(..., help="Rule ID to explain e.g. AP-CODE-001"),
+) -> None:
+    """Show description, remediation, and fix hint for a rule (alias for: rules info)."""
+    target = rule_id.upper()
+    rule = next((r for r in ALL_RULES if r.id == target), None)
+    if rule is None:
+        console.print(f"[red]error:[/red] unknown rule: {rule_id}")
+        raise typer.Exit(1)
+    _render_rule_info(rule)
+
+
 @rules_app.command("list")
 def list_rules(
     severity: str | None = typer.Option(None, "--severity", help="Filter by severity: low, medium, high, or critical."),
     category: str | None = typer.Option(None, "--category", help="Filter by category name (e.g. secrets, unsafe_exec, tool_poisoning)."),
+    applies_to: str | None = typer.Option(None, "--applies-to", help="Filter by artifact type (e.g. code_py, skill_md, mcp_config)."),
     as_json: bool = typer.Option(False, "--json", help="Output rules as JSON array for programmatic use."),
     show_description: bool = typer.Option(False, "--description", help="Add description column to table output."),
 ) -> None:
@@ -534,7 +566,20 @@ def list_rules(
         if category not in known_categories:
             console.print(f"[red]error:[/red] invalid category {category!r} — known: {', '.join(sorted(known_categories))}")
             raise typer.Exit(1)
-    rules = [r for r in ALL_RULES if (severity is None or r.severity == severity) and (category is None or r.category == category)]
+    if applies_to is not None:
+        applies_to = applies_to.lower()
+        known_applies_to = {t for r in ALL_RULES for t in r.applies_to} - {"*"}
+        if applies_to not in known_applies_to:
+            console.print(
+                f"[red]error:[/red] invalid applies-to {applies_to!r} — known: {', '.join(sorted(known_applies_to))}"
+            )
+            raise typer.Exit(1)
+    rules = [
+        r for r in ALL_RULES
+        if (severity is None or r.severity == severity)
+        and (category is None or r.category == category)
+        and (applies_to is None or applies_to in r.applies_to or "*" in r.applies_to)
+    ]
     if as_json:
         import json as _json
         sys.stdout.write(_json.dumps([
@@ -571,7 +616,7 @@ def list_rules(
             row.append(escape(desc[:60] + ("…" if len(desc) > 60 else "")))
         table.add_row(*row)
     console.print(table)
-    is_filtered = severity is not None or category is not None
+    is_filtered = severity is not None or category is not None or applies_to is not None
     if is_filtered:
         console.print(f"[dim]{len(rules)} of {len(ALL_RULES)} rules[/dim]")
     else:
