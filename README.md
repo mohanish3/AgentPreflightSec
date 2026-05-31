@@ -31,15 +31,15 @@ MCP tool descriptions are natural-language, invisible to standard CI checks. Ban
 
 ```bash
 # From PyPI (recommended):
-pip install agentpreflight
+pip install mcp-agent-preflight-sec
 agentpreflight --version
 
 # From source:
 pip install .
 
 # Optional extras:
-pip install "agentpreflight[api]"     # FastAPI scan endpoint
-pip install "agentpreflight[codex]"   # Codex AI remediation
+pip install "mcp-agent-preflight-sec[api]"     # FastAPI scan endpoint
+pip install "mcp-agent-preflight-sec[codex]"   # Codex AI remediation
 export OPENAI_API_KEY=<your-key>
 ```
 
@@ -254,7 +254,7 @@ os.system("echo ok")  # agentpreflight:disable-line AP-CODE-001
 ## API (optional)
 
 ```bash
-pip install ".[api]"
+pip install "mcp-agent-preflight-sec[api]"
 uvicorn agentpreflight.api.main:app --reload
 ```
 

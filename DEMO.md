@@ -226,7 +226,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Install AgentPreflight
-        run: pip install agentpreflight
+        run: pip install mcp-agent-preflight-sec
       - name: Scan
         run: agentpreflight scan . --profile strict --format sarif --output agentpreflight.sarif --fail-on high
       - name: Upload SARIF

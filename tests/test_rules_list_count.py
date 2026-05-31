@@ -47,7 +47,7 @@ def test_rules_list_count_footer_does_not_contain_rule_id_format() -> None:
     assert result.exit_code == 0
     # footer line should contain "rules" but not look like a rule ID
     lines = result.output.splitlines()
-    footer_lines = [l for l in lines if "rules" in l and "AP-" not in l]
+    footer_lines = [line for line in lines if "rules" in line and "AP-" not in line]
     assert len(footer_lines) >= 1
 
 

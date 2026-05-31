@@ -23,7 +23,7 @@ def run_codex_fix(
 ) -> list[CodexPatch]:
     """Call OpenAI Codex to generate security patches for flagged findings.
 
-    Requires: pip install 'agentpreflight[codex]'
+    Requires: pip install 'mcp-agent-preflight-sec[codex]'
     Requires: OPENAI_API_KEY env var
     Only sends redacted code snippets — no secrets, no repo context.
     """
@@ -31,7 +31,7 @@ def run_codex_fix(
         from openai import OpenAI
     except ImportError as exc:
         raise ImportError(
-            "openai package required. Install: pip install 'agentpreflight[codex]'"
+            "openai package required. Install: pip install 'mcp-agent-preflight-sec[codex]'"
         ) from exc
 
     api_key = os.environ.get("OPENAI_API_KEY")

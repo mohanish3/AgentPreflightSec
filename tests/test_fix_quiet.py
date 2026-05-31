@@ -75,8 +75,8 @@ def test_fix_quiet_apply_hides_per_file_list(tmp_path: Path) -> None:
     assert quiet.exit_code == 0
     assert verbose.exit_code == 0
     # Verbose lists file paths (many lines); quiet is much shorter
-    quiet_lines = [l for l in quiet.output.strip().splitlines() if l.strip()]
-    verbose_lines = [l for l in verbose.output.strip().splitlines() if l.strip()]
+    quiet_lines = [line for line in quiet.output.strip().splitlines() if line.strip()]
+    verbose_lines = [line for line in verbose.output.strip().splitlines() if line.strip()]
     assert len(quiet_lines) < len(verbose_lines)
 
 
@@ -105,7 +105,7 @@ def test_fix_non_quiet_apply_still_lists_files(tmp_path: Path) -> None:
     result = runner.invoke(app, ["fix", str(target), "--apply"])
     assert result.exit_code == 0
     assert "changed=" in result.output
-    lines = [l for l in result.output.strip().splitlines() if l.strip()]
+    lines = [line for line in result.output.strip().splitlines() if line.strip()]
     # More than 2 lines: header + changed= + one per file
     assert len(lines) > 2
 

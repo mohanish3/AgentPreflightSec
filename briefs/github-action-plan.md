@@ -34,7 +34,7 @@ jobs:
 
       - name: Install AgentPreflight
         run: |
-          pip install agentpreflight
+          pip install mcp-agent-preflight-sec
 
       - name: Run Preflight Scan
         id: scan

@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import shutil
 from pathlib import Path
 
 from typer.testing import CliRunner
@@ -28,7 +27,7 @@ def test_scan_output_target_no_line_break_in_path() -> None:
     # The broken-path pattern 'Mohanish \nMhatre' or similar should not appear
     # (path should not contain the Windows username with embedded whitespace)
     lines = result.output.splitlines()
-    target_line = next((l for l in lines if "AgentPreflight target=" in l), "")
+    target_line = next((line for line in lines if "AgentPreflight target=" in line), "")
     assert target_line, "target= line not found"
     # Should not contain a backslash + volume letter (absolute Windows path)
     # when we can express it as relative
@@ -40,7 +39,7 @@ def test_fix_available_line_uses_relative_path() -> None:
     runner = CliRunner()
     result = runner.invoke(app, ["scan", str(ROOT / "demo" / "poisoned")])
     assert result.exit_code == 0
-    fix_line = next((l for l in result.output.splitlines() if "fix_available=" in l), "")
+    fix_line = next((line for line in result.output.splitlines() if "fix_available=" in line), "")
     assert fix_line, "fix_available= line not found"
     assert "demo/poisoned" in fix_line or "demo\\poisoned" in fix_line
 
@@ -51,7 +50,7 @@ def test_scan_clean_target_line_is_readable() -> None:
     result = runner.invoke(app, ["scan", str(ROOT / "demo" / "clean")])
     assert result.exit_code == 0
     lines = result.output.splitlines()
-    target_line = next((l for l in lines if "AgentPreflight target=" in l), "")
+    target_line = next((line for line in lines if "AgentPreflight target=" in line), "")
     # Should be on a single line (no mid-path wrapping due to spaces)
     assert "target=" in target_line
     assert "demo" in target_line

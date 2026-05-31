@@ -8,7 +8,7 @@ The direct competitor landscape is crowded. AgentPreflight must not claim "first
 
 > AgentPreflight is a source-static, reviewable remediation loop for MCP and agent-skill risks: scan, trust score, SARIF, constrained Codex patch, rescan proof.
 
-**Winning wedge:** time-to-fix, not detection breadth. From poisoned agent artifact to fixed PR in under two minutes.
+**Primary wedge:** time-to-fix, not detection breadth. From poisoned agent artifact to fixed PR in under two minutes.
 
 ---
 

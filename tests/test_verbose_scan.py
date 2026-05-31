@@ -67,7 +67,7 @@ def test_scan_verbose_quiet_flag_ignores_snippets(tmp_path: Path) -> None:
     runner = CliRunner()
     result = runner.invoke(app, ["scan", str(tmp_path), "--quiet", "--verbose"])
     assert result.exit_code == 0
-    lines = [l for l in result.output.strip().splitlines() if l.strip()]
+    lines = [line for line in result.output.strip().splitlines() if line.strip()]
     assert len(lines) == 1
     assert "trust_score=" in lines[0]
 

@@ -294,7 +294,7 @@ Verified safer: Remediation-first validated by GitHub Copilot Autofix, Snyk Agen
 
 Do not claim: "no competitor has SARIF," "first scanner," "unique risk scoring," or any singular capability. Multiple scanners now have these.
 
-Hackathon win now depends on demo polish and fix-loop quality, not category novelty.
+Evaluation strength depends on demo polish and fix-loop quality, not category novelty.
 
 ---
 
@@ -302,7 +302,7 @@ Hackathon win now depends on demo polish and fix-loop quality, not category nove
 
 ### Final scorecard (1–10)
 
-| Candidate | Hackathon win | Feasibility | 10x workflow | Demo wow | Cost | Scale | Differentiation | Total |
+| Candidate | Demo evaluation fit | Feasibility | 10x workflow | Demo wow | Cost | Scale | Differentiation | Total |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
 | AgentPreflight safe remediation-first | 8 | 8 | 10 | 10 | 9 | 9 | 6 | 60 |
 | DeployPreflight destination-aware redeploy | 6 | 7 | 8 | 8 | 8 | 10 | 4 | 51 |
@@ -319,4 +319,4 @@ Hackathon win now depends on demo polish and fix-loop quality, not category nove
 | Market timing | Generic or crowded. | Active need but many tools exist. | New urgent surface with standards/research converging. |
 | Novelty/wow | Looks like existing linter. | Specific demo, moderate surprise. | Judges see a fresh agentic security gap instantly. |
 
-AgentPreflight no longer wins by scanner novelty because 15+ direct competitors now overlap. Winner remains AgentPreflight because build is realistic, demo loop is hard to dismiss, and remediation-first is validated by adjacent markets.
+AgentPreflight should not rely on scanner novelty because 15+ direct competitors now overlap. The stronger case is realistic build scope, a clear demo loop, and remediation-first positioning validated by adjacent markets.

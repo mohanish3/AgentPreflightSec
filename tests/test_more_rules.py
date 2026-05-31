@@ -1,8 +1,8 @@
 from __future__ import annotations
-import tempfile
+
 from pathlib import Path
 
-from agentpreflight.collectors.path_collector import _classify, collect
+from agentpreflight.collectors.path_collector import _classify
 from agentpreflight.models import Artifact
 from agentpreflight.rules.ap_code_more import ArbitraryFileAccessRule, NetworkExfiltrationRule
 from agentpreflight.rules.ap_mcp_001 import McpPromptOverrideRule

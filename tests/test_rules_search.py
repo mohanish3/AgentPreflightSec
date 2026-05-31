@@ -3,7 +3,6 @@ from __future__ import annotations
 from typer.testing import CliRunner
 
 from agentpreflight.cli.main import app
-from agentpreflight.rules.catalog import ALL_RULES
 
 
 def test_rules_search_exec_finds_code_rule() -> None:

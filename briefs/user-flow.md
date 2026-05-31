@@ -11,7 +11,7 @@ A developer finds a new MCP server on npm, reads about the Postmark BCC attack, 
 ```
 DISCOVER                SCAN                    FIX                     PROVE
 ────────────────────────────────────────────────────────────────────────────────
-pip install             agentpreflight          agentpreflight          agentpreflight
+pip install             mcp-agent-preflight-sec agentpreflight          agentpreflight
 agentpreflight          scan <path>             fix <path> --codex      scan <path>
                         --profile strict        (Codex AI patch)        --profile strict
                         --fail-on high          ──────────────          --fail-on high
@@ -33,7 +33,7 @@ agentpreflight          scan <path>             fix <path> --codex      scan <pa
 
 ### Step 1 — Install (< 2 minutes)
 ```bash
-pip install agentpreflight
+pip install mcp-agent-preflight-sec
 agentpreflight --version
 ```
 Works offline from this point. No account, no API key, no dashboard.

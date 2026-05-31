@@ -124,7 +124,7 @@ def test_scan_quiet_prints_one_line_summary() -> None:
     result = runner.invoke(app, ["scan", str(ROOT / "demo" / "poisoned"), "--quiet"])
 
     assert result.exit_code == 0
-    lines = [l for l in result.output.strip().splitlines() if l.strip()]
+    lines = [line for line in result.output.strip().splitlines() if line.strip()]
     assert len(lines) == 1
     assert "trust_score=" in lines[0]
     assert "verdict=" in lines[0]

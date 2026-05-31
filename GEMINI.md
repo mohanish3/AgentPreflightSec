@@ -11,11 +11,27 @@
 ## Key Commands
 
 - `pip install -e .`
-- `agentpreflight scan <path>`
+- `agentpreflight scan <path> [--profile dev|balanced|strict] [--fail-on low|medium|high|critical]`
+- `agentpreflight scan <path> --fail-on-score 70`  # fail if trust_score < 70
+- `agentpreflight scan <path> --format json|sarif|markdown [--output file]`
 - `agentpreflight fix <path> --apply`
+- `agentpreflight fix <path> --codex`  # Codex AI patches (requires OPENAI_API_KEY)
+- `agentpreflight rules list --description`  # include description column in table
+- `agentpreflight rules list --severity critical --category unsafe_exec --json`
+- `agentpreflight rules info AP-CODE-001`
+- `agentpreflight rules search "shell"`
+- `agentpreflight watch <path>`  # rescan on file change
+- `agentpreflight shell`  # interactive REPL
+- `agentpreflight init`  # create .agentpreflight.json suppression template
+- `agentpreflight profiles`  # show scoring profiles and deduction tables
 - `uvicorn src.agentpreflight.api.main:app --reload`
 - `pytest`
 - `ruff check .`
+
+## CLI Flags Added Post-MVP
+
+- `--fail-on-score <int>` (1-100): gates CI on trust score; complementary to `--fail-on` severity
+- `--description` on `rules list`: adds truncated description column to table output
 
 ## Security Rules
 

@@ -49,7 +49,7 @@ def test_quiet_still_suppresses_banner_without_no_banner_flag() -> None:
     result = runner.invoke(app, ["scan", CLEAN, "--quiet"])
     assert result.exit_code == 0
     assert _BANNER_MARKER not in result.output
-    lines = [l for l in result.output.strip().splitlines() if l.strip()]
+    lines = [line for line in result.output.strip().splitlines() if line.strip()]
     assert len(lines) == 1
 
 

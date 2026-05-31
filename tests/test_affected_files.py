@@ -73,5 +73,5 @@ def test_affected_files_not_shown_in_quiet_mode() -> None:
     runner = CliRunner()
     result = runner.invoke(app, ["scan", POISONED, "--quiet"])
     assert result.exit_code == 0
-    lines = [l for l in result.output.strip().splitlines() if l.strip()]
+    lines = [line for line in result.output.strip().splitlines() if line.strip()]
     assert len(lines) == 1

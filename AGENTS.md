@@ -41,6 +41,48 @@ Before coding, read:
 
 CLI scan first → JSON/SARIF second → constrained `fix` command third → GitHub Action fourth → FastAPI last. Default scan mode must stay offline and deterministic.
 
+## CLI Reference (implemented commands)
+
+```bash
+# Core scan
+agentpreflight scan <path> [--profile dev|balanced|strict] [--fail-on low|medium|high|critical]
+agentpreflight scan <path> --fail-on-score 70   # fail if trust_score < 70
+agentpreflight scan <path> --format json|sarif|markdown [--output file]
+agentpreflight scan <path> --quiet              # one-line CI summary
+agentpreflight scan <path> --verbose            # show ±2-line source context per finding
+agentpreflight scan <path> --exclude 'tests/**' # glob exclusion
+agentpreflight scan <path> --top 10            # limit table rows (0 = unlimited)
+agentpreflight scan <path> --no-banner --exit-zero
+
+# Remediation
+agentpreflight fix <path> --apply              # deterministic offline patches (14 rule classes)
+agentpreflight fix <path> --apply --prove      # apply then rescan and show delta
+agentpreflight fix <path> --codex              # Codex AI patch proposals (requires OPENAI_API_KEY)
+agentpreflight fix <path> --rules AP-CODE-001,AP-MCP-001  # target specific rules
+
+# Rules
+agentpreflight rules list                       # table of all 21 rules
+agentpreflight rules list --description         # include description column (truncated to 60 chars)
+agentpreflight rules list --severity critical   # filter by severity
+agentpreflight rules list --category unsafe_exec
+agentpreflight rules list --json               # JSON array for programmatic use
+agentpreflight rules info AP-CODE-001          # full rule detail panel
+agentpreflight rules search "shell"            # keyword search across IDs, categories, descriptions
+
+# Other commands
+agentpreflight watch <path> [--interval 3]     # poll and rescan on file change
+agentpreflight bench <path> [--runs 5]         # benchmark scan throughput
+agentpreflight prompts <path>                  # build Codex remediation prompt pack
+agentpreflight shell [path]                    # interactive REPL with session state
+agentpreflight init [dir]                      # create .agentpreflight.json suppression template
+agentpreflight profiles                        # show scoring profiles and deduction tables
+```
+
+## Key CLI flags added post-MVP
+
+- `--fail-on-score <int>` (1-100): gates CI on trust score, complementing `--fail-on` severity. Example: `--fail-on-score 70` exits 1 if score < 70. Works with `--exit-zero`. Both `--fail-on` and `--fail-on-score` can be combined (OR logic).
+- `--description` flag on `rules list`: adds a truncated description column to the rules table without changing other output.
+
 ## Build, Test, and Development Commands
 
 ```bash

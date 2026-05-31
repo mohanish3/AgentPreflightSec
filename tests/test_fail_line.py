@@ -29,7 +29,7 @@ def test_fail_line_not_shown_in_quiet_mode() -> None:
     runner = CliRunner()
     result = runner.invoke(app, ["scan", POISONED, "--quiet", "--fail-on", "high"])
     assert result.exit_code == 1
-    lines = [l for l in result.output.strip().splitlines() if l.strip()]
+    lines = [line for line in result.output.strip().splitlines() if line.strip()]
     assert len(lines) == 1
     assert "FAIL" not in result.output
 

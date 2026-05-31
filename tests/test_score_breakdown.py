@@ -30,7 +30,7 @@ def test_score_breakdown_hidden_in_quiet_mode() -> None:
     runner = CliRunner()
     result = runner.invoke(app, ["scan", str(ROOT / "demo" / "poisoned"), "--quiet"])
     assert result.exit_code == 0
-    lines = [l for l in result.output.strip().splitlines() if l.strip()]
+    lines = [line for line in result.output.strip().splitlines() if line.strip()]
     assert len(lines) == 1  # quiet stays one line even with breakdown feature
 
 

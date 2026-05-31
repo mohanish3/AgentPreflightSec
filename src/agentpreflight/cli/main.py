@@ -7,6 +7,14 @@ from pathlib import Path
 
 import rich.box
 import typer
+from agentpreflight import __version__
+from agentpreflight.cli.repl import run_repl
+from agentpreflight.remediator.codex_fix import run_codex_fix
+from agentpreflight.remediator.local_fix import apply_local_fixes
+from agentpreflight.remediator.prompt_builder import build_prompt_pack
+from agentpreflight.reporters import json_reporter, markdown_reporter, sarif_reporter
+from agentpreflight.rules.catalog import ALL_RULES
+from agentpreflight.scanner import scan_path
 from rich.console import Console
 from rich.markup import escape
 from rich.panel import Panel
@@ -16,15 +24,6 @@ from rich.table import Table
 for _stream in (sys.stdout, sys.stderr):
     if hasattr(_stream, "reconfigure"):
         _stream.reconfigure(encoding="utf-8", errors="replace")
-
-from agentpreflight import __version__
-from agentpreflight.cli.repl import run_repl
-from agentpreflight.remediator.codex_fix import run_codex_fix
-from agentpreflight.remediator.local_fix import apply_local_fixes
-from agentpreflight.remediator.prompt_builder import build_prompt_pack
-from agentpreflight.reporters import json_reporter, markdown_reporter, sarif_reporter
-from agentpreflight.rules.catalog import ALL_RULES
-from agentpreflight.scanner import scan_path
 
 app = typer.Typer(no_args_is_help=True, invoke_without_command=True)
 rules_app = typer.Typer(no_args_is_help=True)
@@ -225,11 +224,14 @@ def scan(
     top: int = typer.Option(_MAX_TABLE_ROWS, "--top", help="Max findings rows in table (0 = unlimited)."),
     no_banner: bool = typer.Option(False, "--no-banner", help="Suppress the ASCII art banner (useful in scripts)."),
     exit_zero: bool = typer.Option(False, "--exit-zero", help="Always exit 0 even when --fail-on threshold is met (affects exit code only)."),
+    fail_on_score: int | None = typer.Option(None, "--fail-on-score", help="Fail if trust score is below this threshold (1-100)."),
 ) -> None:
     if profile not in {"dev", "balanced", "strict"}:
         raise typer.BadParameter("profile must be dev, balanced, or strict")
     if fail_on and fail_on not in _SEVERITY_RANK:
         raise typer.BadParameter("fail-on must be low, medium, high, or critical")
+    if fail_on_score is not None and not (1 <= fail_on_score <= 100):
+        raise typer.BadParameter("fail-on-score must be between 1 and 100")
     if format == OutputFormat.table and output:
         console.print(
             "[red]error:[/red] table format cannot be written to a file; "
@@ -275,6 +277,8 @@ def scan(
             _print_snippets(result.findings)
         if fail_on and _should_fail(result.findings, fail_on):
             console.print(f"[bold red]FAIL[/bold red] threshold={fail_on} exceeded")
+        if fail_on_score is not None and result.trust_score < fail_on_score:
+            console.print(f"[bold red]FAIL[/bold red] score_threshold={fail_on_score} trust_score={result.trust_score}")
 
     if not quiet:
         if output:
@@ -285,7 +289,8 @@ def scan(
             if not rendered.endswith("\n"):
                 sys.stdout.write("\n")
 
-    if _should_fail(result.findings, fail_on) and not exit_zero:
+    _score_fail = fail_on_score is not None and result.trust_score < fail_on_score
+    if (_should_fail(result.findings, fail_on) or _score_fail) and not exit_zero:
         raise typer.Exit(1)
 
 
@@ -516,6 +521,7 @@ def list_rules(
     severity: str | None = typer.Option(None, "--severity", help="Filter by severity: low, medium, high, or critical."),
     category: str | None = typer.Option(None, "--category", help="Filter by category name (e.g. secrets, unsafe_exec, tool_poisoning)."),
     as_json: bool = typer.Option(False, "--json", help="Output rules as JSON array for programmatic use."),
+    show_description: bool = typer.Option(False, "--description", help="Add description column to table output."),
 ) -> None:
     if severity is not None:
         severity = severity.lower()
@@ -550,14 +556,20 @@ def list_rules(
     table.add_column("Severity", min_width=8)
     table.add_column("Category")
     table.add_column("Applies to")
+    if show_description:
+        table.add_column("Description", max_width=60)
     for rule in rules:
         sev_color = _SEVERITY_COLOR.get(rule.severity, "")
-        table.add_row(
+        row = [
             rule.id,
             f"[{sev_color}]{rule.severity}[/{sev_color}]",
             rule.category,
             ", ".join(sorted(rule.applies_to)),
-        )
+        ]
+        if show_description:
+            desc = rule.description or ""
+            row.append(escape(desc[:60] + ("…" if len(desc) > 60 else "")))
+        table.add_row(*row)
     console.print(table)
     is_filtered = severity is not None or category is not None
     if is_filtered:

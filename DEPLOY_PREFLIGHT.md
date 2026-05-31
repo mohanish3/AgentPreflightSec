@@ -97,7 +97,7 @@ Full URLs in `sources/source-register.md`.
 
 | Criterion | DeployPreflight | AgentPreflight |
 |---|---:|---:|
-| Hackathon win potential | 6 | 8 |
+| Demo evaluation fit | 6 | 8 |
 | Feasibility | 7 | 8 |
 | 10x workflow | 8 | 10 |
 | Demo wow | 8 | 10 |
