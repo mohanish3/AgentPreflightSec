@@ -241,6 +241,7 @@ def scan(
     no_banner: bool = typer.Option(False, "--no-banner", help="Suppress the ASCII art banner (useful in scripts)."),
     exit_zero: bool = typer.Option(False, "--exit-zero", help="Always exit 0 even when --fail-on threshold is met (affects exit code only)."),
     fail_on_score: int | None = typer.Option(None, "--fail-on-score", help="Fail if trust score is below this threshold (1-100)."),
+    list_files: bool = typer.Option(False, "--list-files", help="Print paths of affected files only, one per line (CI-scriptable)."),
 ) -> None:
     if profile not in {"dev", "balanced", "strict"}:
         raise typer.BadParameter("profile must be dev, balanced, or strict")
@@ -270,6 +271,15 @@ def scan(
     except OSError as exc:
         console.print(f"[red]error:[/red] could not read target: {exc}")
         raise typer.Exit(2)
+
+    if list_files:
+        paths = sorted({f.path for f in result.findings})
+        for p in paths:
+            sys.stdout.write(p + "\n")
+        _score_fail = fail_on_score is not None and result.trust_score < fail_on_score
+        if (_should_fail(result.findings, fail_on) or _score_fail) and not exit_zero:
+            raise typer.Exit(1)
+        return
 
     if quiet:
         verdict_color = "green" if result.verdict == "pass" else "yellow" if result.verdict == "warn" else "red"

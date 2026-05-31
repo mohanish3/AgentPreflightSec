@@ -53,6 +53,7 @@ agentpreflight scan <path> --verbose            # show ±2-line source context p
 agentpreflight scan <path> --exclude 'tests/**' # glob exclusion
 agentpreflight scan <path> --top 10            # limit table rows (0 = unlimited)
 agentpreflight scan <path> --no-banner --exit-zero
+agentpreflight scan <path> --list-files          # print affected file paths only (one per line, CI-scriptable)
 
 # Remediation
 agentpreflight fix <path> --apply              # deterministic offline patches (14 rule classes)
@@ -87,6 +88,7 @@ agentpreflight profiles                        # show scoring profiles and deduc
 - `explain <rule_id>`: top-level alias for `rules info`
 - `--format github`: GitHub Actions annotation format (`::error`/`::warning`/`::notice` lines); displays inline on PR diffs without SARIF upload; works on all GitHub plans including free — `agentpreflight explain AP-CODE-001` reads more naturally after seeing a finding ID in scan output; reduces subcommand hierarchy friction.
 - `--applies-to <type>` flag on `rules list`: filters by artifact type (code_py, code_js, code_sh, skill_md, mcp_config, env_file, markdown). Rules with `*` in their applies_to set always match. Combines with `--severity`, `--category`, `--description`, and `--json`.
+- `--list-files`: prints only the paths of files that have findings, one per line. Suppresses all table/summary output. Exit code still controlled by `--fail-on`/`--fail-on-score`/`--exit-zero`. Designed for CI scripting: `agentpreflight scan . --list-files | xargs git diff HEAD --`.
 
 ## Post-MVP Feature Rationale
 
@@ -103,6 +105,10 @@ Why each post-MVP feature was added (sources: user-stories.md, briefs/user-flow.
 **`rules list --applies-to <type>`**
 - Source: briefs/rule-catalog.md shows 21 rules across 9 artifact types. A Python-only MCP server developer scanning for relevant rules would see JS-specific rules (code_js) that don't apply to their stack, creating noise. Filtering by artifact type surfaces only actionable rules.
 - Non-breaking: additive flag, default output unchanged. Invalid type exits 1 with known-types hint.
+
+**`scan --list-files`**
+- Source: user-stories.md AC 2.1 AppSec persona needs "automated triage" - CI pipelines need to pass affected file paths to downstream tools (`git diff`, `pre-commit`, `slack notify`). A trust score and table are human-readable but not machine-parseable for scripting. `--list-files` outputs exactly the paths that need attention, one per line: `agentpreflight scan . --list-files | xargs ...`. Suppresses all table output; exit code still controlled by `--fail-on`/`--fail-on-score`.
+- Non-breaking: additive flag, default table output unchanged.
 
 ## Build, Test, and Development Commands
 

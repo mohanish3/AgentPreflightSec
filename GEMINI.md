@@ -13,7 +13,8 @@
 - `pip install -e .`
 - `agentpreflight scan <path> [--profile dev|balanced|strict] [--fail-on low|medium|high|critical]`
 - `agentpreflight scan <path> --fail-on-score 70`  # fail if trust_score < 70
-- `agentpreflight scan <path> --format json|sarif|markdown [--output file]`
+- `agentpreflight scan <path> --format json|sarif|markdown|github [--output file]`
+- `agentpreflight scan <path> --list-files`  # print affected file paths only (CI-scriptable)
 - `agentpreflight fix <path> --apply`
 - `agentpreflight fix <path> --codex`  # Codex AI patches (requires OPENAI_API_KEY)
 - `agentpreflight rules list --description`  # include description column in table
@@ -35,6 +36,8 @@
 - `--fail-on-score <int>` (1-100): gates CI on trust score; complementary to `--fail-on` severity
 - `--description` on `rules list`: adds truncated description column to table output
 - `--applies-to <type>` on `rules list`: filters rules by artifact type (code_py, skill_md, mcp_config, etc.); rules with `*` in applies_to always match
+- `--list-files` on `scan`: prints paths of affected files one per line; suppresses table output; exit code still controlled by `--fail-on`/`--fail-on-score`
+- `--format github` on `scan`: GitHub Actions annotation format (`::error`/`::warning`/`::notice`) for inline PR diff comments
 
 ## Security Rules
 
