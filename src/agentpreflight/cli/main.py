@@ -269,6 +269,8 @@ def scan(
         _render_table(result, max_rows=top)
         if verbose and not quiet:
             _print_snippets(result.findings)
+        if fail_on and _should_fail(result.findings, fail_on):
+            console.print(f"[bold red]FAIL[/bold red] threshold={fail_on} exceeded")
 
     if not quiet:
         if output:
@@ -531,6 +533,11 @@ def list_rules(
             ", ".join(sorted(rule.applies_to)),
         )
     console.print(table)
+    is_filtered = severity is not None or category is not None
+    if is_filtered:
+        console.print(f"[dim]{len(rules)} of {len(ALL_RULES)} rules[/dim]")
+    else:
+        console.print(f"[dim]{len(ALL_RULES)} rules[/dim]")
 
 
 @rules_app.command("search")
@@ -564,6 +571,7 @@ def search_rules(
             ", ".join(sorted(rule.applies_to)),
         )
     console.print(table)
+    console.print(f"[dim]{len(matched)} of {len(ALL_RULES)} rules[/dim]")
 
 
 @app.command()
