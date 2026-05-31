@@ -224,6 +224,7 @@ def scan(
     exclude: list[str] = typer.Option([], "--exclude", "-x", help="Glob patterns to exclude (e.g. 'tests/**' 'docs/')."),
     top: int = typer.Option(_MAX_TABLE_ROWS, "--top", help="Max findings rows in table (0 = unlimited)."),
     no_banner: bool = typer.Option(False, "--no-banner", help="Suppress the ASCII art banner (useful in scripts)."),
+    exit_zero: bool = typer.Option(False, "--exit-zero", help="Always exit 0 even when --fail-on threshold is met (affects exit code only)."),
 ) -> None:
     if profile not in {"dev", "balanced", "strict"}:
         raise typer.BadParameter("profile must be dev, balanced, or strict")
@@ -284,7 +285,7 @@ def scan(
             if not rendered.endswith("\n"):
                 sys.stdout.write("\n")
 
-    if _should_fail(result.findings, fail_on):
+    if _should_fail(result.findings, fail_on) and not exit_zero:
         raise typer.Exit(1)
 
 
