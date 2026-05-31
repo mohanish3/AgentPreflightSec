@@ -171,7 +171,7 @@ def _render_table(result, max_rows: int = _MAX_TABLE_ROWS) -> None:
     console.print(
         f"summary critical={result.summary['critical']} high={result.summary['high']} "
         f"medium={result.summary['medium']} low={result.summary['low']} "
-        f"suppressed={result.summary.get('suppressed', 0)} artifacts={result.summary['artifacts_scanned']}"
+        f"suppressed={result.summary.get('suppressed', 0)} artifacts={result.summary['artifacts_scanned']} rules={len(ALL_RULES)}"
     )
     _render_score_breakdown(result)
     if not result.findings:
@@ -258,6 +258,7 @@ def scan(
             f"trust_score=[bold {verdict_color}]{result.trust_score}[/bold {verdict_color}]"
             f" verdict=[bold {verdict_color}]{result.verdict}[/bold {verdict_color}]"
             f" findings={len(result.findings)}"
+            f" suppressed={result.summary.get('suppressed', 0)}"
             f" profile={result.profile}"
         )
     elif format == OutputFormat.json:
