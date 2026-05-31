@@ -165,7 +165,8 @@ def _render_table(result, max_rows: int = _MAX_TABLE_ROWS) -> None:
     console.print(
         f"trust_score=[bold {verdict_color}]{result.trust_score}[/bold {verdict_color}]"
         f" verdict=[bold {verdict_color}]{result.verdict}[/bold {verdict_color}]"
-        f" findings={len(result.findings)} affected_files={affected_files} offline={result.offline}"
+        f" findings={len(result.findings)} affected_files={affected_files}"
+        f" profile={result.profile} offline={result.offline}"
     )
     console.print(
         f"summary critical={result.summary['critical']} high={result.summary['high']} "
@@ -509,6 +510,7 @@ def rule_info(
 def list_rules(
     severity: str | None = typer.Option(None, "--severity", help="Filter by severity: low, medium, high, or critical."),
     category: str | None = typer.Option(None, "--category", help="Filter by category name (e.g. secrets, unsafe_exec, tool_poisoning)."),
+    as_json: bool = typer.Option(False, "--json", help="Output rules as JSON array for programmatic use."),
 ) -> None:
     if severity is not None:
         severity = severity.lower()
@@ -522,6 +524,22 @@ def list_rules(
             console.print(f"[red]error:[/red] invalid category {category!r} — known: {', '.join(sorted(known_categories))}")
             raise typer.Exit(1)
     rules = [r for r in ALL_RULES if (severity is None or r.severity == severity) and (category is None or r.category == category)]
+    if as_json:
+        import json as _json
+        sys.stdout.write(_json.dumps([
+            {
+                "id": r.id,
+                "severity": r.severity,
+                "category": r.category,
+                "applies_to": sorted(r.applies_to),
+                "description": r.description,
+                "remediation": r.remediation,
+                "references": list(r.references),
+            }
+            for r in rules
+        ], indent=2))
+        sys.stdout.write("\n")
+        return
     table = Table(show_header=True, header_style="bold")
     table.add_column("Rule")
     table.add_column("Severity", min_width=8)
