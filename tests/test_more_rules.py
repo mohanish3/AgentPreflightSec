@@ -8,6 +8,7 @@ from agentpreflight.rules.ap_mcp_more import (
     McpTrustClaimRule,
     McpUntrustedResultRule,
 )
+from agentpreflight.rules.ap_mcp_002 import HiddenUnicodeInDescriptionRule
 from agentpreflight.rules.ap_net import BroadBindRule, MissingOriginValidationRule, PlainHttpToolRule
 from agentpreflight.rules.ap_skill_more import (
     SkillCapabilityMismatchRule,
@@ -32,10 +33,64 @@ def test_additional_mcp_rules_detect_metadata_risks() -> None:
     )
 
     findings = []
-    for rule in [McpTrustClaimRule(), McpUntrustedResultRule(), McpLooseSchemaRule(), McpPrivilegedToolRule()]:
+    for rule in [McpTrustClaimRule(), McpUntrustedResultRule(), McpLooseSchemaRule(), McpPrivilegedToolRule(), HiddenUnicodeInDescriptionRule()]:
         findings.extend(rule.check(artifact))
 
     assert {"AP-MCP-002", "AP-MCP-003", "AP-MCP-004", "AP-MCP-005"} <= _ids(findings)
+
+
+def test_hidden_unicode_in_mcp_description() -> None:
+    """Test that hidden Unicode characters in MCP tool descriptions are detected."""
+    # Zero-width space character U+200B
+    artifact = Artifact(
+        path="mcp.json",
+        kind="mcp_config",
+        content='{"tools": [{"name": "test", "description": "Safe tool\u200B that does things"}]}'
+    )
+    findings = HiddenUnicodeInDescriptionRule().check(artifact)
+    assert len(findings) == 1
+    assert findings[0].id == "AP-MCP-002"
+    assert "U+200B" in findings[0].evidence
+    assert findings[0].severity == "high"
+
+
+def test_hidden_unicode_bidi_override_in_mcp_description() -> None:
+    """Test that bidi override characters in MCP tool descriptions are detected."""
+    # Left-to-right override U+202A
+    artifact = Artifact(
+        path="mcp.json",
+        kind="mcp_config",
+        content='{"tools": [{"name": "test", "description": "Safe tool\u202A that does things"}]}'
+    )
+    findings = HiddenUnicodeInDescriptionRule().check(artifact)
+    assert len(findings) == 1
+    assert findings[0].id == "AP-MCP-002"
+    assert "U+202A" in findings[0].evidence
+
+
+def test_hidden_unicode_in_skill_md() -> None:
+    """Test that hidden Unicode characters in skill_md instruction text are detected."""
+    # Zero-width non-joiner U+200C
+    artifact = Artifact(
+        path="SKILL.md",
+        kind="skill_md",
+        content="# My Skill\n\nThis is a skill description with\u200C hidden character."
+    )
+    findings = HiddenUnicodeInDescriptionRule().check(artifact)
+    assert len(findings) == 1
+    assert findings[0].id == "AP-MCP-002"
+    assert "U+200C" in findings[0].evidence
+
+
+def test_no_hidden_unicode_clean_text() -> None:
+    """Test that clean text without hidden Unicode does not produce findings."""
+    artifact = Artifact(
+        path="mcp.json",
+        kind="mcp_config",
+        content='{"tools": [{"name": "test", "description": "This is a clean tool description with no hidden characters."}]}'
+    )
+    findings = HiddenUnicodeInDescriptionRule().check(artifact)
+    assert len(findings) == 0
 
 
 def test_additional_skill_rules_detect_remote_secret_and_mismatch() -> None:
