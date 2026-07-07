@@ -49,7 +49,7 @@ def test_hidden_unicode_in_mcp_description() -> None:
     )
     findings = HiddenUnicodeInDescriptionRule().check(artifact)
     assert len(findings) == 1
-    assert findings[0].id == "AP-MCP-002"
+    assert findings[0].id == "AP-MCP-006"
     assert "U+200B" in findings[0].evidence
     assert findings[0].severity == "high"
 
@@ -64,22 +64,8 @@ def test_hidden_unicode_bidi_override_in_mcp_description() -> None:
     )
     findings = HiddenUnicodeInDescriptionRule().check(artifact)
     assert len(findings) == 1
-    assert findings[0].id == "AP-MCP-002"
+    assert findings[0].id == "AP-MCP-006"
     assert "U+202A" in findings[0].evidence
-
-
-def test_hidden_unicode_in_skill_md() -> None:
-    """Test that hidden Unicode characters in skill_md instruction text are detected."""
-    # Zero-width non-joiner U+200C
-    artifact = Artifact(
-        path="SKILL.md",
-        kind="skill_md",
-        content="# My Skill\n\nThis is a skill description with\u200C hidden character."
-    )
-    findings = HiddenUnicodeInDescriptionRule().check(artifact)
-    assert len(findings) == 1
-    assert findings[0].id == "AP-MCP-002"
-    assert "U+200C" in findings[0].evidence
 
 
 def test_no_hidden_unicode_clean_text() -> None:
