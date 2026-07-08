@@ -1,4 +1,4 @@
-"""AP-CODE-004: Remote fetch and execute — curl/wget piped to shell, eval of remote content."""
+"""AP-CODE-006: Remote fetch and execute — curl/wget piped to shell, eval of remote content."""
 from __future__ import annotations
 import re
 
@@ -17,7 +17,7 @@ _PATTERNS = [
 
 
 class RemoteFetchExecRule(Rule):
-    id = "AP-CODE-004"
+    id = "AP-CODE-006"
     severity = "high"
     category = "remote_exec"
     applies_to = {"code_py", "code_js", "skill_md", "markdown", "other"}
@@ -39,7 +39,7 @@ class RemoteFetchExecRule(Rule):
                         fix="Download to a file first, verify checksum, review content, and use a whitelist of trusted sources.",
                         fix_available=True,
                         fix_mode="codex_patch",
-                        references=["Snyk ToxicSkills", "AP-CODE-004", "CWE-494"],
+                        references=["Snyk ToxicSkills", "AP-CODE-006", "CWE-494"],
                     ))
                     break
         return findings

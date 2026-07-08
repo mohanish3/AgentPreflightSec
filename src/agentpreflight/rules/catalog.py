@@ -2,7 +2,7 @@ from agentpreflight.rules.engine import Rule
 from agentpreflight.rules.ap_code_001 import UnsafeShellRule
 from agentpreflight.rules.ap_code_002 import DynamicCodeExecRule
 from agentpreflight.rules.ap_code_003 import RemoteScriptExecRule
-from agentpreflight.rules.ap_code_004 import RemoteFetchExecRule
+from agentpreflight.rules.ap_code_006 import RemoteFetchExecRule
 from agentpreflight.rules.ap_code_more import ArbitraryFileAccessRule, NetworkExfiltrationRule
 from agentpreflight.rules.ap_mcp_more import (
     McpLooseSchemaRule,
