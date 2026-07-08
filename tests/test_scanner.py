@@ -57,7 +57,6 @@ def test_cli_fail_on_high_exits_nonzero() -> None:
     assert "trust_score=" in result.output
 
 
-<<<<<<< HEAD
 def test_quiet_flag_prints_single_line() -> None:
     runner = CliRunner()
     result = runner.invoke(app, ["scan", str(ROOT / "demo" / "poisoned"), "--quiet"])
@@ -79,8 +78,6 @@ def test_verbose_flag_shows_risk_and_fix() -> None:
     assert "fix:" in result.output
 
 
-=======
->>>>>>> origin/main
 def test_fix_loop_turns_poisoned_copy_clean(tmp_path: Path) -> None:
     target = tmp_path / "poisoned"
     shutil.copytree(ROOT / "demo" / "poisoned", target)

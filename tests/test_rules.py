@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from agentpreflight.models import Artifact
 from agentpreflight.rules.ap_skill_002 import HiddenUnicodeRule
-<<<<<<< HEAD
 from agentpreflight.rules.ap_sec_001 import PrivateKeyRule
 from agentpreflight.rules.ap_sec_002 import ApiTokenRule, EnvFileRule
 from agentpreflight.rules.ap_code_001 import UnsafeShellRule
@@ -26,21 +25,10 @@ from agentpreflight.scorer.trust_score import score, verdict
 def test_hidden_unicode_rule_detects_zero_width() -> None:
     artifact = Artifact(path="SKILL.md", kind="skill_md", content="visible​hidden")
     findings = HiddenUnicodeRule().check(artifact)
-=======
-from agentpreflight.scorer.trust_score import score, verdict
-
-
-def test_hidden_unicode_rule_detects_zero_width() -> None:
-    artifact = Artifact(path="SKILL.md", kind="skill_md", content="visible\u200bhidden")
-
-    findings = HiddenUnicodeRule().check(artifact)
-
->>>>>>> origin/main
     assert len(findings) == 1
     assert findings[0].id == "AP-SKILL-002"
 
 
-<<<<<<< HEAD
 def test_hidden_unicode_no_false_positive() -> None:
     artifact = Artifact(path="SKILL.md", kind="skill_md", content="clean text with no hidden chars")
     assert HiddenUnicodeRule().check(artifact) == []
@@ -220,14 +208,3 @@ def test_verdict_thresholds() -> None:
     assert verdict(70) == "warn"
     assert verdict(69) == "fail"
     assert verdict(0) == "fail"
-=======
-def test_scoring_caps_critical_to_50() -> None:
-    artifact = Artifact(path="SKILL.md", kind="skill_md", content="visible\u200bhidden")
-    finding = HiddenUnicodeRule().check(artifact)[0]
-    finding.severity = "critical"
-
-    detail = score([finding])
-
-    assert detail.final == 50
-    assert verdict(detail.final) == "fail"
->>>>>>> origin/main
