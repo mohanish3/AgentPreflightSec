@@ -1,0 +1,3 @@
+AgentPreflight target=/workspace/AgentPreflightSec/demo/clean
+trust_score=100 verdict=pass findings=0 offline=True
+summary critical=0 high=0 medium=0 low=0 suppressed=0 artifacts=4
