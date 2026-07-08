@@ -1,45 +1,74 @@
 # Scoring Formula: Risk Weighting & Trust Calculation
 
-This document defines the mathematical models used by **AgentPreflight** to calculate a repository's **Trust Score (0 - 100)** based on static rule violations.
+This document defines the mathematical model used by **AgentPreflight** to calculate a repository's **Trust Score (0–100)** based on static rule violations.
 
 ---
 
 ## 1. Core Trust Score Formula
 
-The baseline score of a clean, unviolated repository is **100**. For each violation detected, the scoring engine applies a penalty based on severity. The final score cannot fall below **0**:
+Baseline score for a clean repository is **100**. Each violation deducts points by severity. Final score cannot fall below **0**:
 
-$$\text{Trust Score} = \max\left(0, 100 - \sum (\text{Penalty}_{\text{Severity}})\right)$$
+```
+Trust Score = max(0, 100 − Σ(Penalty per finding))
+```
 
 ---
 
 ## 2. Severity Penalties
 
-We assign standard, static weights to each severity classification:
+| Severity | Points deducted per finding |
+|---|---|
+| Critical | −30 |
+| High | −15 |
+| Medium | −7 |
+| Low | −2 |
 
-- **Critical**: **30 Points** (High execution hazard, e.g. command injection, prompt-injected override)
-- **High**: **15 Points** (System boundary exposure, e.g. hardcoded secrets, zero-width obfuscation)
-- **Medium**: **5 Points** (Transport vulnerability, e.g. broad network binds, missing auth)
-- **Low**: **1 Point** (Minor posture observations, e.g. missing metadata tags)
+In `--profile strict` mode, medium findings are treated as high for scoring purposes.
 
 ---
 
-## 3. Decaying Compounding Violations
+## 3. Hard Caps
 
-To prevent a repository from bottoming out at 0 due to repetitive occurrences of the same finding (for example, 5 separate warnings of the same localhost bind), we apply a **decay coefficient** ($\delta = 0.5$) for secondary instances of a specific Rule ID:
+Caps apply after deductions. Multiple caps stack (lowest wins):
 
-$$\text{Total Penalty}_{\text{Rule ID}} = \text{Penalty}_{\text{Base}} \times \left(1 + \sum_{i=2}^{N} \delta^{i-1}\right)$$
+| Condition | Score cap |
+|---|---|
+| Any critical finding | ≤ 50 |
+| ≥ 3 high findings | ≤ 60 |
+| Any secrets finding | ≤ 55 |
+| Unsafe shell + network egress combo | ≤ 45 |
+| Unicode smuggling + prompt override combo | ≤ 50 |
+| Privileged access + remote fetch combo | ≤ 45 |
 
-Where:
-- $\text{Penalty}_{\text{Base}}$ is the standard penalty weight for the rule's severity.
-- $N$ is the count of occurrences of that specific Rule ID.
-- $\delta$ is the decay factor (fixed at `0.5`).
+A repository with a critical tool poisoning finding and clean everything else still cannot score above 50. No critical MCP flaw passes.
 
-### Example Calculation:
-If a scan finds **three High** violations of `AP-SR-001` (Secrets):
-- 1st finding: $15$ points
-- 2nd finding: $15 \times 0.5 = 7.5$ points
-- 3rd finding: $15 \times 0.25 = 3.75$ points
-- **Total deduction**: $15 + 7.5 + 3.75 = 26.25 \to 26$ points.
-- **Trust Score**: $100 - 26 = 74$.
+---
 
-This compounding decay model ensures the score is highly reflective of overall project security without penalizing repeating instances excessively.
+## 4. Verdict Thresholds
+
+| Score | Verdict | CI outcome |
+|---|---|---|
+| 85–100 | pass | Exit 0 |
+| 70–84 | warn | Exit 0 (warning logged) |
+| 0–69 | fail | Exit 1 when `--fail-on` threshold met |
+
+`--fail-on high` exits 1 if any high or critical findings exist, independent of score.
+
+---
+
+## 5. Example
+
+Scan of `demo/poisoned` under `--profile strict`:
+
+| Finding | Severity | Deduction |
+|---|---|---|
+| AP-MCP-001: prompt override in tool description | critical | −30 |
+| AP-CODE-001: os.system with user input | critical | −30 |
+| AP-CODE-003: curl \| bash remote pipe | high | −15 |
+| AP-SEC-002: API token in .env | high | −15 |
+| AP-SKILL-002: zero-width Unicode in SKILL.md | high | −15 |
+| ... (10 more findings) | ... | ... |
+
+Raw = 100 − (60 + 45 + ...) → 0 → cap at 50 (critical) → final = 0 (raw already ≤ 0)
+
+Result: `trust_score=0 verdict=fail`
