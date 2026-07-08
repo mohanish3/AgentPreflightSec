@@ -6,75 +6,69 @@ This document defines the mathematical model used by **AgentPreflight** to calcu
 
 ## 1. Core Trust Score Formula
 
-The baseline score of a clean, unviolated repository is **100**. For each violation detected, the scoring engine applies a flat penalty based on severity. The final score cannot fall below **0**:
+Baseline score for a clean repository is **100**. Each violation deducts points by severity. Final score cannot fall below **0**:
 
 ```
-Trust Score = max(0, 100 − Σ Penalty(severity_i))
-```
-
-Under `--profile strict`, medium findings are escalated to high before deduction:
-
-```
-effective_severity = "high" if (profile == "strict" and severity == "medium") else severity
+Trust Score = max(0, 100 − Σ(Penalty per finding))
 ```
 
 ---
 
 ## 2. Severity Penalties
 
-Each finding deducts a flat penalty regardless of how many times the same rule fires:
-
-| Severity | Points deducted |
+| Severity | Points deducted per finding |
 |---|---|
-| Critical | 30 |
-| High | 15 |
-| Medium | 7 |
-| Low | 2 |
+| Critical | −30 |
+| High | −15 |
+| Medium | −7 |
+| Low | −2 |
+
+In `--profile strict` mode, medium findings are treated as high for scoring purposes.
 
 ---
 
 ## 3. Hard Caps
 
-After deductions, combo caps apply if certain dangerous conditions are present:
+Caps apply after deductions. Multiple caps stack (lowest wins):
 
 | Condition | Score cap |
 |---|---|
 | Any critical finding | ≤ 50 |
-| 3 or more high findings | ≤ 60 |
-| Any secret finding (AP-SEC-001/002) | ≤ 55 |
-| Unsafe shell + network egress (AP-CODE-001 + AP-CODE-005/AP-NET-001) | ≤ 45 |
-| Hidden Unicode + prompt override (AP-SKILL-002 + AP-MCP-001/AP-SKILL-001) | ≤ 50 |
-| Privileged tool + remote fetch (AP-MCP-005 + AP-SKILL-003/AP-CODE-003) | ≤ 45 |
+| ≥ 3 high findings | ≤ 60 |
+| Any secrets finding | ≤ 55 |
+| Unsafe shell + network egress combo | ≤ 45 |
+| Unicode smuggling + prompt override combo | ≤ 50 |
+| Privileged access + remote fetch combo | ≤ 45 |
 
-Multiple caps trigger independently; the lowest applies.
+A repository with a critical tool poisoning finding and clean everything else still cannot score above 50. No critical MCP flaw passes.
 
 ---
 
-## 4. Verdicts
+## 4. Verdict Thresholds
 
-| Score range | Verdict |
-|---|---|
-| 85–100 | pass |
-| 70–84 | warn |
-| 0–69 | fail |
+| Score | Verdict | CI outcome |
+|---|---|---|
+| 85–100 | pass | Exit 0 |
+| 70–84 | warn | Exit 0 (warning logged) |
+| 0–69 | fail | Exit 1 when `--fail-on` threshold met |
+
+`--fail-on high` exits 1 if any high or critical findings exist, independent of score.
 
 ---
 
 ## 5. Example
 
-Repository with 2 critical + 3 high + 1 medium findings (balanced profile):
+Scan of `demo/poisoned` under `--profile strict`:
 
-```
-Deductions: 2×30 + 3×15 + 1×7 = 60 + 45 + 7 = 112
-Raw: max(0, 100 − 112) = 0
-Trust Score: 0   verdict: fail
-```
+| Finding | Severity | Deduction |
+|---|---|---|
+| AP-MCP-001: prompt override in tool description | critical | −30 |
+| AP-CODE-001: os.system with user input | critical | −30 |
+| AP-CODE-003: curl \| bash remote pipe | high | −15 |
+| AP-SEC-002: API token in .env | high | −15 |
+| AP-SKILL-002: zero-width Unicode in SKILL.md | high | −15 |
+| ... (10 more findings) | ... | ... |
 
-Repository with 1 high + 2 medium findings (balanced profile):
+Raw = 100 − (60 + 45 + ...) → 0 → cap at 50 (critical) → final = 0 (raw already ≤ 0)
 
-```
-Deductions: 1×15 + 2×7 = 15 + 14 = 29
-Raw: 100 − 29 = 71
-No caps triggered.
-Trust Score: 71   verdict: warn
-```
+Result: `trust_score=0 verdict=fail`
