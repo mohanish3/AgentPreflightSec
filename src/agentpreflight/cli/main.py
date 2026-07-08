@@ -10,6 +10,7 @@ from rich.console import Console
 from rich.table import Table
 
 from agentpreflight import __version__
+from agentpreflight.remediator.codex_fix import run_codex_fix
 from agentpreflight.remediator.local_fix import apply_local_fixes
 from agentpreflight.remediator.prompt_builder import build_prompt_pack
 from agentpreflight.reporters import json_reporter, markdown_reporter, sarif_reporter
@@ -31,26 +32,15 @@ class OutputFormat(str, Enum):
 
 _SEVERITY_RANK = {"low": 1, "medium": 2, "high": 3, "critical": 4}
 
-# Under strict profile, medium findings are treated as high for fail-on evaluation.
-_STRICT_ESCALATE = {"medium": "high"}
 
-
-def _should_fail(findings, fail_on: str | None, profile: str = "balanced") -> bool:
+def _should_fail(findings, fail_on: str | None) -> bool:
     if not fail_on:
         return False
     threshold = _SEVERITY_RANK[fail_on]
-    for f in findings:
-        effective = _STRICT_ESCALATE.get(f.severity, f.severity) if profile == "strict" else f.severity
-        if _SEVERITY_RANK[effective] >= threshold:
-            return True
-    return False
+    return any(_SEVERITY_RANK[f.severity] >= threshold for f in findings)
 
 
-def _render_quiet(result) -> None:
-    console.print(f"trust_score={result.trust_score} verdict={result.verdict} findings={len(result.findings)}")
-
-
-def _render_table(result, verbose: bool = False) -> None:
+def _render_table(result) -> None:
     color = "green" if result.verdict == "pass" else "yellow" if result.verdict == "warn" else "red"
     console.print(f"[bold]AgentPreflight[/bold] target={result.target}")
     console.print(f"trust_score=[bold {color}]{result.trust_score}[/bold {color}] verdict=[bold {color}]{result.verdict}[/bold {color}] findings={len(result.findings)} offline={result.offline}")
@@ -76,13 +66,6 @@ def _render_table(result, verbose: bool = False) -> None:
             finding.evidence,
         )
     console.print(table)
-    if verbose:
-        for finding in result.findings[:12]:
-            console.print(f"\n[bold]{finding.id}[/bold] {finding.title}")
-            console.print(f"  risk: {finding.risk}")
-            console.print(f"  fix:  {finding.fix}")
-            if finding.references:
-                console.print(f"  refs: {', '.join(finding.references)}")
     fixable = sum(1 for f in result.findings if f.fix_available)
     if fixable:
         console.print(f"fix_available={fixable} run: agentpreflight fix {result.target}")
@@ -103,8 +86,6 @@ def scan(
     format: OutputFormat = typer.Option(OutputFormat.table, "--format"),
     output: Path | None = typer.Option(None, "--output", "-o", help="Write JSON/SARIF output to file."),
     suppressions: Path | None = typer.Option(None, "--suppressions", help="Path to .agentpreflight.json suppressions file."),
-    quiet: bool = typer.Option(False, "--quiet", "-q", help="Print only trust_score, verdict, and finding count."),
-    verbose: bool = typer.Option(False, "--verbose", "-v", help="Show full evidence, risk, fix, and references per finding."),
 ) -> None:
     if profile not in {"dev", "balanced", "strict"}:
         raise typer.BadParameter("profile must be dev, balanced, or strict")
@@ -120,10 +101,7 @@ def scan(
         rendered = markdown_reporter.render(result)
     else:
         rendered = ""
-        if quiet:
-            _render_quiet(result)
-        else:
-            _render_table(result, verbose=verbose)
+        _render_table(result)
 
     if output:
         output.write_text(rendered, encoding="utf-8")
@@ -131,7 +109,7 @@ def scan(
     elif rendered:
         console.print(rendered)
 
-    if _should_fail(result.findings, fail_on, profile=profile):
+    if _should_fail(result.findings, fail_on):
         raise typer.Exit(1)
 
 
@@ -140,11 +118,27 @@ def fix(
     target: Path = typer.Argument(..., exists=True, help="Path to scan and locally remediate."),
     rules: str | None = typer.Option(None, "--rules", help="Comma-separated rule IDs to fix."),
     apply: bool = typer.Option(False, "--apply", help="Apply local safe fixes."),
+    codex: bool = typer.Option(False, "--codex", help="Generate Codex AI patch proposals (requires OPENAI_API_KEY)."),
+    codex_model: str = typer.Option("codex-mini-latest", "--codex-model", help="OpenAI model for Codex remediation."),
 ) -> None:
     result = scan_path(target, profile="strict")
     allowed = {item.strip() for item in rules.split(",")} if rules else None
     fixable = [f for f in result.findings if f.fix_available and (not allowed or f.id in allowed)]
     console.print(f"fixable={len(fixable)} target={target}")
+
+    if codex:
+        console.print("[bold cyan]Connecting to OpenAI Codex...[/bold cyan]")
+        console.print("Scrubbing credential context from snippets... Done")
+        try:
+            patches = run_codex_fix(fixable, allowed=allowed, model=codex_model)
+        except (ImportError, ValueError) as exc:
+            console.print(f"[red]codex_error={exc}[/red]")
+            raise typer.Exit(1)
+        for patch in patches:
+            console.print(f"\n[bold yellow]CODEX PATCH[/bold yellow] {patch.finding_id} {patch.path}:{patch.line or ''}")
+            console.print(patch.proposed)
+        return
+
     if not apply:
         for finding in fixable:
             console.print(f"{finding.id} {finding.path}:{finding.line or ''} -> {finding.fix}")
