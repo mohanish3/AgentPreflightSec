@@ -33,9 +33,10 @@ def build_prompt_pack(findings: list[Finding], max_findings: int = 10) -> str:
 
 def _prompt_for_finding(finding: Finding) -> str:
     snippet = _snippet(finding)
+    filename = Path(finding.path).name
     return "\n".join([
         "[CONTEXT]",
-        f"File: {finding.path}",
+        f"File: {filename}",
         f"Line: {finding.line or 'unknown'}",
         f"Rule ID: {finding.id}",
         f"Severity: {finding.severity}",
