@@ -32,15 +32,12 @@ def _classify(path: Path) -> str | None:
         return "mcp_config"
     if suffix in (".json", ".yaml", ".yml", ".toml"):
         return "config"
-<<<<<<< HEAD
     if name in ("requirements.txt", "requirements-dev.txt", "requirements_dev.txt", "requirements_test.txt", "requirements-test.txt"):
         return "dep_requirements"
     if name in ("package-lock.json",):
         return "dep_lock"
     if name in ("pipfile.lock", "poetry.lock"):
         return "dep_lock"
-=======
->>>>>>> origin/main
     return None
 
 
