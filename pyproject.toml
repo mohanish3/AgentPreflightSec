@@ -28,6 +28,10 @@ api = [
     "uvicorn>=0.30",
 ]
 
+codex = [
+    "openai>=1.0",
+]
+
 [tool.setuptools.packages.find]
 where = ["src"]
 
