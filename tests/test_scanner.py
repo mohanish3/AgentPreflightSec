@@ -70,6 +70,7 @@ def test_fix_loop_turns_poisoned_copy_clean(tmp_path: Path) -> None:
     assert fixed.exit_code == 0
     assert after.trust_score == 100
     assert after.findings == []
+<<<<<<< HEAD
 
 
 def test_cli_table_shows_truncation_hint_when_findings_exceed_limit(tmp_path: Path) -> None:
@@ -82,3 +83,5 @@ def test_cli_table_shows_truncation_hint_when_findings_exceed_limit(tmp_path: Pa
 
     assert "showing 12 of" in result.output
     assert "--format json" in result.output
+=======
+>>>>>>> origin/main
