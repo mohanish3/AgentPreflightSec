@@ -30,28 +30,31 @@ _SKILL_RE = re.compile(
 )
 
 
+FIXABLE_RULE_IDS: frozenset[str] = frozenset({
+    "AP-MCP-001",
+    "AP-MCP-002",
+    "AP-MCP-003",
+    "AP-MCP-004",
+    "AP-SKILL-001",
+    "AP-SKILL-002",
+    "AP-SKILL-003",
+    "AP-SKILL-004",
+    "AP-SKILL-005",
+    "AP-CODE-001",
+    "AP-CODE-002",
+    "AP-CODE-003",
+    "AP-SEC-002",
+    "AP-SEC-003",
+})
+
+
 def apply_local_fixes(findings: list[Finding], allowed_rules: set[str] | None = None) -> list[str]:
     changed: list[str] = []
     by_path: dict[str, list[Finding]] = {}
     for finding in findings:
         if allowed_rules and finding.id not in allowed_rules:
             continue
-        if finding.id not in {
-            "AP-MCP-001",
-            "AP-MCP-002",
-            "AP-MCP-003",
-            "AP-MCP-004",
-            "AP-SKILL-001",
-            "AP-SKILL-002",
-            "AP-SKILL-003",
-            "AP-SKILL-004",
-            "AP-SKILL-005",
-            "AP-CODE-001",
-            "AP-CODE-002",
-            "AP-CODE-003",
-            "AP-SEC-002",
-            "AP-SEC-003",
-        }:
+        if finding.id not in FIXABLE_RULE_IDS:
             continue
         by_path.setdefault(finding.path, []).append(finding)
 

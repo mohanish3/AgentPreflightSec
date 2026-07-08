@@ -67,6 +67,7 @@ agentpreflight rules list --description               # include description colu
 agentpreflight rules list --severity critical         # filter by severity
 agentpreflight rules list --category unsafe_exec      # filter by category
 agentpreflight rules list --applies-to code_py        # filter by artifact type (code_py, skill_md, mcp_config, ...)
+agentpreflight rules list --fixable                   # show only rules that have offline deterministic fix (agentpreflight fix --apply)
 agentpreflight rules list --json                      # JSON array for programmatic use
 agentpreflight rules info AP-CODE-001          # full rule detail panel
 agentpreflight explain AP-CODE-001             # same as rules info — top-level shortcut

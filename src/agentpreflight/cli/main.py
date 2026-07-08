@@ -10,7 +10,7 @@ import typer
 from agentpreflight import __version__
 from agentpreflight.cli.repl import run_repl
 from agentpreflight.remediator.codex_fix import run_codex_fix
-from agentpreflight.remediator.local_fix import apply_local_fixes
+from agentpreflight.remediator.local_fix import FIXABLE_RULE_IDS, apply_local_fixes
 from agentpreflight.remediator.prompt_builder import build_prompt_pack
 from agentpreflight.reporters import json_reporter, markdown_reporter, sarif_reporter
 from agentpreflight.rules.catalog import ALL_RULES
@@ -564,6 +564,7 @@ def list_rules(
     applies_to: str | None = typer.Option(None, "--applies-to", help="Filter by artifact type (e.g. code_py, skill_md, mcp_config)."),
     as_json: bool = typer.Option(False, "--json", help="Output rules as JSON array for programmatic use."),
     show_description: bool = typer.Option(False, "--description", help="Add description column to table output."),
+    fixable: bool = typer.Option(False, "--fixable", help="Show only rules with a deterministic offline fix (agentpreflight fix --apply)."),
 ) -> None:
     if severity is not None:
         severity = severity.lower()
@@ -589,6 +590,7 @@ def list_rules(
         if (severity is None or r.severity == severity)
         and (category is None or r.category == category)
         and (applies_to is None or applies_to in r.applies_to or "*" in r.applies_to)
+        and (not fixable or r.id in FIXABLE_RULE_IDS)
     ]
     if as_json:
         import json as _json
@@ -626,7 +628,7 @@ def list_rules(
             row.append(escape(desc[:60] + ("…" if len(desc) > 60 else "")))
         table.add_row(*row)
     console.print(table)
-    is_filtered = severity is not None or category is not None or applies_to is not None
+    is_filtered = severity is not None or category is not None or applies_to is not None or fixable
     if is_filtered:
         console.print(f"[dim]{len(rules)} of {len(ALL_RULES)} rules[/dim]")
     else:
