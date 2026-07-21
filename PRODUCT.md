@@ -71,7 +71,7 @@ Core rule families: `tool_poisoning`, `unicode_smuggling`, `unsafe_exec`, `remot
 1. Start with repo containing poisoned MCP tool description and malicious `SKILL.md`.
 2. Run scanner. Trust score drops below threshold and CI fails.
 3. Findings show exact lines and OWASP mappings.
-4. `agentpreflight fix` generates a minimal Codex patch.
+4. `agentpreflight fix . --apply` applies deterministic local patches for flagged rules.
 5. Patch rewrites tool description, strips hidden Unicode, replaces unsafe shell usage.
 6. Rescan passes with higher trust score and SARIF report.
 
