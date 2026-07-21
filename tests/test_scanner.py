@@ -57,6 +57,19 @@ def test_cli_fail_on_high_exits_nonzero() -> None:
     assert "trust_score=" in result.output
 
 
+def test_fix_dry_run_lists_fixable_without_modifying(tmp_path: Path) -> None:
+    target = tmp_path / "poisoned"
+    shutil.copytree(ROOT / "demo" / "poisoned", target)
+    runner = CliRunner()
+
+    result = runner.invoke(app, ["fix", str(target)])
+
+    assert result.exit_code == 0
+    assert "dry_run=true" in result.output
+    after = scan_path(target, profile="strict")
+    assert after.verdict == "fail", "dry run must not modify files"
+
+
 def test_fix_loop_turns_poisoned_copy_clean(tmp_path: Path) -> None:
     target = tmp_path / "poisoned"
     shutil.copytree(ROOT / "demo" / "poisoned", target)
