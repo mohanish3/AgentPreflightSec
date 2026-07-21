@@ -11,19 +11,17 @@ trust_score=100 verdict=pass findings=0  ← after Codex fix + rescan
 
 ## Why
 
-The first confirmed malicious MCP server on npm ran for 15 versions before anyone noticed. Then, in a single commit, the attacker added one BCC line to `send_email`. Every password reset token forwarded to an attacker address. No CI check caught it.
+The first confirmed malicious MCP server on npm ran for 15 versions before anyone noticed. Then, in a single commit, the attacker added one BCC line to `send_email`. Every password reset token forwarded to an attacker address. No CI check caught it. ([Full writeup, primary source](EVIDENCE.md#4-postmark-mcp-supply-chain-attack--september-2025).)
 
-This was not isolated:
+That wasn't isolated — three more, each independently confirmed:
 
-- **14 documented MCP incidents** in 12 months (authzed.com) — WhatsApp exfiltration, GitHub MCP prompt injection exfiltrating private repo data including financial information, Asana cross-tenant data leak (~1,000 enterprise orgs, 35 days), Smithery supply-chain breach (3,000+ apps), Oura MCP malware campaign delivering StealC credential harvesters (Feb 2026), nginx-ui MCP auth bypass granting complete nginx service control across 2,600+ live infra instances (Mar 2026)
-- **36.82% of 3,984 scanned agent skills** (1,467 skills) had at least one flaw; 13.4% (534 skills) had a critical issue; 76 confirmed malicious payloads, 91% combining prompt injection with traditional malware techniques — 8 payloads still publicly available at time of publication (Snyk ToxicSkills 2025)
-- **43% of popular MCP server implementations** had command injection; Puppeteer MCP (91,000 monthly downloads) had SSRF + prompt injection + sandbox bypass — archived rather than patched. 45% of vendors dismissed Equixly's findings as "theoretical." Equixly's conclusion: "It feels like we're facing a regression in security." (March 2025)
-- **CVSS 9.6 RCE** in `mcp-remote` (437,000+ downloads) — the package Claude Desktop uses for remote MCP
-- **72.8% tool-poisoning attack success rate** against o1-mini in one evaluated setting (45 real-world servers); Claude-3.7-Sonnet refused fewer than 3% of malicious test cases (MCPTox)
-- **April 2026**: OX Security found STDIO architectural flaw across 150M+ downloads — Anthropic declined to modify the protocol
-- **Runtime defenses fail by design**: Invariant Labs demonstrated a "rug pull" — malicious server served innocent descriptions on first launch, then switched to data-exfiltrating instructions on second launch, after trust was already granted
+- **CVE-2025-6514** (CVSS 9.6): RCE in `mcp-remote`, the package Claude Desktop uses to talk to remote MCP servers — 437,000+ downloads at disclosure.
+- **Asana's MCP launch** leaked cross-tenant project data to ~1,000 enterprise customers for over a month before the tenant-isolation bug was caught (BleepingComputer, June 2025).
+- **Invariant Labs' "rug pull"** demo: a malicious server served innocent tool descriptions on first launch, then switched to data-exfiltrating instructions on the second — after trust was already granted. Runtime monitoring can't catch this; it has to be caught before the server ever runs.
 
-MCP tool descriptions are natural-language, invisible to standard CI checks. Bandit and Semgrep scan Python syntax — they do not parse the semantic content of tool metadata strings. A Postmark-style BCC injection in a tool description is invisible to every general-purpose SAST tool on the market. The MCP specification requires clients to treat tool annotations from untrusted servers as untrusted — but provides no enforcement mechanism. Anthropic declined to modify the STDIO architecture (OX Security, April 2026). The gate must be built outside the protocol layer. AgentPreflight is that gate: sub-second pre-commit/PR linter — scan → trust score → Codex patch → rescan proof. Under two minutes, entirely static — offline-first, local static file parsing with straightforward logic, never executes the server to analyze it. First to market on the complete scan-to-Codex-patch-to-rescan-proof workflow for MCP security. Conservative time model: 15 minutes saved per agent-extension PR; 30–60 minutes saved per high-risk finding when Codex suggests a targeted patch.
+Full incident list with primary sources and dates: [EVIDENCE.md](EVIDENCE.md).
+
+MCP tool descriptions are natural-language and invisible to standard CI checks — Bandit and Semgrep scan Python syntax, not the semantic content of a tool's metadata string. A Postmark-style BCC injection in a tool description passes every general-purpose SAST tool on the market. AgentPreflight is a static, offline pre-commit/PR linter built for that specific gap: scan → trust score → optional Codex-generated patch → rescan proof, in under two minutes, with zero API calls unless you opt into the `--codex` fix path.
 
 ---
 
