@@ -1,6 +1,6 @@
 # AgentPreflight
 
-Pre-deployment security scanner for MCP servers and agent skills. Finds tool poisoning, prompt injection, secrets, and unsafe code before your agent runs — offline static scan, Codex-generated fixes, rescan proof.
+Pre-deployment security scanner for MCP servers and agent skills. Finds tool poisoning, prompt injection, secrets, and unsafe code before your agent runs: offline static scan, Codex-generated fixes, rescan proof.
 
 ```
 trust_score=0 verdict=fail findings=15   ← poisoned repo
@@ -13,15 +13,15 @@ trust_score=100 verdict=pass findings=0  ← after Codex fix + rescan
 
 The first confirmed malicious MCP server on npm ran for 15 versions before anyone noticed. Then, in a single commit, the attacker added one BCC line to `send_email`. Every password reset token forwarded to an attacker address. No CI check caught it. ([Full writeup, primary source](EVIDENCE.md#4-postmark-mcp-supply-chain-attack--september-2025).)
 
-That wasn't isolated — three more, each independently confirmed:
+That wasn't isolated. Three more, each independently confirmed:
 
-- **CVE-2025-6514** (CVSS 9.6): RCE in `mcp-remote`, the package Claude Desktop uses to talk to remote MCP servers — 437,000+ downloads at disclosure.
+- **CVE-2025-6514** (CVSS 9.6): RCE in `mcp-remote`, the package Claude Desktop uses to talk to remote MCP servers (437,000+ downloads at disclosure).
 - **Asana's MCP launch** leaked cross-tenant project data to ~1,000 enterprise customers for over a month before the tenant-isolation bug was caught (BleepingComputer, June 2025).
-- **Invariant Labs' "rug pull"** demo: a malicious server served innocent tool descriptions on first launch, then switched to data-exfiltrating instructions on the second — after trust was already granted. Runtime monitoring can't catch this; it has to be caught before the server ever runs.
+- **Invariant Labs' "rug pull"** demo: a malicious server served innocent tool descriptions on first launch, then switched to data-exfiltrating instructions on the second, after trust was already granted. Runtime monitoring can't catch this; it has to be caught before the server ever runs.
 
 Full incident list with primary sources and dates: [EVIDENCE.md](EVIDENCE.md).
 
-MCP tool descriptions are natural-language and invisible to standard CI checks — Bandit and Semgrep scan Python syntax, not the semantic content of a tool's metadata string. A Postmark-style BCC injection in a tool description passes every general-purpose SAST tool on the market. AgentPreflight is a static, offline pre-commit/PR linter built for that specific gap: scan → trust score → optional Codex-generated patch → rescan proof, in under two minutes, with zero API calls unless you opt into the `--codex` fix path.
+MCP tool descriptions are natural-language and invisible to standard CI checks: Bandit and Semgrep scan Python syntax, not the semantic content of a tool's metadata string. A Postmark-style BCC injection in a tool description passes every general-purpose SAST tool on the market. AgentPreflight is a static, offline pre-commit/PR linter built for that specific gap: scan → trust score → optional Codex-generated patch → rescan proof, in under two minutes, with zero API calls unless you opt into the `--codex` fix path.
 
 ---
 
@@ -41,7 +41,7 @@ export OPENAI_API_KEY=<your-key>
 ## 90-Second Demo
 
 ```bash
-# scan a poisoned MCP repo — expect fail
+# scan a poisoned MCP repo, expect fail
 agentpreflight scan demo/poisoned --profile strict --fail-on high
 
 # get Codex AI patch proposals (requires OPENAI_API_KEY)
@@ -51,11 +51,11 @@ agentpreflight fix demo/poisoned --rules AP-MCP-001 --codex
 cp -r demo/poisoned /tmp/fix-demo
 agentpreflight fix /tmp/fix-demo --apply
 
-# rescan — expect pass
+# rescan, expect pass
 agentpreflight scan /tmp/fix-demo --profile strict
 ```
 
-All output above is real, verified output — see `validation/poisoned-scan.txt`, `validation/fix-proof-*/`, and `validation/clean-scan.txt`.
+All output above is real, verified output: see `validation/poisoned-scan.txt`, `validation/fix-proof-*/`, and `validation/clean-scan.txt`.
 
 ---
 
@@ -123,7 +123,7 @@ Full workflow: `.github/workflows/agentpreflight.yml`
 
 ## Suppression File
 
-`.agentpreflight.json` at repo root — auto-detected:
+`.agentpreflight.json` at repo root, auto-detected:
 
 ```json
 {
@@ -206,7 +206,7 @@ agentpreflight scan (rescan):
 ```
 
 Scan path: offline by default, no model calls, no token cost.  
-Fix path: `--codex` sends a 5-line code window around the violation (redacted — no secrets, no file paths) to `codex-mini-latest`. Code rewriting is cheap; the scarce resource is *selection* — which of the infinite possible rewrites is minimal, compilable, and review-ready. Codex makes that call.  
+Fix path: `--codex` sends a 5-line code window around the violation (redacted: no secrets, no file paths) to `codex-mini-latest`. Code rewriting is cheap; the scarce resource is *selection*: which of the infinite possible rewrites is minimal, compilable, and review-ready. Codex makes that call.  
 CI path: `--fail-on high` exits 1 on violations; trust score thresholds: 85+=pass, 70–84=warn, <70=fail (critical finding caps at 50; secrets cap at 55; 3+ high cap at 60; combo caps lower); critical rules: AP-CODE-001 (unsafe shell), AP-CODE-003 (remote pipe exec), AP-SEC-001 (private key); SARIF uploads to GitHub Security tab.
 
 ---
@@ -215,8 +215,8 @@ CI path: `--fail-on high` exits 1 on violations; trust score thresholds: 85+=pas
 
 | File | Contents |
 |---|---|
-| `briefs/winner-product-brief.md` | Full product brief — problem, solution, Codex integration, why this wins |
-| `briefs/investor-one-pager.md` | Investment brief — competitive position, proof, ICP |
+| `briefs/winner-product-brief.md` | Full product brief: problem, solution, Codex integration, why this wins |
+| `briefs/investor-one-pager.md` | Investment brief: competitive position, proof, ICP |
 | `briefs/submission-summary.md` | Devpost/Luma submission entry |
 | `briefs/pitch-deck.md` | 4-slide pitch deck |
 | `PRODUCT.md` | Build plan, MVP scope, success metrics |
