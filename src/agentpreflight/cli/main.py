@@ -171,7 +171,8 @@ def bench(
         f"bench target={target} runs={runs} avg={avg:.3f}s "
         f"min={min(times):.3f}s max={max(times):.3f}s "
         f"artifacts={result.summary['artifacts_scanned'] if result else 0} "
-        f"rules={len(ALL_RULES)}"
+        f"rules={len(ALL_RULES)}",
+        soft_wrap=True,
     )
 
 
