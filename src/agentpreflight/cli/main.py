@@ -180,7 +180,7 @@ def bench(
 def prompts(
     target: Path = typer.Argument(..., exists=True, help="Path to scan and build remediation prompts for."),
     output: Path | None = typer.Option(None, "--output", "-o", help="Write prompt pack to file."),
-    max_findings: int = typer.Option(10, "--max-findings", help="Maximum fixable findings to include."),
+    max_findings: int = typer.Option(15, "--max-findings", help="Maximum fixable findings to include."),
 ) -> None:
     result = scan_path(target, profile="strict")
     rendered = build_prompt_pack(result.findings, max_findings=max_findings)
