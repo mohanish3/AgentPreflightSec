@@ -52,12 +52,14 @@ def _apply_caps(score: int, findings: list[Finding]) -> tuple[int, list[str]]:
 def score(findings: list[Finding], profile: str = "balanced") -> ScoreDetail:
     base = 100
     deduction_log: dict[str, int] = {"critical": 0, "high": 0, "medium": 0, "low": 0}
+    severity_counts: dict[str, int] = {"critical": 0, "high": 0, "medium": 0, "low": 0}
 
     for f in findings:
         sev = f.severity
         if profile == "strict" and sev == "medium":
             sev = "high"
-        deduction_log[f.severity] += DEDUCTIONS.get(sev, 0)
+        deduction_log[sev] += DEDUCTIONS.get(sev, 0)
+        severity_counts[sev] += 1
 
     raw = base - sum(deduction_log.values())
     raw = max(0, raw)
@@ -65,7 +67,7 @@ def score(findings: list[Finding], profile: str = "balanced") -> ScoreDetail:
     raw, caps_applied = _apply_caps(raw, findings)
 
     deductions_list = [
-        {"severity": sev, "count": sum(1 for f in findings if f.severity == sev), "points": pts}
+        {"severity": sev, "count": severity_counts[sev], "points": pts}
         for sev, pts in deduction_log.items()
         if pts > 0
     ]
