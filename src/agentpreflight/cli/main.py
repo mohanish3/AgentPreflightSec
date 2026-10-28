@@ -167,9 +167,11 @@ def bench(
         times.append(elapsed)
         console.print(f"run={i+1} elapsed={elapsed:.3f}s artifacts={result.summary['artifacts_scanned']} findings={len(result.findings)}")
     avg = sum(times) / len(times)
+    console.print(f"bench target={target}", soft_wrap=True)
     console.print(
-        f"bench target={target} runs={runs} avg={avg:.3f}s "
-        f"min={min(times):.3f}s max={max(times):.3f}s "
+        f"runs={runs} avg={avg:.3f}s min={min(times):.3f}s max={max(times):.3f}s"
+    )
+    console.print(
         f"artifacts={result.summary['artifacts_scanned'] if result else 0} "
         f"rules={len(ALL_RULES)}"
     )
@@ -179,7 +181,7 @@ def bench(
 def prompts(
     target: Path = typer.Argument(..., exists=True, help="Path to scan and build remediation prompts for."),
     output: Path | None = typer.Option(None, "--output", "-o", help="Write prompt pack to file."),
-    max_findings: int = typer.Option(10, "--max-findings", help="Maximum fixable findings to include."),
+    max_findings: int = typer.Option(20, "--max-findings", help="Maximum fixable findings to include."),
 ) -> None:
     result = scan_path(target, profile="strict")
     rendered = build_prompt_pack(result.findings, max_findings=max_findings)

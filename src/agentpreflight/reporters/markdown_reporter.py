@@ -28,7 +28,7 @@ def render(result: ScanResult) -> str:
         lines.append(f"- Suppressed: {suppressed}")
     if result.findings:
         lines.extend(["", "### Top findings", ""])
-        for finding in result.findings[:10]:
+        for finding in result.findings[:20]:
             location = Path(finding.path).name
             if finding.line:
                 location = f"{location}:{finding.line}"
