@@ -93,3 +93,73 @@ def test_markdown_reporter_outputs_pr_scorecard() -> None:
     assert "AgentPreflight Scan Scorecard" in markdown
     assert "| Target | Verdict | Trust score | Findings |" in markdown
     assert "`AP-MCP-001`" in markdown
+
+
+def test_apply_suppressions_returns_expired_suppressions(tmp_path: Path) -> None:
+    from agentpreflight.suppressions import Suppression, apply_suppressions
+    from agentpreflight.models import Finding
+    
+    suppression = Suppression(rule="AP-SEC-001", path="*.py", expires="2000-01-01")
+    finding = Finding(
+        id="AP-SEC-001",
+        severity="high",
+        category="security",
+        title="Test Finding",
+        path="test.py",
+        evidence="test",
+        risk="risk",
+        fix="fix",
+    )
+    
+    kept, suppressed, expired = apply_suppressions([finding], [suppression], tmp_path)
+    
+    assert expired == [suppression]
+    assert finding in kept
+
+
+def test_apply_suppressions_returns_no_expired_for_valid_date(tmp_path: Path) -> None:
+    from agentpreflight.suppressions import Suppression, apply_suppressions
+    from agentpreflight.models import Finding
+    
+    suppression = Suppression(rule="AP-SEC-001", path="*.py", expires="2030-01-01")
+    finding = Finding(
+        id="AP-SEC-001",
+        severity="high",
+        category="security",
+        title="Test Finding",
+        path="test.py",
+        evidence="test",
+        risk="risk",
+        fix="fix",
+    )
+    
+    kept, suppressed, expired = apply_suppressions([finding], [suppression], tmp_path)
+    
+    assert len(expired) == 0
+    assert finding not in kept
+
+
+def test_scan_result_includes_expired_suppressions(tmp_path: Path) -> None:
+    target = tmp_path / "poisoned"
+    shutil.copytree(ROOT / "demo" / "poisoned", target)
+    suppression_file = target / ".agentpreflight.json"
+    suppression_file.write_text(
+        json.dumps({
+            "suppressions": [
+                {
+                    "rule": "AP-SEC-003",
+                    "path": ".env",
+                    "reason": "expired exception",
+                    "owner": "appsec",
+                    "expires": "2000-01-01",
+                }
+            ]
+        }),
+        encoding="utf-8",
+    )
+
+    result = scan_path(target, profile="strict")
+
+    assert len(result.expired_suppressions) == 1
+    assert result.expired_suppressions[0].expires == "2000-01-01"
+    assert result.expired_suppressions[0].rule == "AP-SEC-003"

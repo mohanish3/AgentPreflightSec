@@ -29,7 +29,7 @@ def scan_path(
     if suppression_file is None:
         suppression_file = default_suppression_file(target)
     suppressions = load_suppressions(suppression_file)
-    findings, file_suppressed = apply_suppressions(findings, suppressions, target_root)
+    findings, file_suppressed, expired_suppressions = apply_suppressions(findings, suppressions, target_root)
     suppressed = inline_suppressed + file_suppressed
     score_detail = score(findings, profile=profile)
     severity_counts = Counter(f.severity for f in findings)
@@ -50,4 +50,5 @@ def scan_path(
         findings=findings,
         summary=summary,
         score=score_detail,
+        expired_suppressions=expired_suppressions,
     )
