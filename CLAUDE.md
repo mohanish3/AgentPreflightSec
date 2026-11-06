@@ -31,15 +31,13 @@ Priority order:
 5. GitHub Action
 6. FastAPI endpoint
 
-## MVP Rules
+## MVP Rules (21 on main; 27 in PR #2 pending merge)
 
-- `tool_poisoning`
-- `unicode_smuggling`
-- `unsafe_exec`
-- `remote_instruction_fetch`
-- `secrets`
-- `transport_security`
-- `least_privilege`
+Core families: `tool_poisoning`, `unicode_smuggling`, `unsafe_exec`, `remote_instruction_fetch`, `secrets`, `transport_security`, `least_privilege`.
+
+PR #2 adds: OWASP Top 10 (AP-OWASP-001..005), dependency vulns (AP-DEP-001).
+
+See `src/agentpreflight/rules/catalog.py` for authoritative list.
 
 ## Research Artifacts
 
