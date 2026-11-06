@@ -1,11 +1,37 @@
 from __future__ import annotations
 from pathlib import Path
+import logging
+import os
 
 from agentpreflight.models import Artifact
 
 IGNORE_DIRS = {".git", "node_modules", ".venv", "venv", "dist", "build", "__pycache__", ".mypy_cache"}
 
-MAX_FILE_BYTES = 2_000_000  # skip files larger than 2 MB
+logger = logging.getLogger(__name__)
+
+# Default max file size - can be overridden via environment variable
+DEFAULT_MAX_FILE_BYTES = 2_000_000  # 2 MB
+
+
+def _get_max_file_bytes() -> int:
+    """Get max file size from environment or use default."""
+    env_size = os.getenv("AGENTPREFLIGHT_MAX_FILE_SIZE")
+    if env_size:
+        try:
+            return int(env_size)
+        except ValueError:
+            pass  # Fall back to default
+    return DEFAULT_MAX_FILE_BYTES
+
+
+def _is_binary_file(filepath: Path) -> bool:
+    """Check if a file is binary by sniffing for null bytes in the first 8KB."""
+    try:
+        with open(filepath, "rb") as f:
+            chunk = f.read(8192)
+            return b"\x00" in chunk
+    except (IOError, OSError):
+        return False
 
 
 def _classify(path: Path) -> str | None:
@@ -38,14 +64,24 @@ def _classify(path: Path) -> str | None:
 def collect(target: str | Path) -> list[Artifact]:
     root = Path(target).resolve()
     artifacts: list[Artifact] = []
+    max_file_size = _get_max_file_bytes()
 
     if root.is_file():
         kind = _classify(root) or "other"
+        # Skip binary files
+        if _is_binary_file(root):
+            logger.debug("Skipping binary file: %s", root)
+            return artifacts
+        # Skip files larger than max size
+        if root.stat().st_size > max_file_size:
+            logger.debug("Skipping file too large (%d bytes > %d): %s", 
+                       root.stat().st_size, max_file_size, root)
+            return artifacts
         try:
             content = root.read_text(encoding="utf-8", errors="replace")
             artifacts.append(Artifact(path=str(root), kind=kind, content=content))
-        except OSError:
-            pass
+        except OSError as e:
+            logger.debug("Failed to read file %s: %s", root, e)
         return artifacts
 
     for dirpath, dirnames, filenames in root.walk() if hasattr(root, "walk") else _compat_walk(root):
@@ -55,13 +91,20 @@ def collect(target: str | Path) -> list[Artifact]:
             kind = _classify(filepath)
             if kind is None:
                 continue
+            # Skip files larger than max size first (faster check)
+            if filepath.stat().st_size > max_file_size:
+                logger.debug("Skipping file too large (%d bytes > %d): %s", 
+                           filepath.stat().st_size, max_file_size, filepath)
+                continue
+            # Skip binary files
+            if _is_binary_file(filepath):
+                logger.debug("Skipping binary file: %s", filepath)
+                continue
             try:
-                if filepath.stat().st_size > MAX_FILE_BYTES:
-                    continue
                 content = filepath.read_text(encoding="utf-8", errors="replace")
                 artifacts.append(Artifact(path=str(filepath), kind=kind, content=content))
-            except OSError:
-                pass
+            except OSError as e:
+                logger.debug("Failed to read file %s: %s", filepath, e)
 
     return artifacts
 
