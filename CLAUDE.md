@@ -31,15 +31,13 @@ Priority order:
 5. GitHub Action
 6. FastAPI endpoint
 
-## MVP Rules
+## MVP Rules (shipped — 27 active rules as of 2026-05-27)
 
-- `tool_poisoning`
-- `unicode_smuggling`
-- `unsafe_exec`
-- `remote_instruction_fetch`
-- `secrets`
-- `transport_security`
-- `least_privilege`
+Core families: `tool_poisoning`, `unicode_smuggling`, `unsafe_exec`, `remote_instruction_fetch`, `secrets`, `transport_security`, `least_privilege`.
+
+Additional shipped: OWASP Top 10 (AP-OWASP-001..005: SQLi, path traversal, insecure deser, SSTI, SSRF), dependency vulns (AP-DEP-001 via pip-audit/npm-audit), MCP rules (AP-MCP-001..005), skill rules (AP-SKILL-001..005), network rules (AP-NET-001..003).
+
+See `src/agentpreflight/rules/catalog.py` for authoritative list.
 
 ## Research Artifacts
 
@@ -52,6 +50,9 @@ Priority order:
 | `EVIDENCE.md` | Incidents, CVEs, scale stats, validation plan, risk register, verification audit |
 | `DEPLOY_PREFLIGHT.md` | DeployPreflight secondary product research |
 | `sources/source-register.md` | All source URLs |
+| `briefs/investor-pitch.md` | 1-page investor pitch (May 28 deliverable) |
+| `briefs/user-flow-diagrams.md` | Developer, CI, AppSec, and platform user flows (May 28 deliverable) |
+| `briefs/winner-product-brief.md` | Full product brief for judges (May 28 deliverable) |
 
 ## Constraints
 
