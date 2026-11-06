@@ -5,9 +5,8 @@
 ```bash
 agentpreflight scan . --profile strict --fail-on high --format json
 agentpreflight scan . --profile strict --format sarif --output agentpreflight.sarif
-agentpreflight scan ./skills --checks skills --offline
+agentpreflight scan ./skills --profile strict
 agentpreflight fix . --apply --rules AP-MCP-001,AP-SKILL-002,AP-CODE-001
-agentpreflight fix . --codex --rules AP-MCP-001          # Codex AI proposals (OPENAI_API_KEY)
 agentpreflight rules list
 ```
 
@@ -526,7 +525,7 @@ No network calls during `scan`. Remediation disabled unless explicitly requested
 - SARIF reporter.
 - `--fail-on` exit code.
 - Malicious and benign fixtures for each rule family.
-- `agentpreflight fix <findings.json>` for top high-confidence rule classes.
+- `agentpreflight fix <path> --apply` for top high-confidence rule classes.
 - Rescan proof in demo: fail → patch → pass.
 
 ### P1: hackathon differentiators
