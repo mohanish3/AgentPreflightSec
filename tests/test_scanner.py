@@ -70,3 +70,15 @@ def test_fix_loop_turns_poisoned_copy_clean(tmp_path: Path) -> None:
     assert fixed.exit_code == 0
     assert after.trust_score == 100
     assert after.findings == []
+
+
+def test_cli_table_shows_truncation_hint_when_findings_exceed_limit(tmp_path: Path) -> None:
+    # Create 14 files each triggering AP-SEC-002 (API token) — exceeds 12-row table limit
+    token_line = 'API_KEY = "sk-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"\n'
+    for i in range(14):
+        (tmp_path / f"file{i}.py").write_text(token_line, encoding="utf-8")
+    runner = CliRunner()
+    result = runner.invoke(app, ["scan", str(tmp_path)])
+
+    assert "showing 12 of" in result.output
+    assert "--format json" in result.output
