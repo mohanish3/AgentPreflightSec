@@ -5,6 +5,8 @@ from pathlib import Path
 
 from agentpreflight.models import ScanResult
 
+SEVERITY_ORDER = {"critical": 0, "high": 1, "medium": 2, "low": 3}
+
 
 def render(result: ScanResult) -> str:
     counts = Counter(f.severity for f in result.findings)
@@ -28,7 +30,11 @@ def render(result: ScanResult) -> str:
         lines.append(f"- Suppressed: {suppressed}")
     if result.findings:
         lines.extend(["", "### Top findings", ""])
-        for finding in result.findings[:10]:
+        ordered = sorted(
+            result.findings,
+            key=lambda f: SEVERITY_ORDER.get(f.severity, len(SEVERITY_ORDER)),
+        )
+        for finding in ordered[:15]:
             location = Path(finding.path).name
             if finding.line:
                 location = f"{location}:{finding.line}"
