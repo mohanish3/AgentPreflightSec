@@ -24,9 +24,14 @@ _SECRET_PATTERNS = [
 ]
 
 
-def build_prompt_pack(findings: list[Finding], max_findings: int = 10) -> str:
+SEVERITY_ORDER = {"critical": 0, "high": 1, "medium": 2, "low": 3}
+
+
+def build_prompt_pack(findings: list[Finding], max_findings: int = 15) -> str:
+    fixable = [f for f in findings if f.fix_available]
+    fixable.sort(key=lambda f: SEVERITY_ORDER.get(f.severity, len(SEVERITY_ORDER)))
     prompts = ["# AgentPreflight Codex remediation prompt pack", "", "## System prompt", "", SYSTEM_PROMPT.strip()]
-    for idx, finding in enumerate([f for f in findings if f.fix_available][:max_findings], 1):
+    for idx, finding in enumerate(fixable[:max_findings], 1):
         prompts.extend(["", f"## Finding {idx}: {finding.id}", "", _prompt_for_finding(finding)])
     return "\n".join(prompts) + "\n"
 
