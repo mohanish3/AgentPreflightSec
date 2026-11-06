@@ -34,6 +34,16 @@ class Finding:
     fix_mode: str | None = None
     patch_preview: str | None = None
 
+    def _get_snippet(self) -> str:
+        """Get normalized snippet for fingerprinting."""
+        if self.snippet_hash:
+            return self.snippet_hash
+        return self.evidence
+
+    def _get_relative_path(self) -> str:
+        """Get repo-relative POSIX path."""
+        return self.path.replace("\\", "/")
+
 
 @dataclass
 class ScoreDetail:
