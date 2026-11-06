@@ -9,10 +9,11 @@ from agentpreflight.rules.ap_mcp_more import (
     McpTrustClaimRule,
     McpUntrustedResultRule,
 )
+from agentpreflight.rules.ap_mcp_001 import McpPromptOverrideRule
+from agentpreflight.rules.ap_mcp_002 import HiddenUnicodeInDescriptionRule
 from agentpreflight.rules.ap_net import BroadBindRule, MissingOriginValidationRule, PlainHttpToolRule
 from agentpreflight.rules.ap_sec_001 import PrivateKeyRule
 from agentpreflight.rules.ap_sec_002 import ApiTokenRule, EnvFileRule
-from agentpreflight.rules.ap_mcp_001 import McpPromptOverrideRule
 from agentpreflight.rules.ap_skill_001 import SkillPromptInjectionRule
 from agentpreflight.rules.ap_skill_002 import HiddenUnicodeRule
 from agentpreflight.rules.ap_skill_more import (
@@ -31,6 +32,7 @@ ALL_RULES: list[Rule] = [
     ApiTokenRule(),
     EnvFileRule(),
     McpPromptOverrideRule(),
+    HiddenUnicodeInDescriptionRule(),
     McpTrustClaimRule(),
     McpUntrustedResultRule(),
     McpLooseSchemaRule(),
