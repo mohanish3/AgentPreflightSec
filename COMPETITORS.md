@@ -80,10 +80,9 @@ AgentPreflight is not 10x because it finds MCP/skill issues first. It is 10x onl
 ### Demo metric
 
 ```text
-Before: trust_score=0  verdict=fail  findings=15
-Fix:    agentpreflight fix . --codex (Codex AI proposals)
-        agentpreflight fix . --apply (14 deterministic fixes)
-After:  trust_score=100  verdict=pass  findings=0
+Before: Trust Score 31/100 FAIL
+Fix:    3 minimal patches generated
+After:  Trust Score 92/100 PASS
 Time:   under 2 minutes
 ```
 

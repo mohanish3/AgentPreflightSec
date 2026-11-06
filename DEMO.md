@@ -18,71 +18,54 @@ Demo repo contains:
 2. Run:
 
 ```bash
-agentpreflight scan demo/poisoned/ --profile strict --fail-on high
+agentpreflight scan . --profile strict --fail-on high
 ```
 
-3. Scanner returns (actual output):
+3. Scanner returns:
 
 ```text
-trust_score=0 verdict=fail findings=15 offline=True
-summary critical=7 high=5 medium=3 low=0 suppressed=0 artifacts=6
-
-Top findings:
-  AP-MCP-001  mcp.json      Tool 'repo_search' contains: "Hidden instruction"
-  AP-CODE-001 server.py:6   os.system("deploy " + user_input)
-  AP-CODE-003 install.sh:3  Remote pipe: curl ... | bash
-  AP-SEC-002  .env:1        Secret-like token pattern detected
+Trust score: 42/100
+Verdict: fail
+Critical: 1  High: 3  Medium: 2
 ```
 
 4. Top findings:
-   - `AP-MCP-001`: prompt override in `repo_search` tool description.
-   - `AP-CODE-001`: `os.system()` with user-controlled input.
-   - `AP-CODE-003`: `curl | bash` remote pipe installs.
-   - `AP-SEC-002`: API token pattern in `.env`.
+   - `AP-MCP-001`: prompt-like override in tool description.
+   - `AP-SKILL-002`: zero-width hidden instruction in `SKILL.md`.
+   - `AP-CODE-003`: unsafe shell execution.
 
-5. Run Codex remediation (shows AI-generated patch proposals):
+5. Run Codex remediation:
 
 ```bash
-agentpreflight fix demo/poisoned/ --rules AP-MCP-001 --codex
+agentpreflight fix . --finding AP-MCP-001 --finding AP-SKILL-002 --finding AP-CODE-003
 ```
 
-Then copy and apply all deterministic safe fixes:
+6. Show generated patch:
+   - neutral tool description
+   - removed hidden Unicode
+   - safe subprocess call with argument list
+
+7. Rescan:
 
 ```bash
-cp -r demo/poisoned /tmp/fix-demo
-agentpreflight fix /tmp/fix-demo --apply
-```
-
-6. Patches applied (fixable=14, changed=7):
-   - neutral tool description (hidden instruction removed)
-   - `os.system` → `subprocess.run([...], check=True)`
-   - `curl | bash` → `Download to file, verify checksum` guidance
-   - secrets in `.env` → `.env.example` (file renamed/redacted)
-   - SKILL.md hidden Unicode stripped
-
-7. Rescan the fixed copy:
-
-```bash
-agentpreflight scan /tmp/fix-demo --profile strict --fail-on high
+agentpreflight scan . --profile strict --fail-on high
 ```
 
 8. Final output:
 
 ```text
-trust_score=100 verdict=pass findings=0 offline=True
+Trust score: 91/100
+Verdict: pass
+SARIF: agentpreflight.sarif
 ```
 
 ### Judge message
 
-In September 2025, a supply-chain attacker BCC'd every password reset token and payment notification through a fake Postmark MCP server — 15 versions of fake history, undetected by any CI check. Equixly audited popular MCP server implementations and found 43% had command injection, 30% had SSRF. Their conclusion: "It feels like we're facing a regression in security."
-
-AgentPreflight is the gate that stops this at PR review time. The scan is entirely static — never executes the MCP server or skill scripts, zero API calls, sub-second. The fix is Codex doing selection: code rewriting is cheap; which of the infinite possible rewrites is minimal, compilable, and review-ready is not. Codex sees only the flagged 5-line window — no secrets, no file paths — and returns the drop-in replacement. The rescan proves the fix held. Under two minutes, `trust_score=0` → `trust_score=100`, findings confirmed closed.
+AgentPreflight blocks poisoned MCP servers and agent skills before they ever run. Existing tools either test runtime prompts or scan generic code. This product scans the agent supply chain itself, stays offline by default, integrates with CI, and uses Codex for remediation.
 
 ---
 
 ## Demo fixtures
-
-Actual demo files are in `demo/poisoned/` and `demo/clean/`. The examples below are illustrative templates showing expected patterns and findings.
 
 ### Poisoned repo
 
@@ -198,9 +181,8 @@ Expected result: no critical/high findings; trust score 85+.
 
 | Repo | Trust score | Verdict |
 |---|---|---|
-| Poisoned | 0 | fail |
-| Fixed (demo/poisoned → --apply) | 100 | pass |
-| Clean (demo/clean) | 100 | pass |
+| Poisoned | < 50 | fail |
+| Clean/fixed | > 85 | pass |
 
 ---
 
