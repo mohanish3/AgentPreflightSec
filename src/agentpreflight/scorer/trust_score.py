@@ -3,7 +3,14 @@ from agentpreflight.models import Finding, ScoreDetail
 
 DEDUCTIONS = {"critical": 30, "high": 15, "medium": 7, "low": 2}
 
+PROFILE_ESCALATION = {"strict": {"medium": "high"}}
+
 VERDICTS = [(85, "pass"), (70, "warn"), (0, "fail")]
+
+
+def effective_severity(sev: str, profile: str) -> str:
+    """Return the severity after applying profile-specific escalation."""
+    return PROFILE_ESCALATION.get(profile, {}).get(sev, sev)
 
 
 def _apply_caps(score: int, findings: list[Finding]) -> tuple[int, list[str]]:
@@ -54,10 +61,8 @@ def score(findings: list[Finding], profile: str = "balanced") -> ScoreDetail:
     deduction_log: dict[str, int] = {"critical": 0, "high": 0, "medium": 0, "low": 0}
 
     for f in findings:
-        sev = f.severity
-        if profile == "strict" and sev == "medium":
-            sev = "high"
-        deduction_log[f.severity] += DEDUCTIONS.get(sev, 0)
+        sev = effective_severity(f.severity, profile)
+        deduction_log[sev] += DEDUCTIONS.get(sev, 0)
 
     raw = base - sum(deduction_log.values())
     raw = max(0, raw)
@@ -65,7 +70,7 @@ def score(findings: list[Finding], profile: str = "balanced") -> ScoreDetail:
     raw, caps_applied = _apply_caps(raw, findings)
 
     deductions_list = [
-        {"severity": sev, "count": sum(1 for f in findings if f.severity == sev), "points": pts}
+        {"severity": sev, "count": sum(1 for f in findings if effective_severity(f.severity, profile) == sev), "points": pts}
         for sev, pts in deduction_log.items()
         if pts > 0
     ]

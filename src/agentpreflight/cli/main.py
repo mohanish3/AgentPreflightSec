@@ -167,9 +167,11 @@ def bench(
         times.append(elapsed)
         console.print(f"run={i+1} elapsed={elapsed:.3f}s artifacts={result.summary['artifacts_scanned']} findings={len(result.findings)}")
     avg = sum(times) / len(times)
+    console.print(f"bench target={target}", soft_wrap=True)
     console.print(
-        f"bench target={target} runs={runs} avg={avg:.3f}s "
-        f"min={min(times):.3f}s max={max(times):.3f}s "
+        f"runs={runs} avg={avg:.3f}s min={min(times):.3f}s max={max(times):.3f}s"
+    )
+    console.print(
         f"artifacts={result.summary['artifacts_scanned'] if result else 0} "
         f"rules={len(ALL_RULES)}",
         soft_wrap=True,
