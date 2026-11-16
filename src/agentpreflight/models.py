@@ -55,3 +55,4 @@ class ScanResult:
     tool: str = "AgentPreflight"
     offline: bool = True
     score: ScoreDetail | None = None
+    expired_suppressions: list = field(default_factory=list)
