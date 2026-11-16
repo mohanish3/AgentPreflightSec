@@ -34,16 +34,17 @@ Critical: 1  High: 3  Medium: 2
    - `AP-SKILL-002`: zero-width hidden instruction in `SKILL.md`.
    - `AP-CODE-003`: unsafe shell execution.
 
-5. Run Codex remediation:
+5. Run local fix (dry-run first, then apply):
 
 ```bash
-agentpreflight fix . --finding AP-MCP-001 --finding AP-SKILL-002 --finding AP-CODE-003
+agentpreflight fix . --rules AP-MCP-001,AP-SKILL-002,AP-CODE-003
+agentpreflight fix . --rules AP-MCP-001,AP-SKILL-002,AP-CODE-003 --apply
 ```
 
-6. Show generated patch:
-   - neutral tool description
-   - removed hidden Unicode
-   - safe subprocess call with argument list
+6. Show changes applied:
+   - neutral tool description in `mcp.json`
+   - removed hidden Unicode in `SKILL.md`
+   - safe subprocess call with argument list in `run.py`
 
 7. Rescan:
 

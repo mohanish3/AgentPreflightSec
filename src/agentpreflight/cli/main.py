@@ -57,7 +57,8 @@ def _render_table(result) -> None:
     table.add_column("Path")
     table.add_column("Line", justify="right")
     table.add_column("Evidence")
-    for finding in result.findings[:12]:
+    _TABLE_LIMIT = 12
+    for finding in result.findings[:_TABLE_LIMIT]:
         table.add_row(
             finding.severity,
             finding.id,
@@ -66,6 +67,9 @@ def _render_table(result) -> None:
             finding.evidence,
         )
     console.print(table)
+    hidden = len(result.findings) - _TABLE_LIMIT
+    if hidden > 0:
+        console.print(f"showing {_TABLE_LIMIT} of {len(result.findings)} findings — use --format json for full list")
     fixable = sum(1 for f in result.findings if f.fix_available)
     if fixable:
         console.print(f"fix_available={fixable} run: agentpreflight fix {result.target}")
@@ -167,9 +171,11 @@ def bench(
         times.append(elapsed)
         console.print(f"run={i+1} elapsed={elapsed:.3f}s artifacts={result.summary['artifacts_scanned']} findings={len(result.findings)}")
     avg = sum(times) / len(times)
+    console.print(f"bench target={target}", soft_wrap=True)
     console.print(
-        f"bench target={target} runs={runs} avg={avg:.3f}s "
-        f"min={min(times):.3f}s max={max(times):.3f}s "
+        f"runs={runs} avg={avg:.3f}s min={min(times):.3f}s max={max(times):.3f}s"
+    )
+    console.print(
         f"artifacts={result.summary['artifacts_scanned'] if result else 0} "
         f"rules={len(ALL_RULES)}",
         soft_wrap=True,

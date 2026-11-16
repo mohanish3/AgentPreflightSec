@@ -48,7 +48,7 @@ Priority order:
 1. CLI: `agentpreflight scan . --profile strict --fail-on high`
 2. JSON output
 3. SARIF 2.1.0 output
-4. `agentpreflight fix findings.json` for high-confidence rules
+4. `agentpreflight fix <path> --apply` for high-confidence rules
 5. GitHub Action
 6. FastAPI endpoint
 

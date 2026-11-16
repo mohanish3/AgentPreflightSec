@@ -69,10 +69,10 @@ When the scan finishes, the action commenter publishes a high-visibility visual 
 | `scan_01HXYZ` | `./skills/calendar` | ❌ **FAILED** | **45 / 100** |
 
 ### ⚠️ Violations Summary:
-- **Critical**: 1 violation (AP-PI-001: Tool description override detected)
-- **High**: 1 violation (AP-EX-001: Unsafe subprocess call in weather.py)
-- **Medium**: 1 warning (AP-TS-001: Local host bind lacks origin validation)
+- **Critical**: 1 violation (AP-MCP-001: Tool description override detected)
+- **High**: 1 violation (AP-CODE-001: Unsafe subprocess call in weather.py)
+- **Medium**: 1 warning (AP-NET-001: Local host bind lacks origin validation)
 
 ---
-💡 **Remediation Available**: Run `agentpreflight fix --rule AP-PI-001` locally to automatically generate secure Codex patches and fix these findings!
+💡 **Remediation Available**: Run `agentpreflight fix . --codex --rules AP-MCP-001` for Codex AI patches, or `agentpreflight fix . --apply` for deterministic offline fixes.
 ```

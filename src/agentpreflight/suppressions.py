@@ -51,19 +51,26 @@ def apply_suppressions(
     findings: list[Finding],
     suppressions: list[Suppression],
     target_root: str | Path,
-) -> tuple[list[Finding], list[Finding]]:
+) -> tuple[list[Finding], list[Finding], list[Suppression]]:
     if not suppressions:
-        return findings, []
+        return findings, [], []
     kept: list[Finding] = []
     suppressed: list[Finding] = []
+    expired: list[Suppression] = []
     root = Path(target_root).resolve()
+    
+    # First, identify expired suppressions
+    for suppression in suppressions:
+        if _expired(suppression.expires):
+            expired.append(suppression)
+    
     for finding in findings:
         rel = _relative_path(finding.path, root)
         if any(_matches(finding, rel, suppression) for suppression in suppressions):
             suppressed.append(finding)
         else:
             kept.append(finding)
-    return kept, suppressed
+    return kept, suppressed, expired
 
 
 def apply_inline_suppressions(
