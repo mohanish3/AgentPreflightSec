@@ -13,8 +13,8 @@ This document lists the user stories and clear acceptance criteria for **AgentPr
 ### Acceptance Criteria:
 - **AC 1.1**: The scan runs locally in under **10 seconds** on standard extension folders.
 - **AC 1.2**: The output is printed in a clean, color-coded CLI dashboard showing severity, rule violation, and line numbers.
-- **AC 1.3**: The developer can suppress benign warnings locally using inline comment annotations (e.g. `# aisafe:disable-line`).
-- **AC 1.4**: The developer can run an interactive command (`agentpreflight fix`) to fetch Codex patches for flagged files.
+- **AC 1.3**: The developer can suppress benign warnings locally using inline comment annotations (e.g. `# agentpreflight:disable-line AP-RULE`).
+- **AC 1.4**: The developer can run `agentpreflight fix <path> --apply` to apply deterministic local sanitizations for flagged files, then rescan to verify.
 
 ---
 
@@ -40,5 +40,5 @@ This document lists the user stories and clear acceptance criteria for **AgentPr
 ### Acceptance Criteria:
 - **AC 3.1**: The codebase contains pre-built mock fixtures representing a poisoned agent (positive test case) and a clean agent (negative test case).
 - **AC 3.2**: A single command runs the scan on the poisoned fixture and fails, displaying a low **Trust Score**.
-- **AC 3.3**: The remediation command applies Codex patches, instantly modifying the manifest and Python scripts.
+- **AC 3.3**: The fix command applies deterministic local patches (`agentpreflight fix demo/poisoned --apply`), instantly modifying the manifest and Python scripts.
 - **AC 3.4**: A second scan command runs successfully, returning a **100/100 Trust Score**.
