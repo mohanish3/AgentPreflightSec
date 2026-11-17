@@ -22,28 +22,49 @@ from agentpreflight.rules.ap_skill_more import (
     SkillCredentialSeekingRule,
     SkillRemoteDependencyRule,
 )
+from agentpreflight.rules.ap_owasp import (
+    InsecureDeserializationRule,
+    PathTraversalRule,
+    SqlInjectionRule,
+    SsrfRule,
+    TemplateInjectionRule,
+)
+from agentpreflight.rules.ap_dep_001 import DependencyVulnRule
 
 ALL_RULES: list[Rule] = [
+    # Code execution & injection
     UnsafeShellRule(),
     DynamicCodeExecRule(),
     RemoteScriptExecRule(),
     RemoteFetchExecRule(),
     ArbitraryFileAccessRule(),
     NetworkExfiltrationRule(),
+    # OWASP Top 10
+    SqlInjectionRule(),
+    PathTraversalRule(),
+    InsecureDeserializationRule(),
+    TemplateInjectionRule(),
+    SsrfRule(),
+    # Secrets
     PrivateKeyRule(),
     ApiTokenRule(),
     EnvFileRule(),
+    # Dependencies
+    DependencyVulnRule(),
+    # MCP / Agent
     McpPromptOverrideRule(),
     HiddenUnicodeInDescriptionRule(),
     McpTrustClaimRule(),
     McpUntrustedResultRule(),
     McpLooseSchemaRule(),
     McpPrivilegedToolRule(),
+    # Skills / Markdown
     SkillPromptInjectionRule(),
     HiddenUnicodeRule(),
     SkillRemoteDependencyRule(),
     SkillCredentialSeekingRule(),
     SkillCapabilityMismatchRule(),
+    # Network
     BroadBindRule(),
     MissingOriginValidationRule(),
     PlainHttpToolRule(),

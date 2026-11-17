@@ -28,10 +28,14 @@ def _classify(path: Path) -> str | None:
         return "env_file"
     if name.endswith(".env") and not name.startswith(".env.example"):
         return "env_file"
+    if name == "package-lock.json":
+        return "dep_lock"
     if suffix == ".json" and "mcp" in name:
         return "mcp_config"
     if suffix in (".json", ".yaml", ".yml", ".toml"):
         return "config"
+    if name in ("requirements.txt", "requirements-dev.txt", "requirements_dev.txt", "requirements_test.txt", "requirements-test.txt"):
+        return "dep_requirements"
     return None
 
 
