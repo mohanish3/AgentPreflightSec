@@ -1,6 +1,6 @@
 # Winner Product Brief: AgentPreflight
 
-This document outlines the product brief, MVP scope, and 4-day implementation strategy for **AgentPreflight**—the definitive pre-deployment AI security scanner for MCP servers and agent skills.
+This document outlines the product brief, MVP scope, and four-day implementation strategy for **AgentPreflight**, a local-first pre-deployment AI security scanner for MCP servers and agent skills.
 
 ---
 

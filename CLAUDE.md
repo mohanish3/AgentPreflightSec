@@ -87,6 +87,11 @@ See `src/agentpreflight/rules/catalog.py` for the active list on the checked-out
 | `problems.md` | Problem ranking and 5-level analysis |
 | `DEPLOY_PREFLIGHT.md` | DeployPreflight secondary product research |
 | `sources/source-register.md` | All source URLs |
+| `briefs/investor-pitch.md` | Investor pitch and May 27 build snapshot |
+| `briefs/user-flow-diagrams.md` | CLI, CI, AppSec, and platform flow diagrams |
+| `briefs/judge-one-pager.md` | Hackathon product narrative and differentiation |
+| `briefs/submission-summary.md` | Devpost/Luma submission draft |
+| `briefs/winner-product-brief.md` | Product scope and four-day build plan |
 
 ## Constraints
 
