@@ -10,7 +10,7 @@ The AI industry is transitioning from passive chatbots to autonomous, action-ori
 
 However, this transition introduces a critical, unaddressed vulnerability: **The Agent Supply Chain**. If a developer pulls a compromised MCP extension or skill directory, the agent can be hijacked before traditional AppSec scanners or runtime guardrails can intervene.
 
-**AgentPreflight** is the first pre-deployment security gate built specifically to trust-score and secure MCP servers and agent skills before they are ever installed or deployed.
+**AgentPreflight** is a pre-deployment security gate built to assess MCP servers and agent skills before they are installed or deployed.
 
 ---
 
