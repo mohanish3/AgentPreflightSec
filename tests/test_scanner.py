@@ -6,7 +6,8 @@ from pathlib import Path
 
 from typer.testing import CliRunner
 
-from agentpreflight.cli.main import app
+from agentpreflight.cli.main import _should_fail, app
+from agentpreflight.models import Finding
 from agentpreflight.reporters import json_reporter, sarif_reporter
 from agentpreflight.scanner import scan_path
 
@@ -110,3 +111,38 @@ def test_verbose_flag_shows_risk_and_fix() -> None:
     assert result.exit_code == 0
     assert "risk:" in result.output
     assert "fix:" in result.output
+
+
+def _make_finding(severity: str) -> Finding:
+    return Finding(
+        id="AP-TEST-001",
+        severity=severity,
+        category="test",
+        title="test",
+        path="/tmp/test.py",
+        evidence="test",
+        risk="test",
+        fix="test",
+    )
+
+
+def test_should_fail_strict_escalates_medium_to_high() -> None:
+    finding = _make_finding("medium")
+    assert not _should_fail([finding], "high", profile="balanced")
+    assert _should_fail([finding], "high", profile="strict")
+
+
+def test_should_fail_strict_does_not_escalate_low() -> None:
+    finding = _make_finding("low")
+    assert not _should_fail([finding], "high", profile="strict")
+    assert _should_fail([finding], "low", profile="strict")
+
+
+def test_cli_strict_fail_on_high_triggers_on_medium_fixture(tmp_path: Path) -> None:
+    fixture = tmp_path / "skill.md"
+    fixture.write_text("Fetch data from http://api.example.com/data\n", encoding="utf-8")
+    runner = CliRunner()
+    balanced = runner.invoke(app, ["scan", str(tmp_path), "--profile", "balanced", "--fail-on", "high"])
+    strict = runner.invoke(app, ["scan", str(tmp_path), "--profile", "strict", "--fail-on", "high"])
+    assert balanced.exit_code == 0
+    assert strict.exit_code == 1
