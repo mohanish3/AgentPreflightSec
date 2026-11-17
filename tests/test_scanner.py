@@ -146,3 +146,55 @@ def test_cli_strict_fail_on_high_triggers_on_medium_fixture(tmp_path: Path) -> N
     strict = runner.invoke(app, ["scan", str(tmp_path), "--profile", "strict", "--fail-on", "high"])
     assert balanced.exit_code == 0
     assert strict.exit_code == 1
+
+
+def test_binary_file_is_skipped(tmp_path: Path) -> None:
+    """Test that binary files are detected and skipped during collection."""
+    from agentpreflight.collectors.path_collector import collect
+
+    # Create a binary file with null bytes
+    binary_file = tmp_path / "binary.py"
+    binary_file.write_bytes(b"This is a binary file with \x00 null bytes embedded")
+
+    result = collect(tmp_path)
+
+    # Binary file should be skipped
+    assert len(result) == 0
+
+
+def test_large_file_is_skipped(tmp_path: Path) -> None:
+    """Test that files larger than max_file_size are skipped."""
+    from agentpreflight.collectors.path_collector import collect
+
+    # Create a file larger than the default max (2MB)
+    large_file = tmp_path / "large.py"
+    large_file.write_text("x" * (3_000_000))  # 3MB file
+
+    result = collect(tmp_path)
+
+    # Large file should be skipped
+    assert len(result) == 0
+
+
+def test_max_file_size_configurable_via_env(tmp_path: Path) -> None:
+    """Test that max_file_size can be configured via environment variable."""
+    from agentpreflight.collectors.path_collector import collect
+
+    # Create a file slightly larger than 1MB
+    large_file = tmp_path / "large.py"
+    large_file.write_text("x" * (1_500_000))  # 1.5MB file
+
+    # Set env to 1MB limit
+    import os
+    old_env = os.environ.get("AGENTPREFLIGHT_MAX_FILE_SIZE")
+    os.environ["AGENTPREFLIGHT_MAX_FILE_SIZE"] = "1000000"
+
+    try:
+        result = collect(tmp_path)
+        # File should be skipped due to size limit
+        assert len(result) == 0
+    finally:
+        if old_env is None:
+            os.environ.pop("AGENTPREFLIGHT_MAX_FILE_SIZE", None)
+        else:
+            os.environ["AGENTPREFLIGHT_MAX_FILE_SIZE"] = old_env
