@@ -442,3 +442,36 @@ The listed command inaccuracies were corrected in PRs #13–#16. The follow-up a
 
 - Live GitHub Security tab screenshot still requires remote Actions run.
 - PRs #2–#16 were treated as ready to merge at that time; this is not a current PR status report.
+
+---
+
+## Progress update - 2026-05-27 (historical snapshot)
+
+This section records the six PRs and validation state reported on May 27, 2026. The pending-merge and remaining-gap notes below describe that date, not current repository status.
+
+### Track B build — six PRs raised
+
+| PR | Branch | Work reported at the time |
+|---|---|---|
+| #2 | `feature/owasp-dep-rules-flags` | OWASP and dependency rules, quiet/verbose flags; rules 21→27; tests 27→61. |
+| #3 | `fix/strict-profile-fail-on` | Strict profile escalates medium findings for `--fail-on high`; tests 61→64. |
+| #4 | `docs/may-27-deliverables` | Investor pitch and user-flow diagrams. |
+| #5 | `fix/cli-findings-truncation` | Added a hint when the findings table exceeds 12 rows. |
+| #6 | `fix/demo-script-accuracy` | Updated the demo script with CLI output, paths, and rule IDs. |
+| #7 | `docs/workflow-may27-progress2` | Added this historical progress and validation record. |
+
+### Track A research
+
+- Confirmed the product brief, investor pitch, user-flow diagrams, and demo script were prepared across the listed branches.
+- Reported clean handling of empty `mcp.json`, binary files, and Unicode filenames in an edge-case sweep.
+
+### Track C validation
+
+- Reported 26 tests passing on the then-current main state (25 plus the truncation-hint test from PR #5).
+- Captured poisoned and clean scan proofs under `validation/`.
+- Confirmed the table hint displayed when 15 findings exceeded the 12-row limit.
+
+### Next steps at that time
+
+- Merge PRs #2–#7 and verify the resulting rule count.
+- Capture terminal screenshots and run the live GitHub Security-tab workflow.

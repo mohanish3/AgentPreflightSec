@@ -52,7 +52,9 @@ Priority order:
 5. GitHub Action
 6. FastAPI endpoint
 
-## MVP Rules
+## MVP Rules (May 27, 2026 snapshot)
+
+The main branch had 21 active rules; PR #2's feature branch added OWASP and dependency rules, bringing that branch to 27. The PR #2 implementation remains tracked separately.
 
 - `tool_poisoning`
 - `unicode_smuggling`
@@ -61,6 +63,8 @@ Priority order:
 - `secrets`
 - `transport_security`
 - `least_privilege`
+
+See `src/agentpreflight/rules/catalog.py` for the active list on the checked-out branch.
 
 ## 4-Day Build Plan
 
