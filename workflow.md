@@ -379,7 +379,36 @@ A goal is DONE only when:
 
 ---
 
-## Progress update - 2026-05-27 doc accuracy pass 2
+## Progress update - 2026-05-27 doc accuracy pass 1 (historical)
+
+This records the first documentation accuracy pass from May 27, 2026. PRs #8–#11 were later merged to main on November 16, 2026.
+
+### Track A research
+
+- Audited the briefs against the implementation and found four inaccuracies that could mislead a demo reviewer.
+
+### Track B documentation fixes (PRs #8–#11)
+
+| PR | File | Issue addressed |
+|---|---|---|
+| #8 | `CLAUDE.md` | Replaced a JSON-file argument example with the supported path-based `fix` command. |
+| #9 | `briefs/launch-checklist.md` | Corrected fixture paths and inline suppression syntax. |
+| #10 | `briefs/rule-catalog.md` | Replaced prototype rule IDs with the 21 active IDs and their severities. |
+| #11 | `briefs/scoring-formula.md` | Corrected severity penalties and documented the implemented caps instead of an unimplemented decay model. |
+
+### Track C validation
+
+- The then-current suite reported 25 tests passing after these documentation changes.
+
+### Remaining gaps at that time
+
+- A live GitHub Security-tab screenshot still required a remote Actions run.
+
+---
+
+## Progress update - 2026-05-27 doc accuracy pass 2 (historical snapshot)
+
+This second accuracy pass was recorded on May 27, 2026. PRs #13–#16 were later merged to main on November 16, 2026.
 
 ### Track A research
 
@@ -405,11 +434,11 @@ No code changes. Documentation accuracy pass only.
 
 - `pytest` passes: 25 tests (no regressions from doc changes).
 
-### Summary: doc accuracy pass complete
+### Summary at the time
 
-All known CLI command inaccuracies across briefs and root docs are now fixed in open PRs. Every copy-pasteable command in docs now matches actual CLI output.
+The listed command inaccuracies were corrected in PRs #13–#16. The follow-up at that time was to merge those PRs and recheck the documentation.
 
-### Remaining gaps
+### Remaining gaps at that time
 
 - Live GitHub Security tab screenshot still requires remote Actions run.
-- PRs #2–#16 ready to merge; no conflicts with main.
+- PRs #2–#16 were treated as ready to merge at that time; this is not a current PR status report.

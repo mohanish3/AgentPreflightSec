@@ -18,55 +18,71 @@ Demo repo contains:
 2. Run:
 
 ```bash
-agentpreflight scan . --profile strict --fail-on high
+agentpreflight scan demo/poisoned/ --profile strict --fail-on high
 ```
 
-3. Scanner returns:
+3. Scanner returns (actual output):
 
 ```text
-Trust score: 42/100
-Verdict: fail
-Critical: 1  High: 3  Medium: 2
+trust_score=0 verdict=fail findings=15 offline=True
+summary critical=7 high=5 medium=3 low=0 suppressed=0 artifacts=6
+
+Top findings:
+  AP-MCP-001  mcp.json      Tool 'repo_search' contains: "Hidden instruction"
+  AP-CODE-001 server.py:6   os.system("deploy " + user_input)
+  AP-CODE-003 install.sh:3  Remote pipe: curl ... | bash
+  AP-SEC-002  .env:1        Secret-like token pattern detected
 ```
 
 4. Top findings:
-   - `AP-MCP-001`: prompt-like override in tool description.
-   - `AP-SKILL-002`: zero-width hidden instruction in `SKILL.md`.
-   - `AP-CODE-003`: unsafe shell execution.
+   - `AP-MCP-001`: prompt override in `repo_search` tool description.
+   - `AP-CODE-001`: `os.system()` with user-controlled input.
+   - `AP-CODE-003`: `curl | bash` remote pipe installs.
+   - `AP-SEC-002`: API token pattern in `.env`.
 
-5. Run local fix (dry-run first, then apply):
+5. Run Codex remediation (shows AI-generated patch proposals):
 
 ```bash
-agentpreflight fix . --rules AP-MCP-001,AP-SKILL-002,AP-CODE-003
-agentpreflight fix . --rules AP-MCP-001,AP-SKILL-002,AP-CODE-003 --apply
+agentpreflight fix demo/poisoned/ --rules AP-MCP-001 --codex
 ```
 
-6. Show changes applied:
-   - neutral tool description in `mcp.json`
-   - removed hidden Unicode in `SKILL.md`
-   - safe subprocess call with argument list in `run.py`
-
-7. Rescan:
+Then copy and apply all deterministic safe fixes:
 
 ```bash
-agentpreflight scan . --profile strict --fail-on high
+cp -r demo/poisoned /tmp/fix-demo
+agentpreflight fix /tmp/fix-demo --apply
+```
+
+6. Patches applied (fixable=14, changed=7):
+   - neutral tool description (hidden instruction removed)
+   - `os.system` → `subprocess.run([...], check=True)`
+   - `curl | bash` → `Download to file, verify checksum` guidance
+   - secrets in `.env` → `.env.example` (file renamed/redacted)
+   - SKILL.md hidden Unicode stripped
+
+7. Rescan the fixed copy:
+
+```bash
+agentpreflight scan /tmp/fix-demo --profile strict --fail-on high
 ```
 
 8. Final output:
 
 ```text
-Trust score: 91/100
-Verdict: pass
-SARIF: agentpreflight.sarif
+trust_score=100 verdict=pass findings=0 offline=True
 ```
 
 ### Judge message
 
-AgentPreflight blocks poisoned MCP servers and agent skills before they ever run. Existing tools either test runtime prompts or scan generic code. This product scans the agent supply chain itself, stays offline by default, integrates with CI, and uses Codex for remediation.
+In September 2025, a malicious Postmark MCP package was maintained through 15 published versions before a BCC line silently copied password-reset tokens, account confirmations, and payment notifications. Equixly's audit of popular MCP servers found command injection in 43% and SSRF in 30% of the audited implementations. These incidents show why agent extensions need focused review.
+
+AgentPreflight adds a local static scan, deterministic fixes for supported patterns, and optional Codex patch proposals followed by a rescan. The default scan does not execute MCP servers or skill scripts and makes no hosted model call. Codex proposal mode sends a redacted finding snippet with the file basename and line number, not the repository path or broader repository context. In the May 27 demo, the seeded poisoned fixture moved from `trust_score=0` to `trust_score=100` in under two minutes. Other agent-specific scanners exist; this demo focuses on the review-and-rescan workflow.
 
 ---
 
 ## Demo fixtures
+
+Actual demo files are in `demo/poisoned/` and `demo/clean/`. The examples below are illustrative templates showing expected patterns and findings.
 
 ### Poisoned repo
 
@@ -182,8 +198,9 @@ Expected result: no critical/high findings; trust score 85+.
 
 | Repo | Trust score | Verdict |
 |---|---|---|
-| Poisoned | < 50 | fail |
-| Clean/fixed | > 85 | pass |
+| Poisoned | 0 | fail |
+| Fixed (demo/poisoned → --apply) | 100 | pass |
+| Clean (demo/clean) | 100 | pass |
 
 ---
 
