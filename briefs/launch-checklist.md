@@ -1,6 +1,6 @@
 # Launch Checklist: MVP & Go-Live Gates
 
-This document defines the Quality Gates and Launch Checklist required to verify **AgentPreflight** before submission.
+This document records the May 27, 2026 quality-gate snapshot for **AgentPreflight**. Re-run these checks against the current checkout before release; the referenced validation outputs are historical and are not included in this repository snapshot.
 
 ---
 
@@ -32,8 +32,8 @@ This document defines the Quality Gates and Launch Checklist required to verify 
 ## 4. Phase 4: Demo Verification
 - [x] **Dry-Run Fix**: `agentpreflight fix demo/poisoned` lists fixable findings with patch hints (`fixable=14`).
 - [x] **Fix Loop**: `agentpreflight fix demo/poisoned --apply` → `fixable=14 changed=7` → rescan `trust_score=100` (cold-run May 27).
-- [x] **Codex Mode**: `agentpreflight fix --codex` makes live `chat.completions.create` call to `codex-mini-latest`. Returns structured patch. (`codex_fix.py`).
+- [x] **Codex Mode**: `agentpreflight fix demo/poisoned --rules AP-MCP-001 --codex` requests a patch proposal using `OPENAI_API_KEY`; output is a proposal for review and is not applied automatically (`codex_fix.py`).
 - [x] **Score Improvement**: `trust_score=0 → 100` verified end-to-end with `--apply`. Codex mode requires OPENAI_API_KEY for live demo.
 - [x] **SARIF in GitHub**: SARIF output format correct; GitHub Action YAML in `.github/workflows/agentpreflight.yml` uploads to Security tab.
 - [ ] **Action Integrity**: Run the custom GitHub Action on a mock pull request and confirm it publishes the comment report scorecard.
-- [ ] **Live Codex demo**: Run `fix --codex` with real OPENAI_API_KEY before May 30 go-live to verify end-to-end.
+- [ ] **Live Codex demo**: Run `agentpreflight fix demo/poisoned --rules AP-MCP-001 --codex` with `OPENAI_API_KEY` before the May 30, 2026 go-live to verify end-to-end.

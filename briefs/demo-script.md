@@ -91,11 +91,20 @@ Exit code: `1` — CI blocked.
 
 ---
 
-## Step 3: Trigger the Codex Remediation Loop
+## Step 3: Review a Codex proposal and apply deterministic fixes
 
-### 3a. Get Codex AI patch proposals
+### 3a. Optional Codex patch proposal
 
 ```bash
+agentpreflight fix demo/poisoned --rules AP-MCP-001 --codex
+```
+
+This requires `OPENAI_API_KEY`. Codex prints a proposal; `--codex` does not apply the patch.
+
+### 3b. Apply supported local fixes to a copy
+
+```bash
+cp -r demo/poisoned /tmp/fix-demo
 agentpreflight fix /tmp/fix-demo --apply
 ```
 
@@ -131,7 +140,7 @@ Exit code: `0` — CI green.
 
 **Talking point:** Score 0 → 100. Under 2 minutes. Rescan is the proof.
 
-- **Judge Impact**: Demonstrates offline scan speed (sub-second, 113+ artifacts), Codex-powered patch generation (live API call, redacted snippet only), deterministic local fix for CI, and rescan proof that closes the PR.
+- **Judge Impact**: Demonstrates offline scan speed, an optional Codex proposal from a redacted finding snippet, deterministic local fixes for CI, and rescan proof.
 
 ---
 
@@ -153,7 +162,7 @@ SARIF drops into GitHub Security tab. PR comment auto-posts scorecard with trust
 agentpreflight prompts demo/poisoned --output remediation.md
 ```
 
-Generates redacted, Codex-ready prompts for each fixable finding. Secrets and paths are scrubbed before any model call.
+Writes Codex-ready prompts locally. Secret-like values are redacted; file context contains the basename and line number rather than an absolute path. Generating this prompt pack does not make a model call.
 
 ---
 
