@@ -23,4 +23,7 @@
 - [x] Add inline suppression comments (`# agentpreflight:disable-line`) if time remains.
 - [x] Add Codex remediation prompt pack generator.
 - [x] Add API auth/rate-limit middleware if time remains.
+- [x] Add `--quiet` flag (single-line CI output: trust_score/verdict/findings).
+- [x] Add `--verbose` flag (full evidence/risk/fix/references per finding).
 - [ ] Add live GitHub Actions/security-tab proof when remote repo is available.
+- [ ] Fix `--profile strict` + `--fail-on` interaction: strict should fail on medium (currently fail-on ignores profile).

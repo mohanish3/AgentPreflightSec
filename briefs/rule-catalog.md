@@ -148,6 +148,10 @@ This catalog documents all 21 security rules enforced by AgentPreflight. Rule ID
 - **Description**: Tool or skill references a remote endpoint over `http://` instead of `https://`, exposing data in transit.
 - **Fix**: Update all tool URLs to `https://`.
 
+## Dependency Manifest Boundary (AP-DEP-001)
+
+Requirements files and npm `package-lock.json` files are parsed locally. The scanner does not run `pip-audit` or `npm audit`, because both require external advisory services and default scans must remain offline and deterministic. No local advisory database is bundled, so AP-DEP-001 currently does not report CVEs. Vulnerability lookup is deferred until an offline advisory source or an explicitly supported opt-in is designed.
+
 ---
 
 ## Suppression

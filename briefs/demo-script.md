@@ -180,7 +180,7 @@ agentpreflight bench demo/poisoned --runs 5
 
 | What | Value |
 |---|---|
-| Rules | 21 active (+ 6 OWASP + AP-DEP-001 in PR) |
+| Rules | 21 active; six OWASP rules; AP-DEP-001 parses manifests locally but defers CVE lookup under the offline contract |
 | Tests | 26 passing |
 | Demo poisoned → score | 0 (fail) |
 | Demo clean → score | 100 (pass) |

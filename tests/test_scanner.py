@@ -95,3 +95,18 @@ def test_cli_table_shows_truncation_hint_when_findings_exceed_limit(tmp_path: Pa
 
     assert "showing 12 of" in result.output
     assert "--format json" in result.output
+
+
+def test_quiet_flag_prints_single_line() -> None:
+    result = CliRunner().invoke(app, ["scan", str(ROOT / "demo" / "poisoned"), "--quiet"])
+    assert result.exit_code == 0
+    lines = [line for line in result.output.strip().splitlines() if line.strip()]
+    assert len(lines) == 1
+    assert all(label in lines[0] for label in ("trust_score=", "verdict=", "findings="))
+
+
+def test_verbose_flag_shows_risk_and_fix() -> None:
+    result = CliRunner().invoke(app, ["scan", str(ROOT / "demo" / "poisoned"), "--verbose"])
+    assert result.exit_code == 0
+    assert "risk:" in result.output
+    assert "fix:" in result.output
